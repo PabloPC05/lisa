@@ -1,43 +1,78 @@
-# 06 · Despliegue, operación y migración
+# 06 · Operación, despliegue y migración
 
-## Dimensionamiento inicial (hipótesis, no benchmark)
+Fecha: 23-09-2026. Separar siempre la **demo de UI** del **servidor personal operativo**. Solo la primera está implementada en esta entrega. Instrucciones de UI y Vercel: [14](14-ui-despliegue.md).
 
-Servidor Linux propio o VPS. Sin inferencia local, no hace falta GPU. Piloto de documentos y chat: punto de partida 2–4 vCPU, 4–8 GB RAM, SSD dimensionado al corpus. Con OCR y dos navegadores concurrentes, empezar evaluando 4–8 vCPU y 16 GB; 32 GB aporta margen. Estos rangos no garantizan rendimiento: medir páginas reales y concurrencia antes de contratar. CPU compartida, límites del proveedor, discos y picos de Chromium importan.
+## 1. Entornos
 
-Disco: originales + versiones + staging + índices + margen operativo de 30%; backups externos aparte. No fijar proveedor por conversaciones sobre precios sin verificar oferta y condiciones al contratar. En ordenador doméstico medir consumo, cortes, red y recuperación; en VPS comprobar CPU, transferencia y snapshots.
+| Entorno | Datos | Conexiones | Publicación |
+|---|---|---|---|
+| Demo pública | Fixtures + memoria efímera del navegador | Ninguna | HTML estático / Vercel preparado |
+| Desarrollo backend | Fixtures aislados | Instancias de prueba | Solo acceso local/autenticado |
+| Piloto privado | Muestra autorizada tras controles | Servicios acotados | HTTPS + autenticación |
+| Producción personal | Datos canónicos | Políticas y auditoría completas | Servidor privado y acceso remoto controlado |
 
-## Orden de instalación objetivo
+No reutilizar secretos, perfiles de navegador o backups entre demo y producción. No poner credenciales del hogar en las variables del frontend de Vercel. Una UI pública de revisión no se transforma en portal personal solo por añadir una API.
 
-1. Elegir host y versiones verificadas; registrar componentes, licencias e imágenes con digest en `infra/versions.md`.
-2. Crear usuarios/volúmenes y acceso administrativo; actualizaciones y reloj UTC.
-3. Configurar copia cifrada y restaurar fixtures en un directorio limpio.
-4. Desplegar registro documental en red privada con almacenamiento de pruebas.
-5. Desplegar editor y acceso autenticado; HTTPS para móvil. No publicar paneles sin autenticación.
-6. Añadir OpenClaw con dos agentes y dos áreas; validar aislamiento y coste.
-7. Configurar bot privado con allowlist; probar móvil y reinicios.
-8. Autorizar piloto de documentos reales; migrar por copia y verificar.
-9. Añadir workers OCR/audio y más áreas; navegador solo tras completar controles de acciones.
+## 2. Dimensionamiento
 
-No se entrega Compose de producción: aún faltan decisiones de producto, imágenes y compatibilidad. B11 debe producir Compose validado, puertos/volúmenes documentados, healthchecks y procedimiento de rollback. No usar `latest` como versión de despliegue.
+El servidor no ejecutará modelos locales por defecto. CPU/RAM/disco dependen del corpus, versiones, Nextcloud, búsquedas, OCR, navegador y concurrencia. Los rangos antiguos de 2–4 vCPU/4–8 GB para un piloto y 16–32 GB con workers son únicamente hipótesis, no requisitos medidos ni recomendación de compra.
 
-## Red y secretos
+Antes de contratar/migrar: medir memoria base, picos por navegador, tiempo de extracción, disco por versiones y rendimiento con dos tareas simultáneas. Registrar p50/p95 y carga máxima. Definir cuotas por worker y evitar que una tarea consuma toda la memoria del servidor. Backups externos aparte del espacio operativo. No contratar servicios como efecto secundario de esta especificación.
 
-Solo punto de acceso autenticado necesario hacia internet; bases y workers internos. Acceso remoto privado o proxy HTTPS autenticado según disponibilidad, sin exigir Tailscale. Tokens de modelos, bot y backups fuera del repo. Separar credenciales de desarrollo y producción. Evitar que logs/capturas expongan información enviada a terceros. Documentar qué texto se manda a proveedor LLM, OCR o transcripción; elegir proveedores y política de retención antes de usar material personal.
+## 3. Orden del despliegue privado
 
-## Copias y continuidad
+1. Elegir host, dominio/red, acceso administrativo, origen de UI/API y política de backup.
+2. Verificar versiones/licencias y fijar imágenes por digest en `infra/versions.md`; registrar resultados de compatibilidad.
+3. Crear usuarios/volúmenes/redes separados. Sin DB, VNC, motor de políticas o daemon Docker expuestos públicamente.
+4. Instalar almacenamiento de prueba y ensayar una restauración antes de cargar datos personales.
+5. Implementar identidad, autorización y API de Lisa; probar acceso directo sin pasar por la UI.
+6. Integrar Nextcloud mediante API y comprobar IDs, versiones, rename/move/conflictos/restore.
+7. Separar runtimes privado y sandbox, identidad de workers y salida de red; ejecutar pruebas negativas.
+8. Conectar proveedor/modelo con presupuesto y contrato de retención revisados. Contexto personal enviado solo bajo scopes explícitos.
+9. Integrar calendario/tareas y después broker de credenciales/acciones. Probar primero cuentas y documentos ficticios.
+10. Autorizar piloto con muestra mínima, validar inventario y copia recuperable; ampliar solo tras aceptación.
 
-Objetivos iniciales propuestos: RPO 24 horas y RTO 4 horas para corpus personal, a validar con volumen. Copia diaria cifrada, retención sugerida 7 diarias/4 semanales/6 mensuales, copia fuera del host. Clave de recuperación en ubicación independiente y accesible al propietario. Ensayo de restauración mensual y antes de migraciones relevantes.
+No instalar un bot Telegram como requisito para la UI: ahora es un canal opcional. No se entrega un Compose de producción completo ni un host operativo.
 
-Restaurar: detener escritores → reconstruir volúmenes → restaurar registro y objetos del mismo snapshot → verificar hashes/UUID → reconstruir índice → probar ACL/enlaces → reiniciar gateway/cola. No reenviar automáticamente acciones externas pendientes cuyo resultado sea incierto.
+## 4. Compose de laboratorio
 
-## Monitorización
+`infra/compose.dev.yml` es un punto de partida de laboratorio para bases, Nextcloud, Redis y un motor de políticas. No contiene runtimes privado/Sandbox ni Lisa API reales. Las imágenes deben suministrarse explícitamente tras verificarlas; no hay defaults `latest`/`stable` ni contraseñas funcionales de ejemplo.
 
-Disponibilidad de canales, salud de disco y backups, cola/errores, latencia, RAM de workers, coste y tokens por tarea, cambios de permisos, documentos huérfanos y conflictos. Alertas sin contenido sensible. Logs técnicos de retención corta configurable; auditoría de cambios documental conservada según política elegida. Añadir exportación/borrado por área, incluida información derivada e índices.
+```bash
+# Completar un archivo privado fuera del repo con referencias revisadas y secretos de laboratorio.
+docker compose --env-file /ruta/privada/lisa-lab.env -f infra/compose.dev.yml config
+# Solo tras revisar la configuración:
+docker compose --env-file /ruta/privada/lisa-lab.env -f infra/compose.dev.yml up -d
+```
 
-## Migración reversible
+Los puertos de laboratorio se enlazan a loopback. OpenFGA de laboratorio usa memoria, por lo que sus políticas NO son persistentes; producción requiere datastore y migraciones probados. `depends_on` no reemplaza readiness: comprobar salud/reintentar conexión de forma acotada. Cron de Nextcloud, TLS, autenticación externa, tuning, límites y restauración quedan para la instalación validada.
 
-Inventariar fuentes y duplicados sin modificar. Clasificar muestra. Copiar a staging y calcular hashes. Asignar UUID y registrar correspondencias. Importar notas y referencias, verificar enlaces desde móvil. Comparar inventario de origen/destino. Hacer backup restaurable. Solo después decidir retirada de la fuente antigua. Nunca cambiar a la vez proveedor, editor e identidad sin un punto de recuperación.
+## 5. Red y acceso remoto
 
-## Presupuesto
+Publicar solo el reverse proxy autenticado. Acceso por red privada/VPN o entrada HTTPS protegida según el host; no se obliga a una marca concreta. Separar UI/API, servicios de datos, workers y broker. El Sandbox solo alcanza su relay y destinos aprobados, no los servicios internos.
 
-Separar host, disco, copia, dominio, API de modelos, OCR/audio y posibles licencias. Fijar cuota diaria y mensual, alertas al 50/80/100% y comportamiento al agotarse. Registrar tarifas con fecha; no calcular API a partir de suscripciones de chat. Los presupuestos monetarios están pendientes de decisión del usuario.
+Tener dos redes Docker no demuestra ausencia de rutas: probar desde dentro del worker DNS, metadatos, IP del host, IPv6, redirecciones y sockets. No activar acceso externo a un servicio para solucionar una integración sin revisar permisos.
+
+## 6. Copias y recuperación
+
+Objetivos propuestos a validar: RPO 24 h y RTO 4 h para corpus, no SLA. Propuesta inicial de retención: 7 copias diarias, 4 semanales y 6 mensuales, cifradas y con copia fuera del host. El propietario debe aprobar destino, coste y excepciones de borrado.
+
+Copiar de forma consistente DB/config/volúmenes de Nextcloud y DB Lisa, relaciones, políticas y manifest de versión. Índices reconstruibles. Clave de recuperación separada; no exportar bóvedas sin cifrar.
+
+Restauración: detener escritores -> restaurar componentes coherentes -> comprobar UUID/hashes/versiones -> reconstruir índice -> probar ACL/citas -> comprobar acciones pendientes -> reabrir servicio. No repetir una operación externa de resultado incierto. Ensayar en host limpio antes de migrar y periódicamente después.
+
+## 7. Cambios y rollback
+
+Releases de UI por commit; contracts versionados y compatibles con el backend soportado. Cambios de DB con migraciones revisadas y plan de recuperación. Guardar versión anterior de artefactos. El rollback de código no debe sobrescribir datos posteriores con un backup sin autorización.
+
+Developer propone cambios sobre copia del repo y fixtures. Tests/preview/diff antes de aplicar. El permiso para modificar la UI no incluye permiso de cambiar ACL, credenciales, infraestructura o esquema de producción.
+
+## 8. Observabilidad y costes
+
+Medir salud, colas, latencia, memoria por worker, fallos de proveedores, presupuesto por run/día/mes, conflictos y backups. Logs sin transcript, contraseñas, cookies ni capturas por defecto. Alertas contienen IDs y metadatos mínimos.
+
+Presupuestos para host, copia, modelos, OCR/audio y licencias separados. Cuotas de contexto/llamadas/tiempo detienen nuevas ejecuciones; precios se verifican cuando se contraten. No deducir consumo de API de una suscripción de chat ni prometer ahorro sin evaluación.
+
+## 9. Migración reversible
+
+Inventariar sin modificar, copiar una muestra, calcular hashes, asignar UUID, revisar taxonomía/mappings y probar referencias desde móvil. Conservar fuente original hasta disponer de copia restaurable e inventario comparado. No migrar a la vez proveedor, editor e identidad sin un punto de recuperación. Drive/otros proveedores pueden recibir exportaciones, no sincronización destructiva multi-maestro por defecto.

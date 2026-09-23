@@ -1,116 +1,77 @@
-# Example only. Do not put real credentials or personal paths here.
-version: 1
+# Lisa DESIGN example, not OpenClaw configuration or a working policy engine.
+# Demo catalog is currently in apps/web/domain.mjs; backend bootstrap must own it later.
+# No real service accounts, credentials, private paths or automatic secret grants.
+version: 2
+policy:
+  default: deny
+  server_enforced: required
+  classification_grants_permissions: false
+  promotion_creates_new_session: true
+  imported_content_trust: untrusted
+  credential_reveal: deny
 
 chats:
   general:
     runtime: private
-    knowledge_scopes: ["*"]
-    persistence: ask
-    knowledge_extraction: ask
+    knowledge_scopes: [all_authorized]
+    archive: explicit_user_action
+    knowledge_extraction: proposal_then_user_approval
   sandbox:
-    runtime: sandbox
+    runtime: isolated
     knowledge_scopes: []
-    persistence: ephemeral
-    promotion_targets:
-      - general
-      - vivienda
-      - universidad
-      - finanzas
-      - personal
+    archive: explicit_user_action_via_controller
+    promotion_targets: [general, vivienda, universidad, finanzas, personal, familia]
+    private_network_access: deny
+    personal_mounts: []
+    credentials: []
+    retention: must_be_configured_before_production
 
 agents:
   general:
     runtime: private
-    knowledge:
-      read: ["*"]
-      write: []
-    files:
-      read: ["*"]
-      write: []
-    calendar: [read, create, update]
-    tasks: [read, create, update]
-    credentials:
-      use: []
-      reveal: []
-    computer: true
-
+    knowledge_read: [all_authorized]
+    knowledge_write: []
+    external_actions: require_explicit_capability
+    credential_use: []
   vivienda:
     runtime: private
-    knowledge:
-      read: [vivienda]
-      write: [vivienda]
-    files:
-      read: [vivienda]
-      write: [vivienda]
-    calendar: [read, create, update]
-    tasks: [read, create, update]
-    credentials:
-      use:
-        - endesa
-        - seguro-hogar
-      reveal: []
-    computer: true
-
+    knowledge_read: [vivienda]
+    knowledge_write: [vivienda]
+    external_actions: require_explicit_capability
+    credential_use: []
   universidad:
     runtime: private
-    knowledge:
-      read: [universidad]
-      write: [universidad]
-    files:
-      read: [universidad]
-      write: [universidad]
-    calendar: [read, create, update]
-    tasks: [read, create, update]
-    credentials:
-      use:
-        - usc
-      reveal: []
-    computer: true
-
+    knowledge_read: [universidad]
+    knowledge_write: [universidad]
+    external_actions: require_explicit_capability
+    credential_use: []
   finanzas:
     runtime: private
-    knowledge:
-      read: [finanzas]
-      write: [finanzas]
-    files:
-      read: [finanzas]
-      write: [finanzas]
-    calendar: [read]
-    tasks: [read, create, update]
-    credentials:
-      use: []
-      reveal: []
-    computer: true
-    approvals:
-      external_write: confirm
-      financial_action: human_takeover
-
+    knowledge_read: [finanzas]
+    knowledge_write: [finanzas]
+    external_actions: require_explicit_capability
+    financial_actions: human_intervention
+    credential_use: []
   personal:
     runtime: private
-    knowledge:
-      read: [personal]
-      write: [personal]
-    files:
-      read: [personal]
-      write: [personal]
-    calendar: [read, create, update]
-    tasks: [read, create, update]
-    credentials:
-      use: []
-      reveal: []
-    computer: true
+    knowledge_read: [personal]
+    knowledge_write: [personal]
+    external_actions: require_explicit_capability
+    credential_use: []
+  familia:
+    runtime: private
+    knowledge_read: [familia]
+    knowledge_write: [familia]
+    external_actions: require_explicit_capability
+    credential_use: []
+  developer:
+    runtime: code_only
+    knowledge_read: []
+    code_scopes: [repository_copy, fixtures]
+    personal_mounts: []
+    credential_use: []
+    deploy: reviewed_commit_and_human_approval
 
-  sandbox:
-    runtime: sandbox
-    knowledge:
-      read: []
-      write: []
-    files:
-      read: []
-      write: []
-    calendar: []
-    tasks: []
-    credentials:
-      use: []
-      reveal: []
-    computer: ephemeral
+# Calendar/task/file writes require resource-scoped policy separately.
+# Grant a named service capability only after owner approval, adapter validation
+# and credential-broker setup. Saving a chat never grants a credential capability.

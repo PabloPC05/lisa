@@ -1,44 +1,67 @@
-# 07 · Backlog ejecutable
+# 07 · Backlog ejecutable v0.3
 
-B00 y B19 completos. El resto sigue pendiente de sus criterios de aceptación; las bases locales no completan integraciones externas. Las estimaciones son tallas relativas (S pequeña, M media, L grande), no fechas comprometidas. Cada fila se puede trasladar a una issue al publicar GitHub.
+Fecha: 23-09-2026. Hitos por dependencias, no estimaciones temporales. No marcar una integración como hecha por existir su tarjeta en la UI.
 
-| ID | Prioridad / tamaño | Dependencias | Entrega y criterio de cierre |
+## Estado heredado y transición
+
+Se conservan B00 (especificación/prototipo inicial) y B19 (sesiones locales SQLite) como completados en su alcance anterior. El resto de la planificación B01–B20 se reorganiza aquí: Telegram deja de ser interfaz obligatoria; la selección de datos pasa a Nextcloud vía API; el nuevo trabajo se identifica como Lxx. El historial Git conserva el backlog anterior.
+
+## Entregas completadas
+
+| ID | Entrega | Evidencia y límite |
+|---|---|---|
+| L00 | Integrar arquitectura en main | PR #1 fusionado; no despliegue personal |
+| L01 | UI de revisión v0.3 | apps/web; dos chats, 5 áreas y vistas funcionales con fixtures |
+| L02 | Lógica de demo y seam HTTP | DemoClient/HttpClient; servidor privado 501, no backend |
+| L03 | Contrato inicial | OpenAPI 3.1, 28 operaciones; DTOs de salida a concretar |
+| L04 | Pruebas/build | 21 tests Node + build, CI exitoso; Python previo pasa 3.11/3.12 |
+| L05 | Bundle autocontenido revisable | preview/index.html y contrato generados por CI |
+
+## Pendiente: revisión y primer backend
+
+| ID | Prioridad | Depende | Entrega / criterio de cierre |
 |---|---|---|---|
-| B00 | P0 / S | — | Especificación + prototipo local probado. Hecho |
-| B01 | P0 / M | B00 | Fijar OpenClaw; dos temas/dos agentes; sesiones/skills distintas y reinicio probados |
-| B02 | P0 / M | B00 | ADR de fuente canónica/editor; ensayo móvil, rename, move, versionado y restore; cerrar D01/D07 |
-| B03 | P0 / M | B02 | Registro UUID/versiones SQL, migraciones, exportación y prueba de continuidad de identidad |
-| B04 | P0 / L | B03 | Ingesta/move/rename/versionado transaccional recuperable; fallos inyectados sin pérdida |
-| B05 | P0 / M | B03 | Resolver autenticado; UUID inaccesible opaco; versión histórica y enlace móvil probados |
-| B06 | P0 / M | B01,B03 | Herramientas por área, ACL/sandbox; traversal, symlink y fuga entre áreas rechazados |
-| B07 | P0 / M | B04,B06 | Memoria Markdown con revisión esperada; conflicto agente/editor sin sobrescritura |
-| B08 | P0 / M | B06,B07 | Búsqueda textual autorizada + fuentes; benchmark de 20 preguntas y trazas de contexto |
-| B09 | P0 / M | B01,B05,B08 | Bot real con allowlist, idempotencia, adjuntos y respuesta al tema; recorrido iOS/Android |
-| B10 | P0 / M | B03,B04 | Backup/restauración en host limpio; verificar hashes y enlaces, medir RPO/RTO |
-| B11 | P0 / M | B02,B06,B10 | Compose/instalación fijada, healthchecks, secretos y rollback; documentación validada |
-| B12 | P0 / M | B09,B10,B11 | Piloto autorizado con pocos documentos, inventario comparado y métricas de coste |
-| B13 | P1 / M | B12 | OCR/audio aislados; confianza y errores visibles, originales preservados |
-| B14 | P1 / M | B12 | Expedientes paralelos y consultas entre áreas con autorización acotada |
-| B15 | P1 / M | B12 | Exportación/copia Drive opcional, sin dos maestros ni borrado propagado accidental |
-| B16 | P1 / L | B06,B12 | Cola durable y acciones con propuesta/hash/caducidad; reintento sin duplicar efectos |
-| B17 | P2 / L | B16 | Browser workers y broker de credenciales; primero gestiones de prueba sin efectos |
-| B18 | P2 / M | B08,B12 | Evaluar embeddings; adoptarlos solo si mejora recuperación con coste justificable |
+| L06 | P0 | L05 | Vercel: proyecto conectado a este repo, URL real verificada y despliegue READY; conector actual no lo ha permitido |
+| L07 | P0 | L01 | Auditoría de UI del propietario: dos flujos, móvil/teclado, estados y cambios de diseño registrados |
+| L08 | P0 | L03 | Concretar DTOs y validadores: frontend y backend pasan mismos casos, errores versionados |
+| L09 | P0 | L08 | Identidad/sesión/CSRF/ACL: solicitudes directas y agente falso rechazados antes de leer datos |
+| L10 | P0 | L09 | Esquema PostgreSQL + migraciones: conversaciones, mensajes, labels, scopes, fuentes, jobs, idempotencia y auditoría |
+| L11 | P0 | L10 | Chats persistentes: nuevos sin archivar, save con revisión, discard/purge; reinicio y concurrencia probados |
+| L12 | P0 | L11 | Promoción segura: nuevo ID, original intacto, etiquetas y adjuntos revisados, una sola creación por operación |
+| L13 | P0 | L09,L10 | Nextcloud adapter: listar/resolver/subir/move/rename/versionado en instancia ficticia; conflictos y recuperación |
+| L14 | P0 | L13 | Registro documental: UUID independiente del proveedor, exportación y restore preservan identidad |
+| L15 | P0 | L09,L11 | Private runtime adapter: versión OpenClaw verificada, scopes por agente, fuentes selectivas, cuota y cancelación |
+| L16 | P0 | L09 | Sandbox real: usuario/runtime/red/volumen separados, pruebas desde dentro sin acceso a host/datos/secretos |
+| L17 | P0 | L12,L15,L16 | Conversaciones reales: continuidad sin trasladar credenciales; provider retention y costes visibles |
+| L18 | P0 | L14,L15 | Conocimiento/RAG: propuesta/revisión/revocación, citas y filtros antes del modelo; evaluación de 20 consultas |
+| L19 | P0 | L10,L14 | Copias: restaurar fixtures en host limpio, comprobar hashes/UUID/permisos y medir RPO/RTO |
+| L20 | P0 | L09,L13 | Infra privada reproducible: versiones/digests, healthchecks, HTTPS, límites, secretos y rollback revisados |
 
-| B19 | P0 / M | B00 | Hecho: sesiones SQLite por expediente, reinicio, deduplicación, conflictos y reintentos concurrentes; registro de decisiones |
-| B20 | P1 / M | B01 | Evaluar UI modificable con toma de control gráfica y consola; separar editor de código y ejecución personal; elección pendiente |
+## Pendiente: gestiones y extensiones
 
-## Hitos
+| ID | Prioridad | Depende | Entrega / criterio de cierre |
+|---|---|---|---|
+| L21 | P1 | L09,L10 | CalDAV: CRUD simple, UID/mapping, zonas horarias, conflictos y citas autorizadas |
+| L22 | P1 | L21 | Tareas: probar CalDAV/Nextcloud Tasks; justificar Vikunja solo si hace falta |
+| L23 | P1 | L09,L10 | Action broker: propuesta/hash/aprobación/caducidad, idempotencia y estado incierto |
+| L24 | P1 | L23 | 1Password: cuenta/vault mínimo, broker aislado, secretos no presentes en modelo/log/frontend |
+| L25 | P1 | L16,L23 | Browser/computer: worker efímero, identidad por tarea, origin allowlist y límites de sesión |
+| L26 | P1 | L25 | Takeover: control exclusivo, cancelación de inputs, desconexión segura y captura actualizada |
+| L27 | P1 | L17,L19,L20 | Piloto personal: permiso explícito, muestra pequeña, backup probado e inventario reversible |
+| L28 | P2 | L20,L23 | Developer ejecutable: code-only, tests/diff/preview, aprobación de commit y rollback, sin datos personales |
+| L29 | P2 | L18 | OCR/audio y embeddings solo tras benchmark de calidad/coste y aislamiento |
+| L30 | P2 | L17 | Canales adicionales, app/PWA offline parcial, import/export y notificaciones privadas |
 
-- H0: especificación y base portable (esta entrega).
-- H1: evidencia de compatibilidad y decisión de datos (B01–B02).
-- H2: corpus con identidad/permisos/copias (B03–B08, B10).
-- H3: primer flujo móvil completo y despliegue (B09–B12).
-- H4: automatización gradual (B13–B18).
+## Siguiente tarea de ingeniería
 
-## Pruebas imprescindibles antes de datos reales
+L08 y L09: convertir el contrato en DTOs/validadores y añadir un backend de prueba con identidad y denegación por defecto. Mantener DemoClient utilizable para revisar diseño. No empezar conectando una bóveda o corpus real a endpoints sin autenticación.
 
-Enlace antes/después de rename/move; versión histórica; copia con nuevo ID; borrado/restauración; hash idéntico sin fusión accidental; interrupción entre escritura y commit; escritura simultánea; evento Telegram duplicado; usuario/chat/tema desconocido; traversal y symlink; nota maliciosa que pide leer otra área; pérdida de API; cuota agotada; restauración limpia. El prototipo solo prueba una parte: consultar tests, no marcar todas como cumplidas.
+## Puertas de aceptación
 
-## Decisiones que requieren datos del propietario al desplegar
+1. UI: el usuario comprende qué es temporal, guardado, memoria y modo de ejecución; sin botones de conexión ficticiamente activos.
+2. Seguridad: pruebas negativas de áreas, IDs, querys, search, promoción, tokens, SSRF y herramientas.
+3. Integración: cada proveedor pasa fixtures/versiones y manejo de timeout/conflicto/cancelación.
+4. Recuperación: restablecer identidad, permisos y datos sin repetir efectos externos.
+5. Piloto: presupuesto/retención/aprobaciones decididos y muestra expresamente autorizada.
 
-Host y almacenamiento disponible; editor preferido tras ensayo; proveedor/modelo y presupuesto; IDs privados del canal; acceso remoto; destino/clave de backup; política de retención y acciones permitidas. No bloquean la especificación; sí las instalaciones reales que dependan de ellas.
+L06 no está completado: el fallo del conector Vercel se registra en 14. El repo y el artefacto local sí están disponibles para no bloquear la revisión.

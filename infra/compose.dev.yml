@@ -1,54 +1,54 @@
+# Laboratory scaffold, not a production deployment or a security boundary.
+# Images and test-only passwords must be set in an external private env file.
 services:
   lisa-postgres:
-    image: ${POSTGRES_IMAGE:-postgres:16-alpine}
+    image: ${POSTGRES_IMAGE:?Set a reviewed PostgreSQL image reference}
     environment:
       POSTGRES_DB: lisa
       POSTGRES_USER: lisa
-      POSTGRES_PASSWORD: ${LISA_DB_PASSWORD:-lisa-dev-only}
+      POSTGRES_PASSWORD: ${LISA_DB_PASSWORD:?Set a laboratory-only database password}
     volumes:
       - lisa_postgres_data:/var/lib/postgresql/data
     networks: [private]
 
   nextcloud-db:
-    image: ${POSTGRES_IMAGE:-postgres:16-alpine}
+    image: ${POSTGRES_IMAGE:?Set a reviewed PostgreSQL image reference}
     environment:
       POSTGRES_DB: nextcloud
       POSTGRES_USER: nextcloud
-      POSTGRES_PASSWORD: ${NEXTCLOUD_DB_PASSWORD:-nextcloud-dev-only}
+      POSTGRES_PASSWORD: ${NEXTCLOUD_DB_PASSWORD:?Set a laboratory-only database password}
     volumes:
       - nextcloud_db_data:/var/lib/postgresql/data
     networks: [private]
 
   redis:
-    image: ${REDIS_IMAGE:-redis:7-alpine}
+    image: ${REDIS_IMAGE:?Set a reviewed Redis image reference}
     networks: [private]
 
   nextcloud:
-    image: ${NEXTCLOUD_IMAGE:-nextcloud:stable}
-    depends_on:
-      - nextcloud-db
-      - redis
+    image: ${NEXTCLOUD_IMAGE:?Set a reviewed compatible Nextcloud Apache image reference}
+    depends_on: [nextcloud-db, redis]
     environment:
       POSTGRES_HOST: nextcloud-db
       POSTGRES_DB: nextcloud
       POSTGRES_USER: nextcloud
-      POSTGRES_PASSWORD: ${NEXTCLOUD_DB_PASSWORD:-nextcloud-dev-only}
+      POSTGRES_PASSWORD: ${NEXTCLOUD_DB_PASSWORD:?Set a laboratory-only database password}
       REDIS_HOST: redis
     ports:
-      - "127.0.0.1:8081:80"
+      - '127.0.0.1:8081:80'
     volumes:
       - nextcloud_data:/var/www/html
     networks: [private]
 
   openfga:
-    image: ${OPENFGA_IMAGE:-openfga/openfga:latest}
+    image: ${OPENFGA_IMAGE:?Set a reviewed OpenFGA image reference}
     command: run
     environment:
       OPENFGA_DATASTORE_ENGINE: memory
       OPENFGA_LOG_FORMAT: json
     ports:
-      - "127.0.0.1:8080:8080"
-      - "127.0.0.1:8082:8081"
+      - '127.0.0.1:8080:8080'
+      - '127.0.0.1:8082:8081'
     networks: [private]
 
 networks:
@@ -60,6 +60,8 @@ volumes:
   nextcloud_db_data:
   nextcloud_data:
 
-# Development scaffold only.
-# Production must use real secrets, TLS/reverse proxy, backups,
-# persistent OpenFGA datastore, network policy and separate private/sandbox runtimes.
+# Validate the PostgreSQL major version/data directory before using a volume.
+# depends_on is not readiness. OpenFGA state here is intentionally nonpersistent.
+# Production additionally needs healthchecks, persistent policy datastore,
+# migrations, TLS/auth, cron, backups, resource/network policy and tested adapters.
+# No Lisa API, credentials, private runtime or Sandbox worker is deployed by this file.

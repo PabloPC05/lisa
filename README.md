@@ -1,83 +1,100 @@
 # Lisa
 
-**Lisa** es una plataforma personal self-hosted: un centro de datos, conocimiento, agentes y automatización que vive en tu propio servidor.
+**Tu espacio personal de datos, conocimiento y agentes.** Lisa se diseña para vivir sobre tu propio servidor, con una interfaz reemplazable y sin entregar la propiedad de tus datos a un runtime de IA.
 
-Lisa **no depende de una UI, un modelo ni un framework de agentes concreto**. Los datos son la fuente de verdad; Nextcloud, OpenClaw, la UI web, el móvil o futuros agentes son clientes reemplazables.
+**Estado a 23-09-2026: arquitectura integrada en `main` + UI interactiva v0.3 + contratos de API + prototipo Python anterior. No hay backend personal conectado ni datos reales migrados.**
 
-## Objetivo
+## Probar la interfaz
 
-Lisa debe proporcionar:
+Con Node.js 22 o superior, sin instalar dependencias:
 
-- un **centro personal de datos** con archivos, calendario, tareas, conocimiento y metadatos;
-- una **UI propia** que consuma APIs y pueda cambiarse sin modificar la capa de datos;
-- dos tipos de chat general:
-  - **Nuevo chat · Con conocimiento**: puede consultar el conocimiento personal general;
-  - **Nuevo chat · Sandbox**: aislado físicamente, sin acceso a datos personales;
-- 4–5 **agentes especializados** con permisos por dominio (Vivienda, Universidad, Finanzas, Personal, etc.);
-- capacidad de **guardar/promover** una conversación sandbox a General o a una categoría especializada;
-- Computer Use con **human takeover**;
-- calendario, tareas y archivos integrados;
-- uso de credenciales mediante **capacidades**, sin exponer secretos al modelo;
-- auditoría de acciones;
-- una futura vista **Developer** capaz de proponer cambios a Lisa mediante Git + preview + aprobación.
+```bash
+npm run dev
+# http://127.0.0.1:3000
 
-## Arquitectura resumida
-
-```text
-                    Lisa UI
-                      │
-                 Lisa API
-                      │
-             Authorization layer
-                      │
-      ┌───────────────┼─────────────────┐
-      │               │                 │
- Personal Data    Private agents   Sandbox gateway
-      │               │                 │
- Nextcloud        OpenClaw          isolated runtime
- PostgreSQL       specialized       no personal mounts
- Search/RAG       general agent     no credentials
-      │
-      ├─ Files / WebDAV
-      ├─ Calendar / CalDAV
-      ├─ Tasks
-      ├─ Knowledge
-      └─ stable object IDs
-
-Secrets / actions:
-1Password → credential broker → allowed service/action
+npm run check
+# 21 pruebas JavaScript + compilación
 ```
 
-## Decisiones principales
+La compilación genera `dist/index.html`, un HTML autocontenido que se puede abrir como archivo o publicar, y `dist/openapi.json`. GitHub Actions publica una copia revisable en [`preview/index.html`](preview/index.html) y el contrato en [`preview/openapi.json`](preview/openapi.json). Descargar el HTML para abrirlo: la vista de código de GitHub no ejecuta una aplicación.
 
-- **Nextcloud se usa headless**: almacenamiento/sync/API; Lisa no depende de su frontend.
-- **1Password no se entrega al modelo**: los agentes reciben capacidades limitadas y referencias a secretos.
-- Los permisos se aplican **fuera del prompt**.
-- El Sandbox se ejecuta en un **runtime/Gateway separado**.
-- Guardar un chat no significa automáticamente convertir todo su texto en conocimiento.
-- Promover un chat Sandbox crea una **nueva sesión privada** con una copia explícita del contexto; nunca eleva permisos al sandbox original.
-- La UI es reemplazable y el código vive separado de los datos personales.
+**La demo no es un asistente operativo.** No llama a modelos, Nextcloud, calendarios reales, 1Password ni escritorios. Los textos introducidos se mantienen solo en memoria del navegador. Incluso los chats marcados como guardados desaparecen al recargar. No introducir información personal.
 
-## Documentación
+## Lo que ya se puede revisar
 
-1. [Especificación](docs/01-especificacion.md)
-2. [Arquitectura](docs/02-arquitectura.md)
-3. [Modelo de datos](docs/03-datos.md)
-4. [Agentes y chats](docs/04-agentes.md)
-5. [Contratos](docs/05-contratos.md)
-6. [Operación](docs/06-operacion.md)
-7. [Backlog](docs/07-backlog.md)
-8. [Fuentes](docs/08-fuentes.md)
-9. [Decisiones vigentes](docs/09-decisiones-vigentes.md)
-10. [Sesiones locales](docs/10-sesiones-locales.md)
-11. [Seguridad y permisos](docs/11-seguridad-permisos.md)
-12. [UI y experiencia](docs/12-ui.md)
-13. [Integraciones](docs/13-integraciones.md)
+- Dos entradas independientes: **Con conocimiento** y **Nuevo chat Sandbox**.
+- Cinco agentes de ejemplo: Vivienda, Universidad, Finanzas, Personal y Familia.
+- Envío de mensajes con respuesta explícitamente simulada; guardado voluntario, categorización y descarte.
+- Continuación en otro agente mediante una conversación nueva; original intacto y texto importado no confiable.
+- Propuestas de conocimiento separadas del historial y aprobación explícita.
+- Archivos ficticios con filtro, búsqueda y vista previa; tareas creables/completables; calendario mensual con eventos ficticios.
+- Matriz de permisos propuesta, integraciones no conectadas y registro de actividad de la demo.
+- Simulación visual de toma/devolución de control y de propuestas de cambios de código, sin ejecución.
+- Diseño adaptable a móvil, navegación por teclado, diálogos, tema claro/oscuro y checklist de revisión.
 
-## Estado
+## Arquitectura objetivo
 
-Existe un prototipo Python local previo. Esta rama añade la arquitectura v1 de Lisa sin eliminarlo.
+```text
+Lisa UI / futuro cliente móvil
+              |
+         Lisa API v1
+ identidad + autorización + auditoría
+       /              |                \
+Datos personales   Agentes privados   Runtime Sandbox separado
+Nextcloud          OpenClaw adapter   Sin mounts/credenciales privadas
+PostgreSQL         General + áreas   Salida de red restringida
+       |
+Acciones autorizadas -> broker de credenciales -> 1Password / servicio
+```
 
-El siguiente hito es implementar **Lisa API + autorización + almacenamiento de conversaciones**, después integrar Nextcloud y el runtime privado/sandbox.
+El diagrama es objetivo, no el despliegue actual. `apps/web` no contiene esa infraestructura.
 
-> Nunca subir a GitHub documentos personales, credenciales, tokens, cookies, bases de datos reales ni volcados del servidor.
+Nextcloud aporta APIs y sincronización; Lisa aporta su UI y contratos. PostgreSQL conserva metadatos y relaciones. Las credenciales pertenecen al broker, no a los modelos. Cambiar de UI o runtime no debe exigir migrar el corpus canónico.
+
+## API preparada, no abierta sin protección
+
+`DemoClient` y `HttpClient` comparten `request(method, path, body)`. Las vistas usan actualmente **solo DemoClient**. El contrato OpenAPI 3.1 define **28 operaciones** sobre chats, conocimiento, archivos, calendario, tareas, acciones, control de escritorio y cambios de código.
+
+El adaptador HTTP apunta al mismo origen, `/api/v1`. La función de servidor incluida devuelve `501 BACKEND_NOT_CONFIGURED` para las funciones privadas; solo `/api/v1/health` responde con `backendConnected: false`. No se ha implementado autenticación, almacenamiento personal, ejecución de agentes ni enforcement de políticas. Activar un backend exige completar esas piezas, no solo cambiar una URL.
+
+## Publicación
+
+El repositorio incluye `vercel.json`: raíz del repo, `npm run build`, salida `dist`, sin dependencias de instalación. Solo se debe publicar la demo ficticia hasta completar la seguridad del backend.
+
+**No se ha confirmado un despliegue en Vercel en esta entrega.** El conector anunció una acción de despliegue que devolvió `Tool deploy_to_vercel not found`; su importador de diseños rechazó el HTML de GitHub porque solo admite otro dominio. El código y el bundle sí están en `main`. Véase [despliegue y revisión](docs/14-ui-despliegue.md) para importar este mismo repositorio en Vercel sin modificarlo.
+
+## Documentación de continuidad
+
+| Documento | Contenido |
+|---|---|
+| [CONTINUAR](CONTINUAR.md) | Estado verificable y siguiente tarea |
+| [01 · Especificación](docs/01-especificacion.md) | Requisitos y aceptación |
+| [02 · Arquitectura](docs/02-arquitectura.md) | Límites de componentes y despliegue |
+| [03 · Datos](docs/03-datos.md) | IDs, fuentes canónicas, versiones y retención |
+| [04 · Agentes](docs/04-agentes.md) | Modos de chat y ámbitos |
+| [05 · Contratos](docs/05-contratos.md) | Servicios de dominio |
+| [06 · Operación](docs/06-operacion.md) | Seguridad del despliegue, copias y recuperación |
+| [07 · Backlog](docs/07-backlog.md) | Secuencia, dependencias y criterios de cierre |
+| [08 · Fuentes](docs/08-fuentes.md) | Referencias técnicas |
+| [09 · Decisiones](docs/09-decisiones-vigentes.md) | Confirmado, propuesto y sustituido |
+| [10 · Prototipo Python](docs/10-sesiones-locales.md) | Sesiones SQLite locales anteriores |
+| [11 · Seguridad](docs/11-seguridad-permisos.md) | Amenazas, permisos y secretos |
+| [12 · Diseño inicial](docs/12-ui.md) | Boceto y experiencia objetivo |
+| [13 · Integraciones](docs/13-integraciones.md) | Adapters y pruebas pendientes |
+| [14 · UI / publicación](docs/14-ui-despliegue.md) | Implementación real, Vercel y auditoría |
+| [15 · Backend](docs/15-api-y-flujos.md) | Modelos, transacciones, estados y contrato |
+
+## Prototipo Python conservado
+
+```bash
+python -m unittest discover -s tests -v
+python -m lisa route --config config/example.json --user 1001 --chat=-10001 --topic 10
+```
+
+Sigue siendo un prototipo local, no la API de Lisa ni un conector a OpenClaw. CI lo ha validado en Python 3.11 y 3.12 tras añadir la UI.
+
+## Límites
+
+Un botón Sandbox en una página no proporciona aislamiento de ejecución. Una etiqueta de categoría no concede permisos. No existe acceso a contraseñas desde el frontend. La UI y los tests de dominio no sustituyen pruebas de seguridad del servidor.
+
+No subir a este repositorio público documentos, conversaciones, credenciales, cookies, dumps ni información personal real. No se ha elegido una licencia de distribución para Lisa; esa decisión sigue pendiente del propietario.

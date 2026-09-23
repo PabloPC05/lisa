@@ -1,55 +1,97 @@
-# 03 · Datos, identidad y sincronización
+# 03 · Datos, identidad, sincronización y retención
 
-## Separación física propuesta
+Especificación objetivo, 23-09-2026. La demo v0.3 no contiene estos almacenes; usa fixtures en memoria.
 
-En el servidor, fuera del checkout: `/srv/lisa/knowledge/` para notas; `documents/` para originales/versiones; `registry/` para identidad y auditoría; `runtime/` para sesiones y colas; `staging/` para ingesta; `secrets/` con permisos restringidos. Las copias deben estar también fuera del equipo.
+## 1. Fuentes canónicas
 
-Taxonomía inicial: Universidad (Intercambios, Matricula, Apuntes, Tramites); Finanzas (IRPF, DGT, Bancos, Inversiones, Impuestos, Prestamos_Hipotecas, Facturas_Recibos, PensionOrfandad, Otros); Vivienda por inmueble (Comunidad, Suministros, Contratos, Seguros, Impuestos); Familia por familiar/expediente; Personal (Identificacion, Viajes, Compras); Otros (NEEDS_REVIEW, ARCHIVO). Coding conserva su workspace de desarrollo separado. Usar nombres reales solo en la instalación privada. IBI pertenece al inmueble; referencias cruzadas desde el expediente fiscal anual evitan duplicar el original.
+| Datos | Autoridad prevista | Copias/derivados |
+|---|---|---|
+| Bytes de documentos y versiones | Nextcloud mediante interfaces soportadas | Caché y extracción reconstruibles |
+| Calendarios y tareas DAV | Backend CalDAV elegido | Proyección de lectura en Lisa |
+| Identidad de objetos, ubicaciones y relaciones | PostgreSQL Lisa | Exportación de metadatos versionada |
+| Chats guardados y conocimiento aprobado | Almacén Lisa | Exportación legible de chats/Markdown |
+| Índice de búsqueda | Ninguna: es derivado | Reconstruido de fuentes autorizadas |
+| Secretos | 1Password o almacén delegado aprobado | Nunca una tabla de contraseñas en Lisa |
+| Sesiones de navegador/runtime | Almacén operativo aislado | No pertenecen al corpus ni al repo |
 
-## Modelo lógico
+La selección de Nextcloud reemplaza la propuesta de tratar su directorio interno como archivos editables libremente. Los agentes escribirán mediante Lisa API y el adapter. Un cliente de sincronización puede coexistir, pero sus conflictos y cambios se reconcilian; no se promete transacción SQL + DAV atómica.
 
-| Entidad | Campos mínimos |
+## 2. Organización inicial
+
+Universidad: Intercambios, Matrícula, Apuntes y Trámites. Vivienda: por inmueble, con Comunidad, Suministros, Contratos, Seguros e Impuestos. Finanzas: bancos, impuestos, inversiones, préstamos, facturas y otros. Familia: por familiar/expediente. Personal: Identificación, Viajes y Compras. Bandeja de revisión y archivo para lo que no se pueda clasificar.
+
+Los nombres de personas, inmuebles y cuentas reales solo se configuran en privado. Ejemplo de relación: un impuesto de un inmueble se conserva con su documento original y se enlaza al expediente fiscal; no se duplica para construir otra vista. Developer conserva código y fixtures separados de estas áreas.
+
+## 3. Identidad estable
+
+```text
+Lisa UUID
+  -> provider_instance_id
+  -> provider_object_id
+  -> ubicación actual / revisión
+```
+
+El UUID de Lisa es el identificador canónico. En Nextcloud, `oc:fileid` es único dentro de una instancia; no asumir que ese número identifica el archivo en otra instalación. Mantener la instancia y el identificador del proveedor en el mapping. Fuente: [operaciones WebDAV oficiales](https://docs.nextcloud.com/server/stable/developer_manual/client_apis/WebDAV/basic.html).
+
+El hash sirve para integridad y detectar contenido, no para identidad semántica. Dos documentos con bytes idénticos pueden ser documentos distintos. Editar cambia el hash, no el UUID. Una copia recibe otro UUID con `derived_from`, salvo réplica explícita del mismo objeto.
+
+Enlace de diseño: `/d/<uuid>`; una cita histórica añade `?v=<revision>`. El resolver autentica y autoriza cada vez, incluidas versiones anteriores. Conocer un ID no concede acceso. No publicar enlaces permanentes a buckets privados.
+
+## 4. Modelo mínimo
+
+| Entidad | Campos importantes / invariantes |
 |---|---|
-| Document | UUID, título, área, tipo MIME, estado, fecha creación, versión actual |
-| Version | UUID documento, número, hash SHA-256, tamaño, objeto/path, fecha, origen |
-| Location | UUID, backend, identificador del proveedor o path relativo, última comprobación |
-| Note | UUID, área, path, revisión, referencias a documentos/notas |
-| Reference | UUID destino, versión opcional, página/sección, tipo de relación |
-| Task | UUID, área, estado, vencimiento opcional, fuentes, acción propuesta |
-| Event | UUID, actor, operación, objetivo, versión base, resultado, timestamp UTC |
-| Approval | UUID, actor autorizante, hash de acción, caducidad, estado |
+| Document | UUID, título, MIME, categoría, information_labels, revisión actual, estado |
+| DocumentVersion | documento, revisión, SHA-256, bytes, mapping de proveedor, fecha, autor/origen |
+| ProviderMapping | instancia, objeto proveedor, UUID Lisa, etag, ubicación, estado de reconciliación |
+| KnowledgeItem | UUID, título, Markdown, revisión, estado proposed/approved/revoked, etiquetas |
+| SourceReference | UUID fuente, revisión, página/sección/fragmento y relación |
+| Conversation | UUID, modo de creación inmutable, identidad ejecutora, categoría, etiquetas, saved_at, revision, source_id |
+| Message | UUID, conversación, orden, rol, texto/adjuntos, origen, etiqueta de confianza |
+| Task / CalendarEvent | UUID Lisa, mapping de proveedor, ámbito, revisión, zona horaria cuando corresponda |
+| Action / Approval | identidad, recurso, parámetros normalizados, hash, estado, caducidad, aprobación |
+| AuditEvent | actor, acción, recurso, decisión, correlación y fecha; sin secretos/transcript |
 
-El hash detecta integridad/contenido; **no es la identidad del documento**. Dos contratos iguales pueden ser dos documentos distintos; una nueva versión del mismo contrato cambia el hash sin cambiar el UUID. No deduplicar automáticamente decisiones semánticas por igualdad binaria.
+Imponer claves únicas para mappings activos y orden de mensajes; referencias con FK y borrado controlado. No son migraciones ejecutadas: la siguiente fase debe implementarlas y probarlas.
 
-Enlace humano objetivo: `https://cerebro.example/d/<uuid>`. Con `?v=3` cita una versión concreta; sin versión abre la vigente. El dominio es ficticio. El endpoint exige autenticación y ACL en cada petición: conocer el UUID no otorga permiso. No devolver URLs públicas permanentes del almacenamiento.
+## 5. Mutaciones documentales
 
-En notas, usar enlaces Markdown normales a ese resolver. Para referencias entre notas, también asignar UUID y resolver o mantener aliases gestionados; los wikilinks basados en nombre no cubren todas las reorganizaciones externas.
+- Renombrar/mover: conservar UUID; registrar intención, ejecutar DAV, verificar resultado y actualizar mapping. Un cambio de ámbito requiere permiso de origen y destino y no rebaja etiquetas de información automáticamente.
+- Sustituir bytes: generar una revisión verificable y aplicar control de concurrencia con ETag/revisión esperada. Si cambió la fuente, devolver conflicto, no última escritura gana.
+- Borrar: tombstone, papelera y retención; no reciclar IDs ni permitir que una URL antigua resuelva otro documento.
+- Restaurar: misma identidad si se recupera el objeto conocido; registrar procedencia. Probar conservación de mapping al restaurar un backup completo.
+- Movimiento no observado: marcar ubicación faltante, reconciliar con metadatos. Si hubo copia/move/edición simultánea ambigua, pedir revisión; un hash es una pista, no una autorización para fusionar.
 
-## Mutaciones
+Para el adapter de archivos locales del prototipo puede utilizarse temporal + flush + publicación atómica. **No aplicar ese procedimiento directamente al datadir de Nextcloud**. Para DAV, usar el protocolo y un registro de intención/reconciliación. SQL y proveedor externo tienen recuperación coordinada, no una transacción distribuida inventada.
 
-- **Renombrar/mover:** transacción lógica conserva UUID, actualiza ubicación e historial. Un cambio de área recalcula acceso y requiere permiso en origen y destino; no hereda acceso por conservar URL.
-- **Editar/sustituir contenido:** versión nueva e inmutable; actualizar puntero vigente tras validar escritura.
-- **Copiar:** UUID nuevo con `derived_from`, salvo operación explícita de réplica del mismo objeto.
-- **Borrar:** tombstone y papelera con retención configurable; resolver devuelve estado eliminado sin reciclar IDs.
-- **Restaurar:** conservar UUID y registrar evento. Restauración de backup mantiene registro y objetos coherentes.
-- **Movimiento externo no observado:** marcar ubicación faltante, intentar reconciliar por metadatos/hash solo como pista y pedir revisión en ambiguos. No prometer resolver automáticamente un archivo movido y modificado fuera del sistema.
+## 6. Ingesta y revisión
 
-No basar identidad solo en inodos, xattrs, symlinks o nombre. Pueden ayudar a reconciliar, pero no sobreviven a todas las copias, backups o plataformas.
+Recibir -> cuarentena -> validar límites/MIME -> hash -> idempotencia -> extracción en worker restringido -> propuesta de clasificación -> persistir original/mapping -> proponer notas -> indexar solo material permitido.
 
-## Escritura segura y conflictos
+Límite inicial de 25 MiB propuesto, configurable. Rechazo visible en vez de truncado. No ejecutar macros, scripts o instrucciones de archivos. Extraer texto primero; OCR solo si hace falta y conservando idioma/confianza. Cifras y tablas deben citar el original.
 
-Escribir primero un temporal dentro del filesystem destino, calcular hash, hacer flush y publicar atómicamente. Registro de intención antes de mutar; completar evento después. Filesystem y SQL no comparten transacción: un reconciliador debe recuperar estados incompletos tras caída. Una restricción única impide dos ubicaciones activas contradictorias.
+Deduplicar eventos de entrada por canal/cuenta/evento/adjunto, no solo por nombre de archivo. Reintentar una ingesta debe recuperar el resultado anterior o continuar desde una etapa conocida.
 
-Notas: revisión esperada obligatoria; si cambió, devolver conflicto con ambas propuestas. El editor web y el agente necesitan una política de coordinación: integrar revisión con editor o aplicar cambios mediante una cola de propuestas revisables. No permitir que el agente sobrescriba un fichero mientras el editor sincroniza. Markdown versionado y copia del conflicto, sin resolver silenciosamente por «última escritura gana».
+## 7. Clasificación, permisos y flujo de información
 
-## Ingesta
+`category` organiza la UI. `information_labels` conservan los ámbitos de los datos usados. `agent_id` identifica al ejecutor. **Ninguno sustituye a los otros.**
 
-Recibir → staging privado → validar tamaño/tipo → hash → identificar evento y posible duplicado → extraer/OCR en worker restringido → proponer área → persistir original/registro → generar nota con fuentes → indexar → confirmar resultado. Ante duda, NEEDS_REVIEW; adjuntos y texto extraído son datos no confiables, nunca instrucciones para otorgar acceso.
+Una conversación general que consulta Vivienda y Finanzas hereda ambas etiquetas. Guardarla en Vivienda no permite que cualquier agente de Vivienda lea el contenido financiero. La promoción entre áreas exige que el destinatario tenga acceso a todas las etiquetas, o una exportación redactada/declasificada revisada por el propietario. No confiar solo en que un resumen generado por IA eliminó datos sensibles.
 
-Idempotencia por canal/cuenta/update ID/adjunto. Límite inicial propuesto de 25 MiB por archivo, configurable; rechazo explícito, sin truncado silencioso. Guardar idioma y confianza OCR. Tablas/cifras requieren referencia al original.
+Un archivo adjunto de Sandbox se importa como dato no confiable y atraviesa cuarentena. El sandbox no lee el archivo privado resultante ni recibe credenciales del proceso importador.
 
-## Copias y sincronización
+## 8. Historial, conocimiento y borrado
 
-MVP sin sincronización multi-maestro. Editor web escribe en servidor; clientes de consulta leen. Drive opcional recibe exportación/copia versionada. Nunca ejecutar una sincronización destructiva sobre originales como paso inicial.
+Conversación nueva: `saved_at = null`. Guardar es una transacción explícita; si falla no se muestra como guardada. No generar resúmenes persistentes/indexables de chats descartados como efecto secundario.
 
-Un backup debe incluir notas, originales, versiones, registro de identidad, configuración y secretos cifrados por separado. El índice se reconstruye. Crear snapshot consistente con escritura pausada o procedimiento de backup SQL apropiado. Ensayar restauración y comprobar hashes, enlaces y acceso antes de borrar/migrar fuentes.
+Conocimiento: propuesta con fuente -> revisión humana -> aprobación -> índice autorizado. Editar exige revisión esperada. Revocar una fuente debe invalidar o marcar sus derivaciones y retirar los fragmentos correspondientes del índice.
+
+«Sin guardar» no equivale a ausencia de retención técnica. Antes de producción son obligatorias políticas para: sesiones del runtime, proveedor LLM, cola, adjuntos, navegador, capturas, logs, backups y auditoría. La UI debe mostrar las excepciones reales. No incluir texto personal en analítica, trazas de error o logs por defecto.
+
+La demo actual destruye todo al recargar, incluido lo marcado como guardado. El backend real deberá conservar lo archivado; la demo no es una implementación de esa persistencia.
+
+## 9. Exportación y recuperación
+
+Exportar originales, versiones que deban conservarse, Markdown, conversaciones seleccionadas y mapping UUID/proveedor en un formato legible. Un backup debe incluir DB Lisa, DB/config/volúmenes Nextcloud del mismo punto consistente, permisos y configuración. Los índices se reconstruyen.
+
+Secretos se recuperan con el procedimiento del gestor, no con un dump sin cifrar. Probar restauración en host limpio, hashes, enlaces, versiones, ausencia de fugas y acciones pendientes. No repetir automáticamente efectos externos cuyo resultado sea desconocido.
