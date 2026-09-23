@@ -11,7 +11,8 @@ Actualizado: 23-09-2026. Una instrucción posterior explícita del propietario p
 | Conversaciones | Dos botones separados, con conocimiento y Sandbox; guardado explícito | Sustituye un único botón que abría siempre Sandbox |
 | Continuidad | Archivar/categorizar no cambia permisos; continuar crea nueva sesión | Conserva original sin elevar privilegios |
 | Instrucción actual | Modificar main, comenzar UI, contratos y publicación de revisión | Sustituye dejar todo únicamente en PR en borrador |
-| Entrega v0.3 | PR fusionado, UI demo y contratos en main | No significa que exista backend o despliegue personal |\n| Diseño v0.4 | Home como dashboard fijo de widgets ligeros, modo claro y sidebar colapsable | Sustituye landing y descarta gestor de ventanas |
+| Entrega v0.3 | PR fusionado, UI demo y contratos en main | No significa que exista backend o despliegue personal |
+| Diseño v0.4 | Home como dashboard fijo de widgets ligeros, modo claro y sidebar colapsable | Sustituye landing y descarta gestor de ventanas |\n| Proyectos | Cada proyecto conserva su historial; conversaciones fijables y archivables | Proyecto organiza, pero no concede permisos ni convierte chats en memoria |
 
 ## Confirmado por el propietario
 
@@ -29,10 +30,11 @@ Actualizado: 23-09-2026. Una instrucción posterior explícita del propietario p
 ## Decisiones de implementación de esta entrega
 
 - Cinco áreas ficticias en la demo: Vivienda, Universidad, Finanzas, Personal y Familia. Serán configurables mediante bootstrap, no una taxonomía definitiva cerrada.
-- UI v0.4 con ECMAScript/CSS y build sin dependencias. La home es un dashboard fijo, no una landing ni un gestor de ventanas. Es una elección de prototipo, no obligación de mantener ese framework para siempre.\n- Dirección visual vigente: blanco/negro/rojo; superficies translúcidas redondeadas tipo glass; superficies opacas con geometría recta; widgets con poca densidad; sidebar colapsable.
+- UI v0.4 con ECMAScript/CSS y build sin dependencias. La home es un dashboard fijo, no una landing ni un gestor de ventanas. Es una elección de prototipo, no obligación de mantener ese framework para siempre.
+- Dirección visual vigente: blanco/negro/rojo; superficies translúcidas redondeadas tipo glass; superficies opacas con geometría recta; widgets con poca densidad; sidebar colapsable.
 - DemoClient efímero; HttpClient preparado para mismo origen `/api/v1`.
 - Backend seam deniega funciones privadas con 501 hasta implementar autenticación y servicios. No se interpretan «endpoints abiertos» como acceso público a datos.
-- Contrato OpenAPI 3.1 inicial con 28 operaciones y pruebas locales.
+- Contrato OpenAPI 3.1 inicial con 30 operaciones y pruebas locales.\n- Los chats de proyecto se guardan automáticamente dentro de ese proyecto; fuera de proyecto el guardado continúa siendo explícito.\n- `pinned` y `archived` son metadatos de navegación, no controles de acceso ni memoria.
 - Guardar ≠ memoria; propuestas separadas y revisión explícita.
 - Categoría ≠ confidencialidad; preservar labels de las fuentes al mover/promover contenido.
 - Demo con datos ficticios; nada de cuentas, archivos personales, modelos, terminal o escritorio operativo.
