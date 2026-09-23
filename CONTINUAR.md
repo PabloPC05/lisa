@@ -4,7 +4,7 @@ Actualizado: 23-09-2026. **Trabajar desde `main`**. El PR #1 de arquitectura ya 
 
 ## Estado real
 
-Implementado: especificación de plataforma personal, UI de revisión v0.4 con dashboard fijo de widgets y sidebar colapsable, DemoClient en memoria, HttpClient preparado, OpenAPI 3.1 con 30 operaciones, stub HTTP sin efectos, build autocontenido, CI y 25 tests JavaScript. Se conserva el prototipo Python/SQLite y CI pasa en 3.11/3.12.
+Implementado: especificación de plataforma personal, UI de revisión v0.4 con dashboard fijo de widgets y sidebar colapsable, DemoClient en memoria, HttpClient preparado, OpenAPI 3.1 con 31 operaciones, stub HTTP sin efectos, build autocontenido, CI y 26 tests JavaScript. Se conserva el prototipo Python/SQLite y CI pasa en 3.11/3.12.
 
 No implementado: backend personal persistente, autenticación/ACL de servidor, Nextcloud/CalDAV reales, modelos, OpenClaw, Sandbox de ejecución, broker 1Password, browser/desktop remoto, terminal ni autoedición operativa. No se han migrado datos ni configurado credenciales.
 
@@ -32,7 +32,7 @@ Node 22+; la demo no tiene dependencias npm. `dist/index.html` es autocontenido,
 
 ## Funcionalidad revisable
 
-Dos botones de nuevo chat; cinco agentes; home tipo dashboard con widgets ligeros; sidebar colapsable; chat de agentes con adjuntos, cola, cancelar/reintentar/editar; proyectos con historial, fijadas y archivado; mensajes simulados; guardar, categorizar y promover; propuestas de conocimiento revisables; archivos filtrables; tareas; calendario; permisos; integraciones pendientes; actividad; simulaciones Desktop/Developer; modo claro de referencia y vista móvil. El gestor de ventanas fue descartado explícitamente.
+Dos botones de nuevo chat; cinco agentes; home tipo dashboard con widgets ligeros; sidebar colapsable; chat de agentes con adjuntos, cola, cancelar/reintentar/editar; proyectos con historial, fijadas y archivado; biblioteca de conocimiento con lector Markdown, TOC, búsqueda, edición/preview y revisiones; mensajes simulados; guardar, categorizar y promover; propuestas de conocimiento revisables; archivos filtrables; tareas; calendario; permisos; integraciones pendientes; actividad; simulaciones Desktop/Developer; modo claro de referencia y vista móvil. El gestor de ventanas fue descartado explícitamente.
 
 Guardar en esta demo NO sobrevive a recarga. Los chats creados dentro de un proyecto se marcan como guardados automáticamente y se ordenan en Fijadas/Recientes; producción deberá persistirlos en PostgreSQL. Guardar un chat no añade memoria. Guardar en un área no cambia identidad ni permisos. Continuar con otro agente crea nueva conversación y conserva texto importado no confiable.
 
