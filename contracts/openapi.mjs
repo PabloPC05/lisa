@@ -4,8 +4,9 @@ const ref=name=>({$ref:`#/components/schemas/${name}`});
 const obj=(properties,required=Object.keys(properties))=>({type:'object',additionalProperties:false,required,properties});
 const schemas={
  Category:{type:'string',enum:['general','vivienda','universidad','finanzas','personal','familia']},
+ Attachment:obj({id:str(100),name:str(180),size:{type:'integer',minimum:0,maximum:26214400},type:str(120),status:{enum:['attached','uploading','ready','failed']}},['id','name','size','type']),
  CreateChat:obj({mode:{enum:['general','sandbox','agent']},agentId:{type:['string','null']}},['mode']),
- MessageInput:obj({content:str(),attachmentIds:{type:'array',items:str(100),default:[]}},['content']),
+ MessageInput:{type:'object',additionalProperties:false,properties:{content:{type:'string',maxLength:8000,default:''},attachments:{type:'array',items:ref('Attachment'),maxItems:8,default:[]}},anyOf:[{required:['content'],properties:{content:{type:'string',minLength:1,maxLength:8000}}},{required:['attachments'],properties:{attachments:{type:'array',minItems:1,maxItems:8}}}]},
  SaveChat:obj({category:ref('Category'),expectedRevision:{type:'integer',minimum:1}}),
  PromoteChat:obj({target:ref('Category'),selectedAttachmentIds:{type:'array',items:str(100),maxItems:20}}),
  KnowledgeInput:obj({title:str(120),content:str()}),
@@ -18,7 +19,7 @@ const schemas={
  ChangeInput:obj({description:str(4000)}),
  Error:obj({error:obj({code:str(100),message:str(),retryable:{type:'boolean'},requestId:str(100)},['code','message'])}),
  Envelope:obj({data:{},meta:{type:'object',properties:{cursor:{type:['string','null']},requestId:{type:'string'}}}},['data']),
- Chat:obj({id:str(100),mode:{enum:['general','sandbox','agent']},agentId:{type:['string','null']},category:ref('Category'),saved:{type:'boolean'},title:str(200),revision:{type:'integer'},sourceId:{type:['string','null']},createdAt:{type:'string',format:'date-time'},messages:{type:'array',items:obj({id:str(100),role:{enum:['user','assistant','imported']},content:str(),trust:{enum:['untrusted']},sourceRole:{type:'string'}},['id','role','content'])}},['id','mode','category','saved','revision','messages'])
+ Chat:obj({id:str(100),mode:{enum:['general','sandbox','agent']},agentId:{type:['string','null']},category:ref('Category'),saved:{type:'boolean'},title:str(200),revision:{type:'integer'},sourceId:{type:['string','null']},createdAt:{type:'string',format:'date-time'},messages:{type:'array',items:obj({id:str(100),role:{enum:['user','assistant','imported']},content:{type:'string',maxLength:8000},attachments:{type:'array',items:ref('Attachment')},createdAt:{type:'string',format:'date-time'},status:{enum:['sending','delivered','complete','failed']},trust:{enum:['untrusted']},sourceRole:{type:'string'}},['id','role','content'])}},['id','mode','category','saved','revision','messages'])
 };
 // path, method, operationId, description, input schema, authentication required
 export const routes=[
