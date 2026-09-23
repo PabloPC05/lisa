@@ -25,7 +25,8 @@ const paths = {
   menu:'M4 6h16M4 12h16M4 18h16', send:'m3 3 19 9-19 9 4-9Zm4 9h15',
   cloud:'M6 18a5 5 0 1 1 0-10 7 7 0 0 1 13-1 5.5 5.5 0 0 1-1 11Z',
   refresh:'M20 7A9 9 0 1 0 21 15M20 3v5h-5', download:'M12 3v12m-5-5 5 5 5-5M4 16v5h16v-5',
-  layers:'m12 3 10 5-10 5L2 8Zm-10 9 10 5 10-5M2 16l10 5 10-5'
+  layers:'m12 3 10 5-10 5L2 8Zm-10 9 10 5 10-5M2 16l10 5 10-5',
+  pin:'M12 17v5M5 3h14l-3 6v4l3 2H5l3-2V9Z'
 };
 function icon(name) { return `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="${paths[name] || paths.spark}"/></svg>`; }
 function btn(label, action, kind='', extra='') { return `<button class="btn ${kind}" data-action="${action}" ${extra}>${label}</button>`; }
@@ -132,12 +133,24 @@ async function chatView(){
   const c=await api.request('GET',`/chats/${state.chatId}`);
   const sandbox=c.mode==='sandbox';
   const name=c.mode==='agent'?area(c.agentId).name:sandbox?'Sandbox':'Con conocimiento';
+  const projects=await api.request('GET','/projects');
+  const project=projects.find(p=>p.id===c.projectId)||null;
+  const projectChats=project?await api.request('GET',`/chats?projectId=${encodeURIComponent(project.id)}`):[];
+  const pinnedChats=projectChats.filter(chat=>chat.pinned);
+  const recentChats=projectChats.filter(chat=>!chat.pinned);
+  const projectPanel=project?`<section class="project-history-card">
+    <div class="project-history-head"><div><span class="project-kicker">Proyecto</span><h3>${e(project.name)}</h3></div><button class="project-new" type="button" data-action="project-new-chat" data-project="${e(project.id)}" data-agent="${e(project.agentId)}" aria-label="Nueva conversación en el proyecto">${icon('plus')}</button></div>
+    ${pinnedChats.length?`<div class="project-section-label">Fijadas</div>${pinnedChats.map(chat=>`<div class="project-chat-row ${chat.id===c.id?'current':''}"><button type="button" data-chat="${e(chat.id)}"><span>${icon('pin')}</span><span><strong>${e(chat.title)}</strong><small>${timeLabel(chat.updatedAt||chat.createdAt)}</small></span></button><button type="button" data-action="pin-chat" data-chat-id="${e(chat.id)}" data-pinned="true" aria-label="Desfijar">${icon('close')}</button></div>`).join('')}`:''}
+    <div class="project-section-label">Recientes</div>
+    ${recentChats.length?recentChats.slice(0,8).map(chat=>`<div class="project-chat-row ${chat.id===c.id?'current':''}"><button type="button" data-chat="${e(chat.id)}"><span>${icon('chat')}</span><span><strong>${e(chat.title)}</strong><small>${timeLabel(chat.updatedAt||chat.createdAt)}</small></span></button><button type="button" data-action="pin-chat" data-chat-id="${e(chat.id)}" data-pinned="false" aria-label="Fijar">${icon('pin')}</button></div>`).join(''):`<div class="project-history-empty">Aún no hay conversaciones anteriores.</div>`}
+    <div class="project-history-footer"><button type="button" data-action="archive-chat" data-chat-id="${e(c.id)}">Archivar conversación actual</button></div>
+  </section>`:'';
   const draft=composerState(c.id),flow=sendingState(c.id);
   const messages=[...c.messages,...(flow.sending?[{id:'pending-send',role:'user',content:flow.sending.content,attachments:flow.sending.attachments||[],createdAt:new Date().toISOString(),status:'sending',pending:true}]:[])];
   const queue=flow.queue.length?`<div class="send-queue"><div class="send-queue-title">${icon('clock')} ${flow.queue.length} ${flow.queue.length===1?'mensaje en cola':'mensajes en cola'}</div>${flow.queue.map((item,i)=>`<div class="queued-message"><span>${e((item.content||item.attachments?.[0]?.name||'Mensaje').slice(0,80))}</span><button type="button" data-action="cancel-queued" data-queue-index="${i}" aria-label="Quitar de la cola">${icon('close')}</button></div>`).join('')}</div>`:'';
   return `${heading(name,sandbox?'Explora sin utilizar tu conocimiento personal.':'Un espacio para preguntar, adjuntar y trabajar con un agente.')}
   <div class="chat-layout chat-layout-pro"><section class="chat-panel chat-panel-pro">
-    <div class="chat-heading chat-heading-pro"><div class="agent-heading"><span class="agent-avatar">${icon(sandbox?'shield':c.mode==='agent'?area(c.agentId).icon:'spark')}</span><div><h2>${e(c.title)}</h2><small>${sandbox?'Sandbox aislado':c.mode==='agent'?'Agente · '+e(name):'Chat general'} · demo</small></div></div>
+    <div class="chat-heading chat-heading-pro"><div class="agent-heading"><span class="agent-avatar">${icon(sandbox?'shield':c.mode==='agent'?area(c.agentId).icon:'spark')}</span><div><h2>${e(c.title)}</h2><small>${project?e(project.name)+' · ':''}${sandbox?'Sandbox aislado':c.mode==='agent'?'Agente · '+e(name):'Chat general'} · demo</small></div></div>
       <div class="chat-heading-actions"><span class="pill ${sandbox?'neutral':''}">${icon(sandbox?'shield':'spark')}${sandbox?'Sin contexto personal':'Contexto autorizado'}</span></div>
     </div>
     <div class="messages messages-pro" id="messages">${messages.length?messages.map((m,i)=>chatMessageMarkup(m,messages,i)).join(''):`<div class="chat-empty">${icon(sandbox?'shield':'spark')}<h3>${sandbox?'Un comienzo en blanco.':'¿Qué quieres hacer con '+e(name)+'?'}</h3><p>${sandbox?'Puedes escribir o adjuntar archivos de prueba sin utilizar conocimiento personal.':'Envía una instrucción, añade archivos o reutiliza un mensaje anterior. El backend real tendrá streaming y herramientas.'}</p>${btn('Probar con una pregunta','sample')}</div>`}</div>
@@ -165,14 +178,14 @@ async function chatView(){
       <div class="composer-note"><span>Hasta 8 archivos · 25 MiB por archivo</span><span>En esta demo solo se conserva metadato local; no se sube contenido.</span></div>
     </form>
   </section>
-  <aside class="context-card context-card-pro"><h3>Contexto del agente</h3><p>${sandbox?'Nada de tu espacio personal se añade al contexto.':'Los permisos del agente deciden qué puede recuperar; guardar o clasificar un chat no amplía ese acceso.'}</p>
+  <aside class="chat-side">${projectPanel}<section class="context-card context-card-pro"><h3>Contexto del agente</h3><p>${sandbox?'Nada de tu espacio personal se añade al contexto.':'Los permisos del agente deciden qué puede recuperar; el proyecto organiza conversaciones pero no amplía permisos.'}</p>
+    <div class="context-line"><span>Proyecto</span><strong>${project?e(project.name):'Ninguno'}</strong></div>
     <div class="context-line"><span>Conocimiento</span><strong>${sandbox?'Ninguno':c.mode==='agent'?e(name):'General autorizado'}</strong></div>
-    <div class="context-line"><span>Historial</span><strong>${c.saved?'Guardado · demo':'Sin guardar'}</strong></div>
+    <div class="context-line"><span>Historial</span><strong>${project?'Automático en proyecto':c.saved?'Guardado · demo':'Sin guardar'}</strong></div>
     <div class="context-line"><span>Adjuntos</span><strong>Por mensaje</strong></div>
-    <div class="context-line"><span>Integraciones</span><strong>Ninguna</strong></div>
-    <span class="pill warning">Guardar ≠ memoria</span>
-    ${btn(`${icon('save')} Guardar`,'save-chat')}${btn(`${icon('folder')} Guardar en…`,'categorize')}${btn(`${icon('arrow')} Continuar con…`,'promote')}${btn(`${icon('layers')} Proponer conocimiento`,'extract','',c.saved?'':'disabled title="Guarda primero la conversación"')}${btn('Descartar chat','discard','danger')}
-  </aside></div>`;
+    <span class="pill warning">Proyecto ≠ memoria</span>
+    ${project?'':btn(`${icon('save')} Guardar`,'save-chat')}${btn(`${icon('folder')} Guardar en…`,'categorize')}${btn(`${icon('arrow')} Continuar con…`,'promote')}${btn(`${icon('layers')} Proponer conocimiento`,'extract','',c.saved?'':'disabled title="Guarda primero la conversación"')}${btn('Descartar chat','discard','danger')}
+  </section></aside></div>`;
 }
 async function historyView(){const chats=await api.request('GET','/chats?saved=true');return heading('Conversaciones','Solo aparecen las que has decidido guardar durante esta demostración.')+(chats.length?`<div class="panel">${chats.map(c=>`<button class="list-row list-button" data-chat="${e(c.id)}"><span class="tile-icon small">${icon(c.mode==='sandbox'?'shield':'chat')}</span><div><strong>${e(c.title)}</strong><small>${e(area(c.category).name)} · modo ${e(c.mode)} · guardado en memoria de la demo</small></div><span class="trailing">${icon('chevron')}</span></button>`).join('')}</div>`:empty('Aún no hay conversaciones guardadas','Inicia un chat y pulsa Guardar. La demo no conserva datos tras recargar.',btn('Empezar con conocimiento','new-general','primary')));}
 async function filesView(){const files=await api.request('GET',`/files${state.category?'?category='+state.category:''}`);const filtered=files.filter(f=>f.name.toLocaleLowerCase().includes(state.filter.toLocaleLowerCase()));return heading('Tus archivos','La interfaz de Lisa; en el futuro, Nextcloud por debajo.',btn(`${icon('cloud')} Integración Nextcloud`,'nextcloud'))+`<div class="chips"><button class="chip ${!state.category?'active':''}" data-category="">Todos</button>${AREAS.map(a=>`<button class="chip ${state.category===a.id?'active':''}" data-category="${a.id}">${a.name}</button>`).join('')}<form data-form="search" style="margin-left:auto"><label class="sr-only" for="file-search">Buscar archivos</label><input id="file-search" name="query" value="${e(state.filter)}" placeholder="Buscar archivo…" style="border:1px solid var(--line);border-radius:8px;padding:6px 10px;background:var(--panel);color:var(--ink);max-width:170px"></form></div><div class="file-grid">${filtered.map(f=>`<button class="file-card" data-file="${f.id}"><div class="file-cover">${icon('file')}</div><strong>${e(f.name)}</strong><small>${e(area(f.category).name)} · ${f.size} · v${f.version}</small><div class="resource-line">ID estable de ejemplo · ${f.id}</div></button>`).join('')}</div>${!filtered.length?empty('No hay coincidencias','Prueba otra categoría o búsqueda.'):''}`;}
@@ -187,7 +200,7 @@ async function auditView(){const rows=await api.request('GET','/audit');return h
 function settingsView(){return heading('Un sistema que puedas cambiar','Configuración y estado real de esta entrega.')+`<div class="grid-2"><div class="panel"><h2>Modo de demostración</h2><p style="font-size:12px;margin:15px 0;line-height:1.8">Los datos viven en memoria del navegador. No usamos almacenamiento local para mensajes ni enviamos tus textos a un servidor. Recargar elimina también las conversaciones marcadas como guardadas en la demo.</p><div class="btn-row">${btn('Reiniciar la demo','reset','danger')}${btn('Cambiar tema','theme')}</div></div><div class="panel"><h2>API preparada, backend pendiente</h2><p style="font-size:12px;margin:15px 0;line-height:1.8">Las vistas consumen un adaptador común. La base futura es <code>/api/v1</code>. Los endpoints privados no se abren sin autenticación: actualmente rechazan acciones con un error explícito de no implementado.</p>${btn('Comprobar endpoint','check-api')}</div><div class="panel"><h2>Revisar este diseño</h2><p style="font-size:12px;margin:15px 0;line-height:1.8">Prueba ambos chats, guarda uno, clasifícalo y continúa en otro agente. Revisa también los tamaños de móvil y el modo oscuro.</p>${btn(`${icon('download')} Descargar checklist`,'download-checklist')}</div><div class="panel"><h2>Sin conexiones ocultas</h2><p style="font-size:12px;margin:15px 0;line-height:1.8">Nextcloud, 1Password, OpenClaw, modelos, escritorio y terminal están pendientes. No se ha desplegado el servidor personal ni se han migrado archivos.</p>${btn('Ver integraciones','accounts')}</div></div>`;}
 const views={home,chat:chatView,history:historyView,files:filesView,tasks:tasksView,calendar:calendarView,knowledge:knowledgeView,agents:agentsView,accounts:accountsView,computer:computerView,developer:developerView,audit:auditView,settings:settingsView};
 async function render(){const body=await (views[state.view]||home)();mount.innerHTML=`<div class="shell ${state.menu?'menu-open':''} ${state.sidebarCollapsed?'collapsed':''}">${sidebar()}<div class="main-wrap">${topbar()}<main class="content" id="main" tabindex="-1">${banner()}${body}</main></div></div>`;document.title=`${titles[state.view]||'Inicio'} · Lisa`;if(state.view==='chat'){const box=document.querySelector('#messages');if(box)box.scrollTop=box.scrollHeight;}}
-async function newChat(mode,agentId){const c=await api.request('POST','/chats',{mode,agentId});state.chatId=c.id;nav('chat');}
+async function newChat(mode,agentId,projectId=null){const c=await api.request('POST','/chats',{mode,agentId,projectId});state.chatId=c.id;nav('chat');}
 function eventModal(date='2026-09-23'){modal('Nuevo evento de ejemplo',`<form data-form="event"><label class="field">Título<input name="title" required maxlength="160" placeholder="¿Qué quieres organizar?"></label><div class="grid-2"><label class="field">Fecha<input type="date" name="date" value="${e(date)}" required></label><label class="field">Hora<input type="time" name="time" value="10:00" required></label></div><label class="field">Categoría<select name="category">${options()}</select></label><div class="modal-footer"><button class="btn primary" type="submit">Crear en la demo</button></div></form>`);}
 async function handleAction(action,target){
  if(action==='close'){dialog.close();return;}
@@ -196,7 +209,10 @@ async function handleAction(action,target){
  if(action==='sidebar-collapse'){state.sidebarCollapsed=!state.sidebarCollapsed;await render();return;}
  if(action==='new-general'||action==='new-sandbox'){await newChat(action==='new-general'?'general':'sandbox');return;}
  if(action==='audit'||action==='accounts'){nav(action);return;}
- if(action==='start-agent'){await newChat('agent',target.dataset.id);return;}
+ if(action==='start-agent'){const projects=await api.request('GET','/projects');const project=projects.find(p=>p.agentId===target.dataset.id);await newChat('agent',target.dataset.id,project?.id||null);return;}
+ if(action==='project-new-chat'){await newChat('agent',target.dataset.agent,target.dataset.project);return;}
+ if(action==='pin-chat'){const id=target.dataset.chatId;await api.request('PATCH',`/chats/${id}`,{pinned:target.dataset.pinned!=='true'});await render();toast(target.dataset.pinned==='true'?'Conversación desfijada.':'Conversación fijada.');return;}
+ if(action==='archive-chat'){const id=target.dataset.chatId;await api.request('PATCH',`/chats/${id}`,{archived:true});if(id===state.chatId){const c=await api.request('GET',`/chats/${id}`);const list=c.projectId?await api.request('GET',`/chats?projectId=${encodeURIComponent(c.projectId)}`):[];state.chatId=list[0]?.id||null;if(!state.chatId){const projects=await api.request('GET','/projects');const project=projects.find(p=>p.id===c.projectId);if(project) return newChat('agent',project.agentId,project.id);}}await render();toast('Conversación archivada.');return;}
  if(action==='sample'){const draft=composerState();draft.text='¿Cómo podría organizar mis ideas en este espacio?';const box=document.querySelector('#message');if(box){box.value=draft.text;box.focus();}return;}
  if(action==='attach-files'){document.querySelector('#chat-files')?.click();return;}
  if(action==='remove-attachment'){const draft=composerState();draft.attachments=draft.attachments.filter(file=>file.id!==target.dataset.attachment);await render();document.querySelector('#message')?.focus();return;}
@@ -222,7 +238,7 @@ async function handleAction(action,target){
 document.addEventListener('click',async ev=>{const target=ev.target.closest('button');if(!target||target.disabled)return;try{
  if(target.dataset.nav){nav(target.dataset.nav);return;}
  if(target.dataset.new){await newChat(target.dataset.new);return;}
- if(target.dataset.agent){await newChat('agent',target.dataset.agent);return;}
+ if(target.dataset.agent){const projects=await api.request('GET','/projects');const project=projects.find(p=>p.agentId===target.dataset.agent);await newChat('agent',target.dataset.agent,project?.id||null);return;}
  if(target.dataset.chat){state.chatId=target.dataset.chat;nav('chat');return;}
  if(target.hasAttribute('data-category')){state.category=target.dataset.category;await render();return;}
  if(target.dataset.task){await api.request('PATCH',`/tasks/${target.dataset.task}`,{done:target.dataset.done!=='true'});await render();return;}
