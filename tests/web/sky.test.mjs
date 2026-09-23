@@ -1,0 +1,8 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { skyHour, skyEnvironment, skyClock, SKY_STOPS } from '../../apps/web/sky.mjs';
+test('sky wraps midnight and rejects invalid hours',()=>{assert.equal(skyHour(24),0);assert.equal(skyHour(-1),23);assert.throws(()=>skyHour(NaN),TypeError);assert.throws(()=>skyHour(Infinity),TypeError);});
+test('sky is continuous at all phase boundaries including midnight',()=>{for(const {h} of SKY_STOPS){const a=skyEnvironment(h-1e-5),b=skyEnvironment(h+1e-5);assert.ok(Math.abs(a.stars-b.stars)<.001);for(const key of ['top','middle','bottom','cloud','ink','muted']){const x=a[key].match(/\d+/g).map(Number),y=b[key].match(/\d+/g).map(Number);x.forEach((v,i)=>assert.ok(Math.abs(v-y[i])<=1));}}});
+test('sun and stars switch with local time, not fake weather',()=>{assert.equal(skyEnvironment(13).stars,0);assert.equal(skyEnvironment(13).sunOpacity,1);assert.equal(skyEnvironment(23).sunOpacity,0);assert.ok(skyEnvironment(23).stars>.9);assert.equal(skyEnvironment(7).phase,'Amanecer');assert.equal(skyEnvironment(19).phase,'Atardecer');});
+test('environment stays finite and colors valid across an entire day',()=>{for(let n=0;n<1440;n++){const s=skyEnvironment(n/60);assert.ok(s.stars>=0&&s.stars<=1);assert.ok(s.sunX>=12&&s.sunX<=88);assert.ok(Number.isFinite(s.sunY));for(const key of ['top','middle','bottom','cloud','ink','muted'])assert.match(s[key],/^rgb\(\d+,\d+,\d+\)$/);}});
+test('clock respects 24-hour minute boundaries',()=>{assert.equal(skyClock(0),'00:00');assert.equal(skyClock(24),'00:00');assert.equal(skyClock(13.5),'13:30');assert.equal(skyClock(23+59/60),'23:59');});
