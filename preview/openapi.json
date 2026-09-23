@@ -2,7 +2,7 @@
   "openapi": "3.1.0",
   "info": {
     "title": "Lisa Personal API",
-    "version": "0.3.0",
+    "version": "0.4.0",
     "description": "DESIGN contract; NOT a working backend. Every private server route currently returns 501. DemoClient is local memory only. Server authentication and authorization are prerequisites for real data."
   },
   "servers": [
@@ -61,7 +61,79 @@
     "/bootstrap": {
       "get": {
         "operationId": "bootstrap",
-        "summary": "Authenticated session, effective capabilities, agents and integration state.",
+        "summary": "Authenticated session, effective capabilities, agents, projects and integration state.",
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Future implementation. Local DemoClient returns fixtures; server seam returns 501 except health.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Envelope"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated"
+          },
+          "403": {
+            "description": "Denied"
+          },
+          "404": {
+            "description": "Absent or inaccessible"
+          },
+          "409": {
+            "description": "Revision or idempotency conflict"
+          },
+          "422": {
+            "description": "Invalid request"
+          },
+          "429": {
+            "description": "Rate limited"
+          },
+          "501": {
+            "description": "Backend not configured",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "cursor",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 200
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 50
+            }
+          }
+        ]
+      }
+    },
+    "/projects": {
+      "get": {
+        "operationId": "listProjects",
+        "summary": "Projects visible to the authenticated principal.",
         "security": [
           {
             "sessionCookie": []
@@ -133,7 +205,7 @@
     "/chats": {
       "get": {
         "operationId": "listChats",
-        "summary": "Visible conversations; saved=true selects explicit history.",
+        "summary": "Visible conversations; filter by project, pinned, archived or explicit saved history.",
         "security": [
           {
             "sessionCookie": []
@@ -201,6 +273,29 @@
           },
           {
             "name": "saved",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "projectId",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 100
+            }
+          },
+          {
+            "name": "pinned",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "archived",
             "in": "query",
             "schema": {
               "type": "boolean"
@@ -350,6 +445,96 @@
             }
           }
         ]
+      },
+      "patch": {
+        "operationId": "patchChat",
+        "summary": "Pin, archive, rename or move a conversation without changing agent permissions.",
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Future implementation. Local DemoClient returns fixtures; server seam returns 501 except health.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Envelope"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated"
+          },
+          "403": {
+            "description": "Denied"
+          },
+          "404": {
+            "description": "Absent or inaccessible"
+          },
+          "409": {
+            "description": "Revision or idempotency conflict"
+          },
+          "422": {
+            "description": "Invalid request"
+          },
+          "429": {
+            "description": "Rate limited"
+          },
+          "501": {
+            "description": "Backend not configured",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 100
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "X-CSRF-Token",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 200
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ChatPatch"
+              }
+            }
+          }
+        }
       },
       "delete": {
         "operationId": "deleteChat",
@@ -2251,6 +2436,36 @@
           }
         }
       },
+      "Project": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "name",
+          "category"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 160
+          },
+          "category": {
+            "$ref": "#/components/schemas/Category"
+          },
+          "agentId": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      },
       "CreateChat": {
         "type": "object",
         "additionalProperties": false,
@@ -2266,6 +2481,36 @@
             ]
           },
           "agentId": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "projectId": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      },
+      "ChatPatch": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [],
+        "properties": {
+          "pinned": {
+            "type": "boolean"
+          },
+          "archived": {
+            "type": "boolean"
+          },
+          "title": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          },
+          "projectId": {
             "type": [
               "string",
               "null"
@@ -2621,6 +2866,18 @@
           "category": {
             "$ref": "#/components/schemas/Category"
           },
+          "projectId": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "pinned": {
+            "type": "boolean"
+          },
+          "archived": {
+            "type": "boolean"
+          },
           "saved": {
             "type": "boolean"
           },
@@ -2639,6 +2896,10 @@
             ]
           },
           "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
             "type": "string",
             "format": "date-time"
           },
