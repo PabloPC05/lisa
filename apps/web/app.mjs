@@ -55,52 +55,7 @@ function section(title,action=''){return `<div class="section-head"><h2>${title}
 function empty(title,description,action=''){return `<div class="empty">${icon('layers')}<h3>${title}</h3><p>${description}</p>${action}</div>`;}
 function taskRow(t){return `<div class="list-row ${t.done?'done':''}"><button class="check ${t.done?'checked':''}" data-task="${e(t.id)}" data-done="${t.done}" aria-label="${t.done?'Marcar pendiente':'Completar'}: ${e(t.title)}">${t.done?icon('check'):''}</button><div><strong>${e(t.title)}</strong><small>${e(area(t.category).name)} · ejemplo</small></div></div>`;}
 function eventRow(v){return `<div class="list-row"><div class="mini-date">${e(v.time)}</div><div><strong>${e(v.title)}</strong><small>${e(v.date)} · ${e(area(v.category).name)}</small></div></div>`;}
-async function home(){
-  const [tasks,events,files,chats,notes]=await Promise.all([
-    api.request('GET','/tasks'),
-    api.request('GET','/events'),
-    api.request('GET','/files'),
-    api.request('GET','/chats?saved=true'),
-    api.request('GET','/knowledge')
-  ]);
-  const pending=tasks.filter(t=>!t.done);
-  return `<div class="dashboard-head"><div><div class="eyebrow">Tu espacio, de un vistazo.</div><h1>Inicio</h1><p>Lo importante ahora, sin convertir la pantalla en una landing.</p></div><div class="dashboard-actions">${btn(`${icon('spark')} Con conocimiento`,'new-general','primary')}${btn(`${icon('shield')} Sandbox`,'new-sandbox')}</div></div>
-  <div class="dashboard-grid">
-    <section class="widget widget-wide"><div class="widget-head"><div><span class="widget-kicker">Conversaciones</span><h2>Continúa donde lo dejaste</h2></div><button class="subtle-btn" data-nav="history">Ver todas ${icon('arrow')}</button></div>
-      <div class="widget-list">${chats.length?chats.slice(0,3).map(c=>`<button class="widget-row" data-chat="${e(c.id)}"><span class="widget-icon">${icon(c.mode==='sandbox'?'shield':'chat')}</span><span class="widget-copy"><strong>${e(c.title)}</strong><small>${e(area(c.category).name)} · ${e(c.mode)}</small></span>${icon('chevron')}</button>`).join(''):`<div class="widget-empty"><span>No hay chats guardados todavía.</span><button data-new="general">Empezar uno</button></div>`}</div>
-    </section>
-
-    <section class="widget"><div class="widget-head"><div><span class="widget-kicker">Calendario</span><h2>Próximo</h2></div><button class="subtle-btn" data-nav="calendar">Abrir ${icon('arrow')}</button></div>
-      <div class="widget-list">${events.slice(0,3).map(v=>`<div class="widget-row static"><span class="time-badge">${e(v.time)}</span><span class="widget-copy"><strong>${e(v.title)}</strong><small>${e(v.date)} · ${e(area(v.category).name)}</small></span></div>`).join('')}</div>
-    </section>
-
-    <section class="widget"><div class="widget-head"><div><span class="widget-kicker">Tareas</span><h2>${pending.length} pendientes</h2></div><button class="subtle-btn" data-nav="tasks">Ver todas ${icon('arrow')}</button></div>
-      <div class="widget-list">${pending.slice(0,4).map(t=>`<div class="widget-row static"><button class="check ${t.done?'checked':''}" data-task="${e(t.id)}" data-done="${t.done}" aria-label="Completar ${e(t.title)}">${t.done?icon('check'):''}</button><span class="widget-copy"><strong>${e(t.title)}</strong><small>${e(area(t.category).name)}</small></span></div>`).join('')}</div>
-    </section>
-
-    <section class="widget widget-wide"><div class="widget-head"><div><span class="widget-kicker">Aplicaciones</span><h2>Tu espacio</h2></div></div>
-      <div class="app-launch-grid">
-        ${[
-          ['files','folder','Archivos',`${files.length} elementos de ejemplo`],
-          ['calendar','calendar','Calendario',`${events.length} eventos`],
-          ['tasks','tasks','Tareas',`${pending.length} pendientes`],
-          ['knowledge','layers','Conocimiento',`${notes.length} notas`],
-          ['agents','spark','Agentes',`${AREAS.length} áreas`],
-          ['accounts','lock','Cuentas','Integraciones pendientes']
-        ].map(([view,ico,label,meta])=>`<button class="app-launch" data-nav="${view}"><span class="app-launch-icon">${icon(ico)}</span><span><strong>${label}</strong><small>${meta}</small></span>${icon('chevron')}</button>`).join('')}
-      </div>
-    </section>
-
-    <section class="widget"><div class="widget-head"><div><span class="widget-kicker">Archivos</span><h2>Recientes</h2></div><button class="subtle-btn" data-nav="files">Abrir ${icon('arrow')}</button></div>
-      <div class="widget-list">${files.slice(0,3).map(f=>`<button class="widget-row" data-file="${e(f.id)}"><span class="widget-icon">${icon('file')}</span><span class="widget-copy"><strong>${e(f.name)}</strong><small>${e(area(f.category).name)} · ${e(f.type)}</small></span></button>`).join('')}</div>
-    </section>
-
-    <section class="widget"><div class="widget-head"><div><span class="widget-kicker">Conocimiento</span><h2>Últimas notas</h2></div><button class="subtle-btn" data-nav="knowledge">Abrir ${icon('arrow')}</button></div>
-      <div class="widget-list">${notes.slice(0,3).map(n=>`<div class="widget-row static"><span class="widget-icon">${icon('layers')}</span><span class="widget-copy"><strong>${e(n.title)}</strong><small>${e(area(n.category).name)} · ${n.status==='approved'?'Aprobada':'Pendiente'}</small></span></div>`).join('')}</div>
-    </section>
-  </div>
-  <div class="footnote">${icon('lock')}Datos ficticios · UI desacoplada · permisos por agente · modo claro fijado para esta propuesta</div>`;
-}
+async function home(){return document.querySelector('#home-dashboard').innerHTML;}
 async function chatView(){if(!state.chatId)return empty('Elige cómo empezar','Con tu conocimiento personal o desde un espacio Sandbox.',`${btn('Con conocimiento','new-general','primary')} ${btn('Sandbox','new-sandbox')}`);const c=await api.request('GET',`/chats/${state.chatId}`);const sandbox=c.mode==='sandbox';const name=c.mode==='agent'?area(c.agentId).name:sandbox?'Sandbox':'Con conocimiento';return `${heading(name,sandbox?'Explora sin utilizar tu conocimiento personal.':'Un espacio para preguntar y conectar ideas.')}
 <div class="chat-layout"><div class="chat-panel"><div class="chat-heading"><h2>${e(c.title)}</h2><span class="pill ${sandbox?'neutral':''}">${icon(sandbox?'shield':'spark')}${sandbox?'Sandbox · demo':'Contexto · demo'}</span></div><div class="messages" id="messages">${c.messages.length?c.messages.map(m=>`<div class="message ${e(m.role)}"><span class="message-label">${m.role==='user'?'Tú':m.role==='imported'?'Contexto importado · no confiable':'Lisa · respuesta simulada'}</span>${e(m.content)}</div>`).join(''):`<div class="empty" style="border:0;padding-top:60px">${icon(sandbox?'shield':'spark')}<h3>${sandbox?'Un comienzo en blanco.':'¿Qué te gustaría poner en orden?'}</h3><p>${sandbox?'Sin documentos, calendario, credenciales ni memoria personal. En esta demo no hay un runtime real.':'En el sistema completo podrás consultar el conocimiento que autorices. Esta vista solo simula la conversación.'}</p>${btn('Probar con una pregunta','sample')}</div>`}</div><form class="composer" data-form="message"><label class="sr-only" for="message">Mensaje de prueba</label><textarea id="message" name="content" placeholder="Escribe un mensaje de prueba…" maxlength="8000" required></textarea><div class="composer-footer"><small>Sin modelo conectado · no uses datos reales</small><button class="btn primary" type="submit" ${state.busy?'disabled':''}>Enviar ${icon('send')}</button></div></form></div>
 <aside class="context-card"><h3>Contexto de esta conversación</h3><p>${sandbox?'Nada de tu espacio personal se añade al contexto.':'El contexto dependerá de los permisos del agente, no de la carpeta donde guardes el chat.'}</p><div class="context-line"><span>Conocimiento</span><strong>${sandbox?'Ninguno':c.mode==='agent'?e(name):'General'}</strong></div><div class="context-line"><span>Historial</span><strong>${c.saved?'Guardado · demo':'Sin guardar'}</strong></div><div class="context-line"><span>Categoría</span><strong>${e(area(c.category).name)}</strong></div><div class="context-line"><span>Integraciones</span><strong>Ninguna</strong></div><span class="pill warning">Guardado ≠ memoria</span>${btn(`${icon('save')} Guardar`,'save-chat')}${btn(`${icon('folder')} Guardar en…`,'categorize')}${btn(`${icon('arrow')} Continuar con…`,'promote')}${btn(`${icon('layers')} Proponer conocimiento`,'extract','',c.saved?'':'disabled title="Guarda primero la conversación"')}${btn('Descartar chat','discard','danger')}</aside></div>`;}
@@ -123,6 +78,7 @@ async function handleAction(action,target){
  if(action==='close'){dialog.close();return;}
  if(action==='theme'){toast('Esta propuesta visual está fijada en modo claro.');return;}
  if(action==='menu'){state.menu=!state.menu;document.querySelector('.shell').classList.toggle('menu-open',state.menu);const b=document.querySelector('.mobile-menu');b?.setAttribute('aria-expanded',String(state.menu));return;}
+ if(action==='sidebar-collapse'){state.sidebarCollapsed=!state.sidebarCollapsed;await render();return;}
  if(action==='sidebar-collapse'){state.sidebarCollapsed=!state.sidebarCollapsed;await render();return;}
  if(action==='new-general'||action==='new-sandbox'){await newChat(action==='new-general'?'general':'sandbox');return;}
  if(action==='audit'||action==='accounts'){nav(action);return;}
