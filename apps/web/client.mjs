@@ -9,13 +9,36 @@ export class DemoClient {
   async request(method, path, body = {}) {
     const [route, query = ''] = path.split('?');
     const q = new URLSearchParams(query);
-    if (method === 'GET' && route === '/bootstrap') return {mode:'demo', agents:copy(AREAS), integrations:[], version:'0.4.0'};
-    if (method === 'GET' && route === '/chats') return copy(this.chats.filter(c => q.get('saved') !== 'true' || c.saved));
-    if (method === 'POST' && route === '/chats') { const c = createConversation(body.mode, body.agentId); this.chats.push(c); return copy(c); }
+    if (method === 'GET' && route === '/bootstrap') return {mode:'demo', agents:copy(AREAS), projects:copy(this.data.projects), integrations:[], version:'0.4.0'};
+    if (method === 'GET' && route === '/projects') return copy(this.data.projects);
+    if (method === 'GET' && route === '/chats') return copy(this.chats.filter(c => {
+      if (q.get('saved') === 'true' && !c.saved) return false;
+      if (q.get('projectId') && c.projectId !== q.get('projectId')) return false;
+      if (q.get('pinned') === 'true' && !c.pinned) return false;
+      if (q.get('archived') !== 'true' && c.archived) return false;
+      if (q.get('archived') === 'true' && !c.archived) return false;
+      return true;
+    }).sort((a,b)=>Number(b.pinned)-Number(a.pinned)||String(b.updatedAt||b.createdAt).localeCompare(String(a.updatedAt||a.createdAt))));
+    if (method === 'POST' && route === '/chats') { const c = createConversation(body.mode, body.agentId, body.projectId || null); this.chats.push(c); return copy(c); }
     const match = route.match(/^\/chats\/([^/]+)(?:\/(messages|save|promotions|knowledge-proposals))?$/);
     if (match) {
       const c = this.chat(match[1]); const action = match[2];
       if (method === 'GET' && !action) return copy(c);
+      if (method === 'PATCH' && !action) {
+        if ('pinned' in body) c.pinned = Boolean(body.pinned);
+        if ('archived' in body) c.archived = Boolean(body.archived);
+        if ('title' in body) c.title = text(body.title, 200);
+        if ('projectId' in body) {
+          const projectId = body.projectId || null;
+          if (projectId && !this.data.projects.some(p => p.id === projectId)) throw new Error('Proyecto desconocido.');
+          c.projectId = projectId;
+          if (projectId) c.saved = true;
+        }
+        c.updatedAt = new Date().toISOString();
+        c.revision++;
+        this.log('chat.update', c.id);
+        return copy(c);
+      }
       if (method === 'DELETE' && !action) { this.chats = this.chats.filter(x => x.id !== c.id); this.log('chat.discard', c.id); return null; }
       if (method === 'POST' && action === 'messages') {
         const attachments = Array.isArray(body.attachments) ? body.attachments.slice(0, 8).map(file => {
@@ -32,7 +55,7 @@ export class DemoClient {
         if (c.title === 'Nueva conversación') c.title = (raw || attachments[0]?.name || 'Conversación').slice(0,60);
         const note = c.mode === 'sandbox' ? 'Este chat representa el modo Sandbox: sin conocimiento personal ni herramientas privadas. El aislamiento real se implementará en el servidor.' : 'Este chat representa el acceso al conocimiento autorizado. Aún no está conectado a tus documentos ni a ningún modelo.';
         c.messages.push({id:uid(), role:'assistant', content:`Respuesta de demostración, no generada por IA.\n\n${note}\n\nEl composer ya admite cola de mensajes, adjuntos de demostración, reenvío y cancelación. El backend real sustituirá esta respuesta simulada por streaming.`, attachments:[], createdAt:new Date().toISOString(), status:'complete'});
-        c.revision++; return copy(c);
+        c.updatedAt = new Date().toISOString(); c.revision++; return copy(c);
       }
       if (method === 'POST' && action === 'save') {
         if (body.expectedRevision !== c.revision) throw new Error('Conflicto de revisión. Vuelve a abrir el chat.');
