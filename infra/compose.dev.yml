@@ -1,0 +1,65 @@
+services:
+  lisa-postgres:
+    image: ${POSTGRES_IMAGE:-postgres:16-alpine}
+    environment:
+      POSTGRES_DB: lisa
+      POSTGRES_USER: lisa
+      POSTGRES_PASSWORD: ${LISA_DB_PASSWORD:-lisa-dev-only}
+    volumes:
+      - lisa_postgres_data:/var/lib/postgresql/data
+    networks: [private]
+
+  nextcloud-db:
+    image: ${POSTGRES_IMAGE:-postgres:16-alpine}
+    environment:
+      POSTGRES_DB: nextcloud
+      POSTGRES_USER: nextcloud
+      POSTGRES_PASSWORD: ${NEXTCLOUD_DB_PASSWORD:-nextcloud-dev-only}
+    volumes:
+      - nextcloud_db_data:/var/lib/postgresql/data
+    networks: [private]
+
+  redis:
+    image: ${REDIS_IMAGE:-redis:7-alpine}
+    networks: [private]
+
+  nextcloud:
+    image: ${NEXTCLOUD_IMAGE:-nextcloud:stable}
+    depends_on:
+      - nextcloud-db
+      - redis
+    environment:
+      POSTGRES_HOST: nextcloud-db
+      POSTGRES_DB: nextcloud
+      POSTGRES_USER: nextcloud
+      POSTGRES_PASSWORD: ${NEXTCLOUD_DB_PASSWORD:-nextcloud-dev-only}
+      REDIS_HOST: redis
+    ports:
+      - "127.0.0.1:8081:80"
+    volumes:
+      - nextcloud_data:/var/www/html
+    networks: [private]
+
+  openfga:
+    image: ${OPENFGA_IMAGE:-openfga/openfga:latest}
+    command: run
+    environment:
+      OPENFGA_DATASTORE_ENGINE: memory
+      OPENFGA_LOG_FORMAT: json
+    ports:
+      - "127.0.0.1:8080:8080"
+      - "127.0.0.1:8082:8081"
+    networks: [private]
+
+networks:
+  private:
+    driver: bridge
+
+volumes:
+  lisa_postgres_data:
+  nextcloud_db_data:
+  nextcloud_data:
+
+# Development scaffold only.
+# Production must use real secrets, TLS/reverse proxy, backups,
+# persistent OpenFGA datastore, network policy and separate private/sandbox runtimes.
