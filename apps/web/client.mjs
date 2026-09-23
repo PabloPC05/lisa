@@ -66,7 +66,7 @@ export class DemoClient {
       }
       if (method === 'POST' && action === 'knowledge-proposals') {
         if (!c.saved) throw new Error('Guarda la conversación antes de proponer conocimiento.');
-        const item = {id:uid(), title:text(body.title,120), category:c.category, content:text(body.content), source:c.id, status:'proposed'};
+        const now=new Date().toISOString(); const item = {id:uid(), title:text(body.title,120), category:c.category, format:'markdown', revision:1, updatedAt:now, content:text(body.content), source:c.id, status:'proposed'};
         this.data.knowledge.push(item); this.log('knowledge.propose', item.id); return copy(item);
       }
     }
@@ -90,9 +90,17 @@ export class DemoClient {
       const event={id:uid(),title:text(body.title,160),date:body.date,time:body.time,category:body.category};
       this.data.events.push(event); this.log('event.create',event.id); return copy(event);
     }
+    if (method === 'PATCH' && /^\/knowledge\/[^/]+$/.test(route)) {
+      const item=this.data.knowledge.find(n=>n.id === route.split('/')[2]); if(!item) throw new Error('Nota no encontrada.');
+      if (body.expectedRevision !== item.revision) throw new Error('Conflicto de revisión. Vuelve a abrir la nota.');
+      if ('title' in body) item.title=text(body.title,120);
+      if ('content' in body) item.content=text(body.content,50000);
+      item.format='markdown'; item.revision+=1; item.updatedAt=new Date().toISOString();
+      this.log('knowledge.update',item.id); return copy(item);
+    }
     if (method === 'POST' && /^\/knowledge\/[^/]+\/approve$/.test(route)) {
       const item=this.data.knowledge.find(n=>n.id === route.split('/')[2]); if(!item) throw new Error('Nota no encontrada.');
-      item.status='approved'; this.log('knowledge.approve',item.id); return copy(item);
+      item.status='approved'; item.revision=(item.revision||1)+1; item.updatedAt=new Date().toISOString(); this.log('knowledge.approve',item.id); return copy(item);
     }
     throw new Error('Función pendiente del backend. No se ha ejecutado ninguna acción real.');
   }
