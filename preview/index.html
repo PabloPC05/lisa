@@ -261,6 +261,21 @@ dialog{border:1px solid rgba(255,255,255,.9);background:rgba(255,255,255,.88);ba
 .chat-side .context-card-pro{position:static}.chat-layout-pro{grid-template-columns:minmax(0,1fr) 260px}
 @media(max-width:1000px){.chat-side{position:static}.project-history-card{order:1}.context-card-pro{order:2}.chat-layout-pro{grid-template-columns:1fr}.project-history-card{max-height:260px;overflow:auto}}
 @media(max-width:760px){.chat-side{display:block}.project-history-card{margin-top:8px}.project-history-card+.context-card-pro{display:none}}
+
+/* Conocimiento · lector/editor Markdown */
+.knowledge-shell{display:grid;grid-template-columns:250px minmax(0,1fr) 210px;gap:12px;align-items:start}
+.knowledge-library,.knowledge-reader,.knowledge-outline-card{background:rgba(255,255,255,.72);backdrop-filter:blur(26px) saturate(145%);-webkit-backdrop-filter:blur(26px) saturate(145%);border:1px solid rgba(255,255,255,.92);box-shadow:0 12px 40px rgba(43,29,25,.07)}
+.knowledge-library{border-radius:18px;padding:13px;position:sticky;top:82px;max-height:calc(100vh - 104px);overflow:auto}.knowledge-library-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px}.knowledge-library-head h2{font-size:13px}.knowledge-kicker{display:block;font-size:7.5px;letter-spacing:1.2px;text-transform:uppercase;color:var(--red);font-weight:750;margin-bottom:2px}
+.knowledge-search{height:35px;display:flex;align-items:center;gap:7px;border:1px solid rgba(20,20,20,.08);background:#fff;border-radius:11px;padding:0 9px;margin-bottom:8px}.knowledge-search svg{width:13px;color:#a39b96}.knowledge-search input{min-width:0;width:100%;border:0;outline:0;background:transparent;font-size:9px;color:var(--ink)}
+.knowledge-filters{display:flex;gap:5px;overflow:auto;padding-bottom:5px;margin-bottom:6px}.knowledge-filters button{border:1px solid rgba(20,20,20,.07);background:#fff;border-radius:9px;padding:5px 7px;font-size:7.5px;color:#8d8580;white-space:nowrap}.knowledge-filters button.active{color:var(--red);border-color:rgba(223,31,45,.2);background:var(--red-soft)}
+.knowledge-list{display:flex;flex-direction:column;gap:3px}.knowledge-list-item{width:100%;display:grid;grid-template-columns:28px minmax(0,1fr);gap:7px;align-items:center;border:0;background:transparent;border-radius:11px;padding:7px;text-align:left}.knowledge-list-item:hover{background:rgba(20,20,20,.035)}.knowledge-list-item.active{background:rgba(223,31,45,.075)}.knowledge-doc-icon{width:28px;height:28px;border-radius:9px;background:rgba(20,20,20,.045);color:#847d78;display:grid;place-items:center}.knowledge-list-item.active .knowledge-doc-icon{background:var(--red-soft);color:var(--red)}.knowledge-doc-icon svg{width:13px}.knowledge-list-item strong{display:block;font-size:8.8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.knowledge-list-item small{display:block;font-size:7px;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.knowledge-list-empty{padding:18px 8px;color:#a29a95;font-size:8px;text-align:center}
+.knowledge-reader{border-radius:20px;min-height:680px;overflow:hidden}.knowledge-doc-head{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;padding:22px 28px 17px;border-bottom:1px solid rgba(20,20,20,.065);background:rgba(255,255,255,.45)}.knowledge-doc-head h1{font-size:25px;line-height:1.14;letter-spacing:-.7px;margin:9px 0 5px}.knowledge-doc-head p{font-size:8.5px}.knowledge-badges{display:flex;gap:5px;flex-wrap:wrap}
+.markdown-body{max-width:760px;margin:0 auto;padding:36px 44px 60px;font-size:12px;line-height:1.78;color:#292624}.markdown-body h1,.markdown-body h2,.markdown-body h3,.markdown-body h4,.markdown-body h5,.markdown-body h6{color:#171615;scroll-margin-top:90px}.markdown-body h1{font-size:28px;line-height:1.2;letter-spacing:-.8px;margin:0 0 20px}.markdown-body h2{font-size:20px;line-height:1.3;letter-spacing:-.4px;margin:34px 0 13px;padding-bottom:7px;border-bottom:1px solid rgba(20,20,20,.08)}.markdown-body h3{font-size:15px;margin:27px 0 10px}.markdown-body h4{font-size:13px;margin:22px 0 8px}.markdown-body p{font-size:12px;line-height:1.78;color:#48423f;margin:0 0 16px}.markdown-body strong{color:#1e1b1a;font-weight:700}.markdown-body em{color:#514b47}.markdown-body del{color:#8f8781}.markdown-body a{color:var(--red);text-decoration:none;border-bottom:1px solid rgba(223,31,45,.2)}.markdown-body a:hover{border-color:var(--red)}.markdown-body code{font-family:"SFMono-Regular",Consolas,monospace;background:#f1efed;border:1px solid rgba(20,20,20,.055);border-radius:5px;padding:1px 4px;font-size:.88em;color:#4f292d}.markdown-body blockquote{margin:20px 0;padding:10px 16px;border-left:3px solid var(--red);background:rgba(223,31,45,.045);color:#615956;border-radius:0 10px 10px 0}.markdown-body ul,.markdown-body ol{padding-left:23px;margin:0 0 17px}.markdown-body li{margin:5px 0;color:#494440}.markdown-body hr{border:0;border-top:1px solid rgba(20,20,20,.1);margin:28px 0}.task-list-item{list-style:none;margin-left:-20px!important;display:flex;align-items:flex-start;gap:8px}.task-list-item input{accent-color:var(--red);margin-top:5px}.md-table-wrap{overflow:auto;margin:18px 0 22px;border:1px solid rgba(20,20,20,.085);border-radius:3px}.markdown-body table{border-collapse:collapse;width:100%;font-size:10px;background:#fff}.markdown-body th,.markdown-body td{padding:9px 11px;border-bottom:1px solid rgba(20,20,20,.065);text-align:left}.markdown-body th{font-size:8px;text-transform:uppercase;letter-spacing:.7px;color:#7f7772;background:#f8f6f4}.markdown-body tr:last-child td{border-bottom:0}.md-code{margin:20px 0;border-radius:3px;background:#151414;overflow:hidden}.md-code-head{height:28px;display:flex;align-items:center;padding:0 11px;border-bottom:1px solid rgba(255,255,255,.08);color:#9d9591;font-size:7.5px;text-transform:uppercase;letter-spacing:.8px}.md-code pre{margin:0;padding:14px 16px;overflow:auto}.md-code pre code{background:transparent;border:0;color:#f0ece9;padding:0;font-size:9.5px;line-height:1.65}
+.knowledge-outline{position:sticky;top:82px;display:flex;flex-direction:column;gap:10px}.knowledge-outline-card{border-radius:16px;padding:13px}.knowledge-outline-card h3{font-size:11px;margin-bottom:8px}.knowledge-outline-card>a{display:block;text-decoration:none;color:#817974;font-size:8px;line-height:1.4;padding:4px 0;border-left:1px solid rgba(20,20,20,.08)}.knowledge-outline-card>a:hover{color:var(--red)}.knowledge-outline-card>a.level-1{padding-left:8px;font-weight:650;color:#4d4845}.knowledge-outline-card>a.level-2{padding-left:13px}.knowledge-outline-card>a.level-3,.knowledge-outline-card>a.level-4,.knowledge-outline-card>a.level-5,.knowledge-outline-card>a.level-6{padding-left:20px}.knowledge-outline-empty{font-size:8px;color:#aaa29d}.knowledge-outline-card .context-line{font-size:8px;padding:7px 0}
+.knowledge-editor{padding:18px 22px 24px}.knowledge-editor>label{display:block;font-size:8px;color:#89817c}.knowledge-editor>label>input{display:block;width:100%;margin-top:5px;border:1px solid rgba(20,20,20,.09);background:#fff;border-radius:3px;padding:9px 10px;color:var(--ink)}.knowledge-editor-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px;min-height:520px}.knowledge-editor-grid>label{display:flex;flex-direction:column;font-size:8px;color:#89817c}.knowledge-editor textarea{flex:1;width:100%;margin-top:5px;border:1px solid rgba(20,20,20,.09);background:#161515;color:#eee9e6;border-radius:3px;padding:14px;font-family:"SFMono-Regular",Consolas,monospace;font-size:9.5px;line-height:1.65;resize:none;outline:0}.knowledge-preview{border:1px solid rgba(20,20,20,.08);background:#fff;overflow:auto;border-radius:3px}.knowledge-preview-label{position:sticky;top:0;z-index:2;padding:7px 10px;background:rgba(248,246,244,.95);border-bottom:1px solid rgba(20,20,20,.06);font-size:7.5px;text-transform:uppercase;letter-spacing:.8px;color:#948c87}.knowledge-preview .markdown-body{padding:22px 25px 34px;font-size:10px}.knowledge-preview .markdown-body p{font-size:10px}.knowledge-preview .markdown-body h1{font-size:22px}.knowledge-preview .markdown-body h2{font-size:16px}.knowledge-editor-footer{display:flex;align-items:center;justify-content:flex-end;gap:10px;margin-top:10px}.knowledge-editor-footer span{margin-right:auto;font-size:8px;color:#a29a95}.knowledge-empty{padding:60px;text-align:center;color:#99918c}
+@media(max-width:1180px){.knowledge-shell{grid-template-columns:220px minmax(0,1fr)}.knowledge-outline{display:none}}
+@media(max-width:850px){.knowledge-shell{grid-template-columns:1fr}.knowledge-library{position:static;max-height:260px}.knowledge-reader{min-height:560px}.knowledge-editor-grid{grid-template-columns:1fr;min-height:auto}.knowledge-editor textarea{min-height:360px}.knowledge-preview{min-height:360px}.markdown-body{padding:28px 24px 44px}}
+@media(max-width:520px){.knowledge-doc-head{padding:17px}.knowledge-doc-head h1{font-size:22px}.markdown-body{padding:22px 17px 35px}.knowledge-library{border-radius:15px}.knowledge-reader{border-radius:16px}}
 </style>
 </head>
 <body>
@@ -461,7 +476,63 @@ function makeFixtures() {
       {id:'demo-event-2', title:'Bloque de estudio · ejemplo', date:'2026-09-24', time:'10:00', category:'universidad'},
       {id:'demo-event-3', title:'Organizar documentos · ejemplo', date:'2026-09-25', time:'18:00', category:'vivienda'}
     ],
-    knowledge: [{id:'demo-note-1', title:'Cómo se organiza este espacio', category:'general', content:'Los documentos, las conversaciones y el conocimiento son cosas distintas. Guardar un chat no lo convierte automáticamente en memoria.', source:'Guía de demostración', status:'approved'}],
+    knowledge: [
+      {id:'demo-note-1', title:'Cómo se organiza este espacio', category:'general', format:'markdown', revision:3, updatedAt:'2026-09-23T18:20:00Z', source:'Guía de demostración', status:'approved', content:`# Cómo se organiza este espacio
+
+Lisa separa **documentos**, **conversaciones** y **conocimiento** para que guardar algo no cambie sus permisos ni su significado.
+
+## Principios
+
+- Una conversación guardada sigue siendo historial.
+- El conocimiento aprobado vive en Markdown.
+- Un proyecto organiza; no concede permisos.
+- Las fuentes se conservan para poder revisar y revocar.
+
+> Guardar una conversación no la convierte automáticamente en memoria.
+
+## Flujo de memoria
+
+| Paso | Estado |
+| --- | --- |
+| Conversación | Historial |
+| Propuesta | Pendiente de revisión |
+| Aprobación | Memoria activa |
+| Edición | Nueva revisión |
+
+## Checklist
+
+- [x] Mantener Markdown portable
+- [x] Conservar la fuente
+- [ ] Conectar persistencia PostgreSQL
+- [ ] Añadir backlinks reales
+`},
+      {id:'demo-note-2', title:'Diseño de proyectos', category:'personal', format:'markdown', revision:2, updatedAt:'2026-09-23T19:10:00Z', source:'Decisiones de producto', status:'approved', content:`# Diseño de proyectos
+
+Un **proyecto** agrupa trabajo relacionado sin cargar todas sus conversaciones en cada prompt.
+
+## Qué contiene
+
+1. Historial de conversaciones.
+2. Conversaciones fijadas.
+3. Archivos y notas relacionados.
+4. Agente por defecto.
+5. Contexto autorizado.
+
+### Regla importante
+
+**Project != Agent != Category != Memory**
+
+Los permisos se evalúan en cada recuperación de contexto.
+`},
+      {id:'demo-note-3', title:'Nota pendiente de revisión', category:'universidad', format:'markdown', revision:1, updatedAt:'2026-09-23T20:05:00Z', source:'Conversación de ejemplo', status:'proposed', content:`# Nota pendiente
+
+Esta nota representa una propuesta todavía **no aprobada**.
+
+- Revisar exactitud.
+- Confirmar fuentes.
+- Aprobar solo si merece formar parte de la memoria.
+`}
+    ],
     audit: []
   };
 }
@@ -535,7 +606,7 @@ class DemoClient {
       }
       if (method === 'POST' && action === 'knowledge-proposals') {
         if (!c.saved) throw new Error('Guarda la conversación antes de proponer conocimiento.');
-        const item = {id:uid(), title:text(body.title,120), category:c.category, content:text(body.content), source:c.id, status:'proposed'};
+        const now=new Date().toISOString(); const item = {id:uid(), title:text(body.title,120), category:c.category, format:'markdown', revision:1, updatedAt:now, content:text(body.content), source:c.id, status:'proposed'};
         this.data.knowledge.push(item); this.log('knowledge.propose', item.id); return copy(item);
       }
     }
@@ -559,9 +630,17 @@ class DemoClient {
       const event={id:uid(),title:text(body.title,160),date:body.date,time:body.time,category:body.category};
       this.data.events.push(event); this.log('event.create',event.id); return copy(event);
     }
+    if (method === 'PATCH' && /^\/knowledge\/[^/]+$/.test(route)) {
+      const item=this.data.knowledge.find(n=>n.id === route.split('/')[2]); if(!item) throw new Error('Nota no encontrada.');
+      if (body.expectedRevision !== item.revision) throw new Error('Conflicto de revisión. Vuelve a abrir la nota.');
+      if ('title' in body) item.title=text(body.title,120);
+      if ('content' in body) item.content=text(body.content,50000);
+      item.format='markdown'; item.revision+=1; item.updatedAt=new Date().toISOString();
+      this.log('knowledge.update',item.id); return copy(item);
+    }
     if (method === 'POST' && /^\/knowledge\/[^/]+\/approve$/.test(route)) {
       const item=this.data.knowledge.find(n=>n.id === route.split('/')[2]); if(!item) throw new Error('Nota no encontrada.');
-      item.status='approved'; this.log('knowledge.approve',item.id); return copy(item);
+      item.status='approved'; item.revision=(item.revision||1)+1; item.updatedAt=new Date().toISOString(); this.log('knowledge.approve',item.id); return copy(item);
     }
     throw new Error('Función pendiente del backend. No se ha ejecutado ninguna acción real.');
   }
@@ -630,7 +709,7 @@ function icon(name) { return `<svg viewBox="0 0 24 24" aria-hidden="true"><path 
 function btn(label, action, kind='', extra='') { return `<button class="btn ${kind}" data-action="${action}" ${extra}>${label}</button>`; }
 function area(id) { return AREAS.find(a=>a.id===id) || {id:'general',name:'General',icon:'spark',color:'purple'}; }
 function options(selected='general') { return [{id:'general',name:'General'},...AREAS].map(a=>`<option value="${a.id}" ${a.id===selected?'selected':''}>${e(a.name)}</option>`).join(''); }
-const state={view:'home', chatId:null, category:'', filter:'', menu:false, sidebarCollapsed:false, month:8, year:2026, computer:'idle', busy:false, chatDrafts:{}, chatSends:{}};
+const state={view:'home', chatId:null, category:'', filter:'', menu:false, sidebarCollapsed:false, month:8, year:2026, computer:'idle', busy:false, chatDrafts:{}, chatSends:{}, knowledgeId:null, knowledgeQuery:'', knowledgeCategory:'', knowledgeMode:'read'};
 const titles={home:'Inicio',chat:'Conversación',history:'Conversaciones',files:'Archivos',calendar:'Calendario',tasks:'Tareas',knowledge:'Conocimiento',agents:'Agentes',accounts:'Cuentas e integraciones',computer:'Ordenadores',developer:'Developer',settings:'Ajustes',audit:'Registro de actividad'};
 const mount=document.querySelector('#app');
 const dialog=document.querySelector('#dialog');
@@ -789,7 +868,103 @@ async function historyView(){const chats=await api.request('GET','/chats?saved=t
 async function filesView(){const files=await api.request('GET',`/files${state.category?'?category='+state.category:''}`);const filtered=files.filter(f=>f.name.toLocaleLowerCase().includes(state.filter.toLocaleLowerCase()));return heading('Tus archivos','La interfaz de Lisa; en el futuro, Nextcloud por debajo.',btn(`${icon('cloud')} Integración Nextcloud`,'nextcloud'))+`<div class="chips"><button class="chip ${!state.category?'active':''}" data-category="">Todos</button>${AREAS.map(a=>`<button class="chip ${state.category===a.id?'active':''}" data-category="${a.id}">${a.name}</button>`).join('')}<form data-form="search" style="margin-left:auto"><label class="sr-only" for="file-search">Buscar archivos</label><input id="file-search" name="query" value="${e(state.filter)}" placeholder="Buscar archivo…" style="border:1px solid var(--line);border-radius:8px;padding:6px 10px;background:var(--panel);color:var(--ink);max-width:170px"></form></div><div class="file-grid">${filtered.map(f=>`<button class="file-card" data-file="${f.id}"><div class="file-cover">${icon('file')}</div><strong>${e(f.name)}</strong><small>${e(area(f.category).name)} · ${f.size} · v${f.version}</small><div class="resource-line">ID estable de ejemplo · ${f.id}</div></button>`).join('')}</div>${!filtered.length?empty('No hay coincidencias','Prueba otra categoría o búsqueda.'):''}`;}
 async function tasksView(){const list=await api.request('GET','/tasks');return heading('Una cosa cada vez','Organiza lo pendiente sin perder de vista el contexto.',btn(`${icon('plus')} Nueva tarea`,'new-task','primary'))+`<div class="chips"><span class="pill">${list.filter(t=>!t.done).length} pendientes</span><span class="pill neutral">${list.filter(t=>t.done).length} completadas</span><span class="pill neutral">Persistencia: solo esta demo</span></div><div class="panel">${list.map(taskRow).join('')}</div>`;}
 async function calendarView(){const events=await api.request('GET','/events');const first=new Date(state.year,state.month,1);const offset=(first.getDay()+6)%7;const total=new Date(state.year,state.month+1,0).getDate();const month=first.toLocaleDateString('es',{month:'long',year:'numeric'});let cells='';for(let i=0;i<offset;i++)cells+='<div class="day blank"></div>';for(let d=1;d<=total;d++){const date=`${state.year}-${String(state.month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;cells+=`<button class="day ${date==='2026-09-23'?'today':''}" data-date="${date}" aria-label="Crear evento el ${date}"><span class="day-number">${d}</span>${events.filter(v=>v.date===date).map(v=>`<span class="day-event ${area(v.category).color}">${e(v.time)} ${e(v.title)}</span>`).join('')}</button>`;}return heading('Tu tiempo, con perspectiva','Calendario de muestra. La sincronización CalDAV todavía no está conectada.',btn(`${icon('plus')} Nuevo evento`,'new-event','primary'))+`<div class="calendar-toolbar"><button class="icon-btn" data-month="-1" aria-label="Mes anterior">←</button><h2>${e(month)}</h2><button class="icon-btn" data-month="1" aria-label="Mes siguiente">→</button><span class="pill neutral">Fechas de ejemplo</span></div><div class="panel calendar-panel"><div class="calendar-grid">${['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'].map(d=>`<div class="day-name">${d}</div>`).join('')}${cells}</div></div>${section('Agenda de demostración')}<div class="panel">${events.sort((a,b)=>(a.date+a.time).localeCompare(b.date+b.time)).map(eventRow).join('')}</div>`;}
-async function knowledgeView(){const notes=await api.request('GET','/knowledge');return heading('Conocimiento, no ruido','Lo que decides conservar, con su procedencia y su estado.')+`<div class="note-box">Guardar una conversación no la añade automáticamente aquí. Puedes proponer una nota, revisarla y aprobarla por separado.</div><div class="grid-2">${notes.map(n=>`<article class="panel"><span class="pill ${n.status==='proposed'?'warning':''}">${n.status==='proposed'?'Pendiente de revisión':'Aprobado · demo'}</span><h3 style="margin:15px 0 9px">${e(n.title)}</h3><p style="font-size:12px;white-space:pre-wrap">${e(n.content)}</p><div class="resource-line">Fuente: ${e(n.source)} · ${e(area(n.category).name)}</div>${n.status==='proposed'?btn('Aprobar nota de ejemplo','approve-note','',`data-id="${n.id}" style="margin-top:15px"`):''}</article>`).join('')}</div>`;}
+function knowledgeSlug(value){
+  return String(value||'seccion').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'').slice(0,80)||'seccion';
+}
+function safeMarkdownHref(value){
+  const href=String(value||'').trim();
+  if(href.startsWith('#')||href.startsWith('/')||/^https?:\/\//i.test(href)||/^mailto:/i.test(href))return href;
+  return '#';
+}
+function markdownInline(raw){
+  let source=String(raw??'');
+  const tokens=[];
+  const token=html=>{const key=`@@MDTOKEN${tokens.length}@@`;tokens.push(html);return key;};
+  source=source.replace(/`([^`\n]+)`/g,(_,code)=>token(`<code>${e(code)}</code>`));
+  source=source.replace(/\[([^\]]+)\]\(([^)\s]+)(?:\s+["'][^"']*["'])?\)/g,(_,label,href)=>token(`<a href="${e(safeMarkdownHref(href))}" rel="noopener noreferrer">${e(label)}</a>`));
+  let html=e(source);
+  html=html.replace(/\*\*([^*]+)\*\*/g,'<strong>$1</strong>')
+           .replace(/__([^_]+)__/g,'<strong>$1</strong>')
+           .replace(/~~([^~]+)~~/g,'<del>$1</del>')
+           .replace(/(^|[^*])\*([^*\n]+)\*/g,'$1<em>$2</em>')
+           .replace(/(^|[^_])_([^_\n]+)_/g,'$1<em>$2</em>');
+  tokens.forEach((value,index)=>{html=html.replaceAll(`@@MDTOKEN${index}@@`,value);});
+  return html;
+}
+function markdownHeadings(markdown){
+  const result=[];let fenced=false;
+  for(const line of String(markdown||'').replace(/\r/g,'').split('\n')){
+    if(/^\s*```/.test(line)){fenced=!fenced;continue;}
+    if(fenced)continue;
+    const match=line.match(/^(#{1,6})\s+(.+)$/);
+    if(match)result.push({level:match[1].length,text:match[2].replace(/[*_`~]/g,'').trim(),id:knowledgeSlug(match[2])});
+  }
+  return result;
+}
+function markdownReader(markdown){
+  const lines=String(markdown||'').replace(/\r/g,'').split('\n');let html='',i=0;
+  const isBlock=line=>/^\s*(#{1,6})\s+/.test(line)||/^\s*```/.test(line)||/^\s*>/.test(line)||/^\s*[-+*]\s+/.test(line)||/^\s*\d+[.)]\s+/.test(line)||/^\s*(---+|___+|\*\*\*+)\s*$/.test(line);
+  while(i<lines.length){
+    const line=lines[i];
+    if(!line.trim()){i++;continue;}
+    const fence=line.match(/^\s*```([\w-]*)\s*$/);
+    if(fence){
+      const language=fence[1]||'text',body=[];i++;
+      while(i<lines.length&&!/^\s*```/.test(lines[i]))body.push(lines[i++]);
+      if(i<lines.length)i++;
+      html+=`<div class="md-code"><div class="md-code-head">${e(language)}</div><pre><code>${e(body.join('\n'))}</code></pre></div>`;continue;
+    }
+    const heading=line.match(/^(#{1,6})\s+(.+)$/);
+    if(heading){const level=heading[1].length,id=knowledgeSlug(heading[2]);html+=`<h${level} id="${e(id)}">${markdownInline(heading[2])}</h${level}>`;i++;continue;}
+    if(i+1<lines.length&&line.includes('|')&&/^\s*\|?\s*:?-{3,}/.test(lines[i+1])){
+      const header=line.replace(/^\||\|$/g,'').split('|').map(x=>x.trim());
+      i+=2;const rows=[];
+      while(i<lines.length&&lines[i].includes('|')&&lines[i].trim()){rows.push(lines[i].replace(/^\||\|$/g,'').split('|').map(x=>x.trim()));i++;}
+      html+=`<div class="md-table-wrap"><table><thead><tr>${header.map(c=>`<th>${markdownInline(c)}</th>`).join('')}</tr></thead><tbody>${rows.map(row=>`<tr>${header.map((_,idx)=>`<td>${markdownInline(row[idx]||'')}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`;continue;
+    }
+    if(/^\s*>/.test(line)){
+      const quote=[];while(i<lines.length&&/^\s*>/.test(lines[i]))quote.push(lines[i++].replace(/^\s*>\s?/,''));html+=`<blockquote>${quote.map(markdownInline).join('<br>')}</blockquote>`;continue;
+    }
+    if(/^\s*[-+*]\s+/.test(line)){
+      const items=[];while(i<lines.length&&/^\s*[-+*]\s+/.test(lines[i])){const body=lines[i++].replace(/^\s*[-+*]\s+/,'');const task=body.match(/^\[([ xX])\]\s+(.*)$/);items.push(task?`<li class="task-list-item"><input type="checkbox" disabled ${task[1].toLowerCase()==='x'?'checked':''}><span>${markdownInline(task[2])}</span></li>`:`<li>${markdownInline(body)}</li>`);}html+=`<ul>${items.join('')}</ul>`;continue;
+    }
+    if(/^\s*\d+[.)]\s+/.test(line)){
+      const items=[];while(i<lines.length&&/^\s*\d+[.)]\s+/.test(lines[i]))items.push(`<li>${markdownInline(lines[i++].replace(/^\s*\d+[.)]\s+/,''))}</li>`);html+=`<ol>${items.join('')}</ol>`;continue;
+    }
+    if(/^\s*(---+|___+|\*\*\*+)\s*$/.test(line)){html+='<hr>';i++;continue;}
+    const paragraph=[line.trim()];i++;
+    while(i<lines.length&&lines[i].trim()&&!isBlock(lines[i])&&!(i+1<lines.length&&lines[i].includes('|')&&/^\s*\|?\s*:?-{3,}/.test(lines[i+1])))paragraph.push(lines[i++].trim());
+    html+=`<p>${paragraph.map(markdownInline).join('<br>')}</p>`;
+  }
+  return html;
+}
+async function knowledgeView(){
+  const notes=await api.request('GET','/knowledge');
+  const query=state.knowledgeQuery.toLocaleLowerCase();
+  const filtered=notes.filter(n=>(!state.knowledgeCategory||n.category===state.knowledgeCategory)&&(!query||n.title.toLocaleLowerCase().includes(query)||n.content.toLocaleLowerCase().includes(query)));
+  if(!state.knowledgeId||!notes.some(n=>n.id===state.knowledgeId))state.knowledgeId=filtered[0]?.id||notes[0]?.id||null;
+  const note=notes.find(n=>n.id===state.knowledgeId)||null;
+  const headings=note?markdownHeadings(note.content):[];
+  const edit=state.knowledgeMode==='edit';
+  return `${heading('Conocimiento','Tu memoria durable en Markdown, con fuentes y revisiones.',`<div class="btn-row">${note?btn(edit?'Cancelar edición':'Editar Markdown',edit?'knowledge-cancel-edit':'knowledge-edit',edit?'':'primary'):''}</div>`)}
+  <div class="knowledge-shell">
+    <aside class="knowledge-library">
+      <div class="knowledge-library-head"><div><span class="knowledge-kicker">Memoria</span><h2>Notas Markdown</h2></div><span class="pill neutral">${notes.length}</span></div>
+      <label class="knowledge-search">${icon('search')}<input id="knowledge-search" value="${e(state.knowledgeQuery)}" placeholder="Buscar en memoria…"></label>
+      <div class="knowledge-filters"><button class="${!state.knowledgeCategory?'active':''}" data-knowledge-category="">Todo</button>${AREAS.map(a=>`<button class="${state.knowledgeCategory===a.id?'active':''}" data-knowledge-category="${a.id}">${e(a.name)}</button>`).join('')}</div>
+      <div class="knowledge-list">${filtered.length?filtered.map(n=>`<button class="knowledge-list-item ${n.id===state.knowledgeId?'active':''}" data-knowledge="${e(n.id)}"><span class="knowledge-doc-icon">${icon('file')}</span><span><strong>${e(n.title)}</strong><small>${e(area(n.category).name)} · v${n.revision||1} · ${n.status==='approved'?'memoria activa':'pendiente'}</small></span></button>`).join(''):`<div class="knowledge-list-empty">No hay notas con este filtro.</div>`}</div>
+    </aside>
+    <section class="knowledge-reader">
+      ${note?`<header class="knowledge-doc-head"><div><div class="knowledge-badges"><span class="pill ${note.status==='proposed'?'warning':''}">${note.status==='approved'?'Memoria activa':'Pendiente de revisión'}</span><span class="pill neutral">Markdown · v${note.revision||1}</span></div><h1>${e(note.title)}</h1><p>Fuente: ${e(note.source)} · ${e(area(note.category).name)} · actualizado ${e(note.updatedAt?new Date(note.updatedAt).toLocaleString('es'):'—')}</p></div>${note.status==='proposed'?btn('Aprobar','approve-note','primary',`data-id="${e(note.id)}"`):''}</header>
+        ${edit?`<form class="knowledge-editor" data-form="knowledge-edit"><input type="hidden" name="id" value="${e(note.id)}"><input type="hidden" name="expectedRevision" value="${note.revision||1}"><label>Título<input name="title" maxlength="120" value="${e(note.title)}" required></label><div class="knowledge-editor-grid"><label>Markdown<textarea id="knowledge-markdown" name="content" maxlength="50000" required>${e(note.content)}</textarea></label><div class="knowledge-preview"><div class="knowledge-preview-label">Preview</div><article class="markdown-body" id="knowledge-live-preview">${markdownReader(note.content)}</article></div></div><div class="knowledge-editor-footer"><span>Guardar crea una nueva revisión.</span><button class="btn primary" type="submit">Guardar revisión</button></div></form>`:`<article class="markdown-body">${markdownReader(note.content)}</article>`}
+      `:`<div class="knowledge-empty">No hay notas disponibles.</div>`}
+    </section>
+    <aside class="knowledge-outline">
+      <div class="knowledge-outline-card"><span class="knowledge-kicker">Documento</span><h3>Índice</h3>${headings.length?headings.map(h=>`<a class="level-${h.level}" href="#${e(h.id)}">${e(h.text)}</a>`).join(''):`<span class="knowledge-outline-empty">Sin encabezados.</span>`}</div>
+      ${note?`<div class="knowledge-outline-card"><span class="knowledge-kicker">Memoria</span><h3>Metadatos</h3><div class="context-line"><span>Estado</span><strong>${note.status==='approved'?'Activa':'Propuesta'}</strong></div><div class="context-line"><span>Revisión</span><strong>v${note.revision||1}</strong></div><div class="context-line"><span>Formato</span><strong>Markdown</strong></div><div class="context-line"><span>Ámbito</span><strong>${e(area(note.category).name)}</strong></div></div>`:''}
+    </aside>
+  </div>`;
+}
 function agentsView(){return heading('Agentes con límites claros','Vista de la política propuesta. El backend deberá hacerla cumplir.')+`<div class="integration-grid">${AREAS.map(a=>`<article class="panel integration-card ${a.color}"><span class="tile-icon colored">${icon(a.icon)}</span><h3>${a.name}</h3><p>${a.description}</p><div class="pill neutral">Solo su área · sin cuentas conectadas</div><div style="margin-top:18px">${btn('Abrir conversación','start-agent','',`data-id="${a.id}"`)}</div></article>`).join('')}</div>${section('Matriz de permisos propuesta')}<div class="panel table-wrap"><table class="permission-table"><thead><tr><th>Identidad</th><th>Conocimiento</th><th>Calendario / tareas</th><th>Secretos en texto</th><th>Acciones sensibles</th></tr></thead><tbody><tr><td>General</td><td>Áreas autorizadas</td><td>Según permiso</td><td>No</td><td>Confirmación</td></tr>${AREAS.map(a=>`<tr><td>${a.name}</td><td>Solo ${a.name}</td><td>Ámbitos autorizados</td><td>No</td><td>Confirmación</td></tr>`).join('')}<tr><td>Sandbox</td><td>Ninguno</td><td>No</td><td>No</td><td>No</td></tr><tr><td>Developer</td><td>Código / fixtures</td><td>No por defecto</td><td>No</td><td>Revisión humana</td></tr></tbody></table></div>`;}
 function accountsView(){return heading('Conexiones, bajo tu control','Ninguna cuenta está conectada en este prototipo.')+`<div class="integration-grid">${[{id:'nextcloud',icon:'cloud',name:'Nextcloud',desc:'Archivos, versiones, calendario y sincronización. Tu UI, sus APIs.'},{id:'1password',icon:'lock',name:'1Password',desc:'Un broker utilizará credenciales autorizadas. El modelo no recibirá acceso a tu bóveda.'},{id:'openclaw',icon:'spark',name:'OpenClaw',desc:'Runtime de agentes detrás de un adaptador. Sesiones privadas y Sandbox separadas.'},{id:'tasks',icon:'tasks',name:'Tareas / CalDAV',desc:'Primera opción de backend para tareas. Vikunja queda como alternativa.'},{id:'authorization',icon:'shield',name:'Autorización',desc:'Políticas aplicadas por el servidor. OpenFGA es una opción, no una dependencia de la UI.'},{id:'models',icon:'layers',name:'Modelos por API',desc:'Proveedor intercambiable. Sin claves, consumo de tokens ni llamadas a modelos en la demo.'}].map(i=>`<article class="panel integration-card"><span class="tile-icon">${icon(i.icon)}</span><h3>${i.name}</h3><span class="pill neutral">No conectado</span><p>${i.desc}</p>${btn('Ver contrato de integración','integration','',`data-id="${i.id}"`)}</article>`).join('')}</div>`;}
 function computerView(){const label={idle:'Sin sesión activa',waiting:'Esperando intervención · simulación',human:'Control humano · simulación',paused:'Sesión detenida · simulación'}[state.computer];return heading('Cuando necesitas tomar el control','Vista de diseño. No hay escritorio remoto ni navegador conectado.')+`<div class="split"><div class="panel"><div class="btn-row" style="justify-content:space-between;margin-bottom:20px"><h3>Escritorio de una tarea</h3><span class="pill warning">Simulación</span></div><div class="screen"><div class="screen-inner">${icon('monitor')}<h3>${label}</h3><p>En producción verás aquí la misma sesión gráfica que utiliza el agente. El control deberá tener un único propietario.</p></div></div><div class="btn-row" style="margin-top:18px">${btn('Simular solicitud','computer-wait')}${btn('Tomar control','computer-take','primary',state.computer==='waiting'?'':'disabled')}${btn('Devolver control','computer-release','',state.computer==='human'?'':'disabled')}${btn('Detener','computer-stop')}</div></div><div class="panel"><h2>Intervención humana</h2>${[{title:'El agente se detiene',desc:'El runtime suspende las entradas antes de ceder la sesión.'},{title:'Tú completas el paso',desc:'Autenticación, permisos o confirmaciones que requieren una persona.'},{title:'Confirmas la continuación',desc:'El agente captura el estado actualizado y vuelve a evaluar la tarea.'}].map((s,i)=>`<div class="step"><b>${i+1}</b><div><strong>${s.title}</strong><p>${s.desc}</p></div></div>`).join('')}<div class="note-box warning">No se presupone compatibilidad nativa. El adaptador debe verificar pausa, control exclusivo, reconexión y captura en la versión concreta.</div></div></div>`;}
@@ -823,6 +998,8 @@ async function handleAction(action,target){
  if(action==='confirm-discard'){await api.request('DELETE',`/chats/${state.chatId}`);state.chatId=null;dialog.close();nav('history');toast('Conversación descartada.');return;}
  if(action==='extract'){modal('Proponer conocimiento',`<p class="modal-copy">Escribe una nota de prueba. Se guardará como propuesta pendiente, separada del historial. No hay extracción por IA en esta demo.</p><form data-form="knowledge"><label class="field">Título<input name="title" maxlength="120" required></label><label class="field">Nota<textarea name="content" maxlength="8000" required></textarea></label><div class="modal-footer"><button class="btn primary" type="submit">Crear propuesta</button></div></form>`);return;}
  if(action==='approve-note'){await api.request('POST',`/knowledge/${target.dataset.id}/approve`,{});await render();toast('Nota de ejemplo aprobada.');return;}
+ if(action==='knowledge-edit'){state.knowledgeMode='edit';await render();document.querySelector('#knowledge-markdown')?.focus();return;}
+ if(action==='knowledge-cancel-edit'){state.knowledgeMode='read';await render();return;}
  if(action==='new-task'){modal('Nueva tarea',`<form data-form="task"><label class="field">Qué hay que hacer<input name="title" required maxlength="200" placeholder="Una tarea de ejemplo…"></label><label class="field">Categoría<select name="category">${options('personal')}</select></label><div class="modal-footer"><button class="btn primary" type="submit">Crear en la demo</button></div></form>`);return;}
  if(action==='new-event'){eventModal();return;}
  if(action==='integration'||action==='nextcloud'){const id=action==='nextcloud'?'nextcloud':target.dataset.id;modal(`Integración: ${id}`,`<p class="modal-copy">Estado: pendiente de implementación y pruebas con el servicio real.</p><pre class="code">UI → Lisa API → autorización → adaptador\n\n${e(id)}\n\nSin tokens ni credenciales en el frontend.\nLa conexión se configurará en el servidor.</pre><p class="modal-copy">Las capacidades se publicarán desde /api/v1/bootstrap. El contrato completo está en contracts/openapi.mjs y en la especificación del repositorio.</p>${btn('Conexión no disponible en demo','none','','disabled')}`);return;}
@@ -839,6 +1016,8 @@ document.addEventListener('click',async ev=>{const target=ev.target.closest('but
  if(target.dataset.agent){const projects=await api.request('GET','/projects');const project=projects.find(p=>p.agentId===target.dataset.agent);await newChat('agent',target.dataset.agent,project?.id||null);return;}
  if(target.dataset.chat){state.chatId=target.dataset.chat;nav('chat');return;}
  if(target.hasAttribute('data-category')){state.category=target.dataset.category;await render();return;}
+ if(target.dataset.knowledge){state.knowledgeId=target.dataset.knowledge;state.knowledgeMode='read';await render();return;}
+ if(target.hasAttribute('data-knowledge-category')){state.knowledgeCategory=target.dataset.knowledgeCategory;state.knowledgeId=null;state.knowledgeMode='read';await render();return;}
  if(target.dataset.task){await api.request('PATCH',`/tasks/${target.dataset.task}`,{done:target.dataset.done!=='true'});await render();return;}
  if(target.dataset.file){const f=await api.request('GET',`/files/${target.dataset.file}`);modal(f.name,`<p class="modal-copy">Vista de contenido ficticio, no un archivo real.</p><pre class="code">${e(f.content)}</pre><p class="resource-line">ID: ${e(f.id)} · versión ${f.version} · ${e(area(f.category).name)}</p>`);return;}
  if(target.dataset.month){state.month+=Number(target.dataset.month);if(state.month<0){state.month=11;state.year--;}if(state.month>11){state.month=0;state.year++;}await render();return;}
@@ -851,11 +1030,12 @@ document.addEventListener('submit',async ev=>{const form=ev.target;if(!form.data
  if(kind==='categorize'){const c=await api.request('GET',`/chats/${state.chatId}`);await api.request('POST',`/chats/${c.id}/save`,{category:body.target,expectedRevision:c.revision});dialog.close();await render();toast('Clasificado sin cambiar el modo ni los permisos.');return;}
  if(kind==='promote'){const c=await api.request('POST',`/chats/${state.chatId}/promotions`,{target:body.target,selectedAttachmentIds:[]});state.chatId=c.id;dialog.close();await render();toast('Nueva conversación creada. La original no ha cambiado.');return;}
  if(kind==='knowledge'){await api.request('POST',`/chats/${state.chatId}/knowledge-proposals`,body);dialog.close();nav('knowledge');toast('Propuesta creada; falta tu aprobación.');return;}
+ if(kind==='knowledge-edit'){const updated=await api.request('PATCH',`/knowledge/${body.id}`,{title:body.title,content:body.content,expectedRevision:Number(body.expectedRevision)});state.knowledgeId=updated.id;state.knowledgeMode='read';await render();toast(`Memoria actualizada · revisión v${updated.revision}.`);return;}
  if(kind==='task'){await api.request('POST','/tasks',body);dialog.close();await render();toast('Tarea creada en la demo.');return;}
  if(kind==='event'){await api.request('POST','/events',body);dialog.close();await render();toast('Evento de ejemplo creado.');return;}
  if(kind==='developer'){dialog.close();modal('Propuesta · sin ejecutar',`<p class="modal-copy">${e(body.content)}</p><pre class="code">Estado: propuesta de demostración\nDestino: nueva rama de código\nDatos: solo fixtures\nValidaciones: tests, diff, preview\nPublicación: aprobación humana</pre><div class="modal-footer">${btn('Cerrar','close')}${btn('Aplicar · backend pendiente','none','primary','disabled')}</div>`);return;}
  }catch(error){toast(error.message||'No se pudo completar la operación.');}});
-document.addEventListener('input',ev=>{if(ev.target?.id==='message')composerState().text=ev.target.value;});
+document.addEventListener('input',ev=>{if(ev.target?.id==='message')composerState().text=ev.target.value;if(ev.target?.id==='knowledge-search'){state.knowledgeQuery=ev.target.value;clearTimeout(globalThis.__knowledgeSearchTimer);globalThis.__knowledgeSearchTimer=setTimeout(()=>render().catch(error=>toast(error.message)),180);}if(ev.target?.id==='knowledge-markdown'){const preview=document.querySelector('#knowledge-live-preview');if(preview)preview.innerHTML=markdownReader(ev.target.value);}});
 document.addEventListener('change',async ev=>{if(ev.target?.id!=='chat-files')return;stageFiles(ev.target.files||[]);ev.target.value='';await render();document.querySelector('#message')?.focus();});
 document.addEventListener('keydown',ev=>{if(ev.target?.id!=='message'||ev.isComposing)return;if(ev.key==='Enter'&&!ev.shiftKey&&window.innerWidth>760){ev.preventDefault();ev.target.form?.requestSubmit();}});
 document.addEventListener('paste',async ev=>{if(ev.target?.id!=='message')return;const files=[...(ev.clipboardData?.files||[])];if(!files.length)return;ev.preventDefault();stageFiles(files);await render();document.querySelector('#message')?.focus();});
