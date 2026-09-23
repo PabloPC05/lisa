@@ -386,6 +386,13 @@ const AREAS = [
   { id: 'personal', name: 'Personal', icon: 'user', color: 'purple', description: 'Planes, ideas y las cosas del día a día.' },
   { id: 'familia', name: 'Familia', icon: 'heart', color: 'rose', description: 'Información y gestiones familiares, en su lugar.' }
 ];
+const PROJECTS = [
+  {id:'demo-project-vivienda',name:'Vivienda · Proyecto',category:'vivienda',agentId:'vivienda'},
+  {id:'demo-project-universidad',name:'Universidad · Proyecto',category:'universidad',agentId:'universidad'},
+  {id:'demo-project-finanzas',name:'Finanzas · Proyecto',category:'finanzas',agentId:'finanzas'},
+  {id:'demo-project-personal',name:'Personal · Proyecto',category:'personal',agentId:'personal'},
+  {id:'demo-project-familia',name:'Familia · Proyecto',category:'familia',agentId:'familia'}
+];
 const uid = () => {
   if (globalThis.crypto.randomUUID) return globalThis.crypto.randomUUID();
   const b = globalThis.crypto.getRandomValues(new Uint8Array(16));
@@ -399,10 +406,12 @@ function text(value, max = 8000) {
   if (typeof value !== 'string' || !value.trim() || value.length > max) throw new Error(`Introduce entre 1 y ${max} caracteres.`);
   return value.trim();
 }
-function createConversation(mode, agentId = null) {
+function createConversation(mode, agentId = null, projectId = null) {
   if (!['general', 'sandbox', 'agent'].includes(mode)) throw new Error('Modo desconocido.');
   if (mode === 'agent' && !AREAS.some(a => a.id === agentId)) throw new Error('Agente desconocido.');
-  return { id: uid(), mode, agentId: mode === 'agent' ? agentId : null, category: mode === 'agent' ? agentId : 'general', title: 'Nueva conversación', saved: false, revision: 1, messages: [], createdAt: new Date().toISOString(), sourceId: null };
+  if (projectId && !PROJECTS.some(p => p.id === projectId)) throw new Error('Proyecto desconocido.');
+  const now = new Date().toISOString();
+  return { id: uid(), mode, agentId: mode === 'agent' ? agentId : null, category: mode === 'agent' ? agentId : 'general', projectId, pinned:false, archived:false, title: 'Nueva conversación', saved: Boolean(projectId), revision: 1, messages: [], createdAt: now, updatedAt: now, sourceId: null };
 }
 function saveConversation(chat, category = chat.category) {
   if (!categoryOK(category)) throw new Error('Categoría desconocida.');
@@ -413,6 +422,8 @@ function promoteConversation(chat, target) {
   const result = createConversation(target === 'general' ? 'general' : 'agent', target);
   result.title = chat.title;
   result.sourceId = chat.id;
+  result.projectId = null;
+  result.saved = false;
   // Imports remain untrusted text, never executable tool calls or system instructions.
   result.messages = chat.messages.map(m => ({ id: uid(), role: 'imported', content: m.content, sourceRole: m.role, trust: 'untrusted' }));
   return result;
@@ -420,6 +431,7 @@ function promoteConversation(chat, target) {
 function escapeHtml(value) { return String(value ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch])); }
 function makeFixtures() {
   return {
+    projects: copy(PROJECTS),
     files: [
       {id:'demo-file-1', name:'Contrato de ejemplo.pdf', category:'vivienda', type:'PDF', size:'240 KB', version:1, content:'Documento ficticio para revisar la vista de archivos. No contiene contratos ni datos reales.'},
       {id:'demo-file-2', name:'Ideas para el próximo curso.md', category:'universidad', type:'MD', size:'3 KB', version:2, content:'Nota de demostración. Objetivo: reunir apuntes, lecturas y preguntas en un mismo espacio.'},
@@ -455,13 +467,36 @@ class DemoClient {
   async request(method, path, body = {}) {
     const [route, query = ''] = path.split('?');
     const q = new URLSearchParams(query);
-    if (method === 'GET' && route === '/bootstrap') return {mode:'demo', agents:copy(AREAS), integrations:[], version:'0.4.0'};
-    if (method === 'GET' && route === '/chats') return copy(this.chats.filter(c => q.get('saved') !== 'true' || c.saved));
-    if (method === 'POST' && route === '/chats') { const c = createConversation(body.mode, body.agentId); this.chats.push(c); return copy(c); }
+    if (method === 'GET' && route === '/bootstrap') return {mode:'demo', agents:copy(AREAS), projects:copy(this.data.projects), integrations:[], version:'0.4.0'};
+    if (method === 'GET' && route === '/projects') return copy(this.data.projects);
+    if (method === 'GET' && route === '/chats') return copy(this.chats.filter(c => {
+      if (q.get('saved') === 'true' && !c.saved) return false;
+      if (q.get('projectId') && c.projectId !== q.get('projectId')) return false;
+      if (q.get('pinned') === 'true' && !c.pinned) return false;
+      if (q.get('archived') !== 'true' && c.archived) return false;
+      if (q.get('archived') === 'true' && !c.archived) return false;
+      return true;
+    }).sort((a,b)=>Number(b.pinned)-Number(a.pinned)||String(b.updatedAt||b.createdAt).localeCompare(String(a.updatedAt||a.createdAt))));
+    if (method === 'POST' && route === '/chats') { const c = createConversation(body.mode, body.agentId, body.projectId || null); this.chats.push(c); return copy(c); }
     const match = route.match(/^\/chats\/([^/]+)(?:\/(messages|save|promotions|knowledge-proposals))?$/);
     if (match) {
       const c = this.chat(match[1]); const action = match[2];
       if (method === 'GET' && !action) return copy(c);
+      if (method === 'PATCH' && !action) {
+        if ('pinned' in body) c.pinned = Boolean(body.pinned);
+        if ('archived' in body) c.archived = Boolean(body.archived);
+        if ('title' in body) c.title = text(body.title, 200);
+        if ('projectId' in body) {
+          const projectId = body.projectId || null;
+          if (projectId && !this.data.projects.some(p => p.id === projectId)) throw new Error('Proyecto desconocido.');
+          c.projectId = projectId;
+          if (projectId) c.saved = true;
+        }
+        c.updatedAt = new Date().toISOString();
+        c.revision++;
+        this.log('chat.update', c.id);
+        return copy(c);
+      }
       if (method === 'DELETE' && !action) { this.chats = this.chats.filter(x => x.id !== c.id); this.log('chat.discard', c.id); return null; }
       if (method === 'POST' && action === 'messages') {
         const attachments = Array.isArray(body.attachments) ? body.attachments.slice(0, 8).map(file => {
@@ -478,7 +513,7 @@ class DemoClient {
         if (c.title === 'Nueva conversación') c.title = (raw || attachments[0]?.name || 'Conversación').slice(0,60);
         const note = c.mode === 'sandbox' ? 'Este chat representa el modo Sandbox: sin conocimiento personal ni herramientas privadas. El aislamiento real se implementará en el servidor.' : 'Este chat representa el acceso al conocimiento autorizado. Aún no está conectado a tus documentos ni a ningún modelo.';
         c.messages.push({id:uid(), role:'assistant', content:`Respuesta de demostración, no generada por IA.\n\n${note}\n\nEl composer ya admite cola de mensajes, adjuntos de demostración, reenvío y cancelación. El backend real sustituirá esta respuesta simulada por streaming.`, attachments:[], createdAt:new Date().toISOString(), status:'complete'});
-        c.revision++; return copy(c);
+        c.updatedAt = new Date().toISOString(); c.revision++; return copy(c);
       }
       if (method === 'POST' && action === 'save') {
         if (body.expectedRevision !== c.revision) throw new Error('Conflicto de revisión. Vuelve a abrir el chat.');
