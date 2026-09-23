@@ -9,7 +9,7 @@ export class DemoClient {
   async request(method, path, body = {}) {
     const [route, query = ''] = path.split('?');
     const q = new URLSearchParams(query);
-    if (method === 'GET' && route === '/bootstrap') return {mode:'demo', agents:copy(AREAS), integrations:[], version:'0.3.0'};
+    if (method === 'GET' && route === '/bootstrap') return {mode:'demo', agents:copy(AREAS), integrations:[], version:'0.4.0'};
     if (method === 'GET' && route === '/chats') return copy(this.chats.filter(c => q.get('saved') !== 'true' || c.saved));
     if (method === 'POST' && route === '/chats') { const c = createConversation(body.mode, body.agentId); this.chats.push(c); return copy(c); }
     const match = route.match(/^\/chats\/([^/]+)(?:\/(messages|save|promotions|knowledge-proposals))?$/);
