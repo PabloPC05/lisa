@@ -19,10 +19,17 @@ export class DemoClient {
       if (method === 'DELETE' && !action) { this.chats = this.chats.filter(x => x.id !== c.id); this.log('chat.discard', c.id); return null; }
       if (method === 'POST' && action === 'messages') {
         const value = text(body.content);
-        c.messages.push({id:uid(), role:'user', content:value});
+        const attachments = Array.isArray(body.attachments) ? body.attachments.slice(0, 8).map(file => {
+          const name = text(String(file?.name || 'archivo'), 180);
+          const size = Number(file?.size || 0);
+          if (!Number.isFinite(size) || size < 0 || size > 25 * 1024 * 1024) throw new Error('Cada adjunto debe ocupar como máximo 25 MiB.');
+          return {id:String(file?.id || uid()), name, size, type:String(file?.type || 'application/octet-stream').slice(0,120), status:'attached'};
+        }) : [];
+        const now = new Date().toISOString();
+        c.messages.push({id:uid(), role:'user', content:value, attachments, createdAt:now, status:'delivered'});
         if (c.title === 'Nueva conversación') c.title = value.slice(0,60);
         const note = c.mode === 'sandbox' ? 'Este chat representa el modo Sandbox: sin conocimiento personal ni herramientas privadas. El aislamiento real se implementará en el servidor.' : 'Este chat representa el acceso al conocimiento autorizado. Aún no está conectado a tus documentos ni a ningún modelo.';
-        c.messages.push({id:uid(), role:'assistant', content:`Respuesta de demostración, no generada por IA.\n\n${note}\n\nPuedes probar Guardar, Guardar en una categoría y Continuar con otro agente. Los cambios duran solo hasta recargar.`});
+        c.messages.push({id:uid(), role:'assistant', content:`Respuesta de demostración, no generada por IA.\n\n${note}\n\nEl composer ya admite cola de mensajes, adjuntos de demostración, reenvío y cancelación. El backend real sustituirá esta respuesta simulada por streaming.`, attachments:[], createdAt:new Date().toISOString(), status:'complete'});
         c.revision++; return copy(c);
       }
       if (method === 'POST' && action === 'save') {
