@@ -20,5 +20,5 @@ await mkdir(new URL('dist/',root),{recursive:true});
 await writeFile(new URL('dist/index.html',root),html);
 await writeFile(new URL('dist/openapi.json',root),JSON.stringify(openapi,null,2)+'\n');
 const hash=createHash('sha256').update(script).digest('base64');
-await writeFile(new URL('dist/build-info.json',root),JSON.stringify({version:'0.3.0',scriptSha256:hash,mode:'demo'},null,2));
+await writeFile(new URL('dist/build-info.json',root),JSON.stringify({version:'0.4.0',scriptSha256:hash,mode:'demo'},null,2));
 console.log(`Built dist/index.html (${Buffer.byteLength(html)} bytes), openapi.json, build-info.json`);
