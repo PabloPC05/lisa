@@ -1,0 +1,17 @@
+.env
+.env.*
+!.env.example
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+data/
+runtime/
+backups/
+secrets/
+*.sqlite*
+*.db
+*.log
+config/local.json
+*.pem
+*.key
