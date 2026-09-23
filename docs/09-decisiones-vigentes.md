@@ -34,7 +34,7 @@ Actualizado: 23-09-2026. Una instrucción posterior explícita del propietario p
 - Dirección visual vigente: blanco/negro/rojo; superficies translúcidas redondeadas tipo glass; superficies opacas con geometría recta; widgets con poca densidad; sidebar colapsable.
 - DemoClient efímero; HttpClient preparado para mismo origen `/api/v1`.
 - Backend seam deniega funciones privadas con 501 hasta implementar autenticación y servicios. No se interpretan «endpoints abiertos» como acceso público a datos.
-- Contrato OpenAPI 3.1 inicial con 30 operaciones y pruebas locales.\n- Los chats de proyecto se guardan automáticamente dentro de ese proyecto; fuera de proyecto el guardado continúa siendo explícito.\n- `pinned` y `archived` son metadatos de navegación, no controles de acceso ni memoria.
+- Contrato OpenAPI 3.1 inicial con 31 operaciones y pruebas locales.\n- El conocimiento durable usa Markdown como formato canónico; el lector HTML es derivado. Las ediciones crean revisión y requieren control optimista.\n- Los chats de proyecto se guardan automáticamente dentro de ese proyecto; fuera de proyecto el guardado continúa siendo explícito.\n- `pinned` y `archived` son metadatos de navegación, no controles de acceso ni memoria.
 - Guardar ≠ memoria; propuestas separadas y revisión explícita.
 - Categoría ≠ confidencialidad; preservar labels de las fuentes al mover/promover contenido.
 - Demo con datos ficticios; nada de cuentas, archivos personales, modelos, terminal o escritorio operativo.
