@@ -105,6 +105,15 @@ Proceso:
 
 Esto reduce exposición y consumo de tokens.
 
+
+## Proyectos e historial de conversaciones
+
+`Project` es un contenedor de trabajo distinto de agente y categoría. Puede definir un agente por defecto, contexto autorizado, archivos relacionados e historial propio.
+
+Una conversación creada dentro de un proyecto se conserva en el historial del proyecto automáticamente. La UI separa **Fijadas** y **Recientes**; archivar oculta de recientes sin borrar. Fijar, archivar o mover una conversación no cambia la identidad del agente ni concede nuevos permisos.
+
+Un proyecto puede tener muchas conversaciones y solo la conversación activa se envía íntegra al runtime. Historiales anteriores se recuperan únicamente cuando la tarea lo necesita y la autorización lo permite; pertenecer al mismo proyecto no implica cargar todos los chats en cada prompt.
+
 ## Conversaciones y conocimiento
 
 Entidades distintas:
