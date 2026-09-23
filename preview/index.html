@@ -431,16 +431,18 @@ class DemoClient {
       if (method === 'GET' && !action) return copy(c);
       if (method === 'DELETE' && !action) { this.chats = this.chats.filter(x => x.id !== c.id); this.log('chat.discard', c.id); return null; }
       if (method === 'POST' && action === 'messages') {
-        const value = text(body.content);
         const attachments = Array.isArray(body.attachments) ? body.attachments.slice(0, 8).map(file => {
           const name = text(String(file?.name || 'archivo'), 180);
           const size = Number(file?.size || 0);
           if (!Number.isFinite(size) || size < 0 || size > 25 * 1024 * 1024) throw new Error('Cada adjunto debe ocupar como máximo 25 MiB.');
           return {id:String(file?.id || uid()), name, size, type:String(file?.type || 'application/octet-stream').slice(0,120), status:'attached'};
         }) : [];
+        const raw = typeof body.content === 'string' ? body.content.trim() : '';
+        if (!raw && !attachments.length) throw new Error('Escribe un mensaje o adjunta al menos un archivo.');
+        if (raw.length > 8000) throw new Error('El mensaje supera los 8000 caracteres.');
         const now = new Date().toISOString();
-        c.messages.push({id:uid(), role:'user', content:value, attachments, createdAt:now, status:'delivered'});
-        if (c.title === 'Nueva conversación') c.title = value.slice(0,60);
+        c.messages.push({id:uid(), role:'user', content:raw, attachments, createdAt:now, status:'delivered'});
+        if (c.title === 'Nueva conversación') c.title = (raw || attachments[0]?.name || 'Conversación').slice(0,60);
         const note = c.mode === 'sandbox' ? 'Este chat representa el modo Sandbox: sin conocimiento personal ni herramientas privadas. El aislamiento real se implementará en el servidor.' : 'Este chat representa el acceso al conocimiento autorizado. Aún no está conectado a tus documentos ni a ningún modelo.';
         c.messages.push({id:uid(), role:'assistant', content:`Respuesta de demostración, no generada por IA.\n\n${note}\n\nEl composer ya admite cola de mensajes, adjuntos de demostración, reenvío y cancelación. El backend real sustituirá esta respuesta simulada por streaming.`, attachments:[], createdAt:new Date().toISOString(), status:'complete'});
         c.revision++; return copy(c);
