@@ -46,7 +46,7 @@ Enlace de diseño: `/d/<uuid>`; una cita histórica añade `?v=<revision>`. El r
 | ProviderMapping | instancia, objeto proveedor, UUID Lisa, etag, ubicación, estado de reconciliación |
 | KnowledgeItem | UUID, título, Markdown, revisión, estado proposed/approved/revoked, etiquetas |
 | SourceReference | UUID fuente, revisión, página/sección/fragmento y relación |
-| Conversation | UUID, modo de creación inmutable, identidad ejecutora, categoría, etiquetas, saved_at, revision, source_id |
+| Project | UUID, nombre, categoría/ámbito, agente por defecto, instrucciones/contexto autorizado, estado |\n| Conversation | UUID, modo de creación inmutable, identidad ejecutora, categoría, project_id opcional, pinned, archived, etiquetas, saved_at, revision, source_id, updated_at |
 | Message | UUID, conversación, orden, rol, texto/adjuntos, origen, etiqueta de confianza |
 | Task / CalendarEvent | UUID Lisa, mapping de proveedor, ámbito, revisión, zona horaria cuando corresponda |
 | Action / Approval | identidad, recurso, parámetros normalizados, hash, estado, caducidad, aprobación |
@@ -82,7 +82,7 @@ Un archivo adjunto de Sandbox se importa como dato no confiable y atraviesa cuar
 
 ## 8. Historial, conocimiento y borrado
 
-Conversación nueva: `saved_at = null`. Guardar es una transacción explícita; si falla no se muestra como guardada. No generar resúmenes persistentes/indexables de chats descartados como efecto secundario.
+Conversación fuera de un proyecto: `saved_at = null` hasta que el usuario decida guardarla. Una conversación creada dentro de un `Project` entra automáticamente en el historial de ese proyecto. `pinned` solo cambia el orden/visibilidad del historial y `archived` la retira de recientes; ninguno modifica permisos, contexto autorizado ni conocimiento. Guardar es una transacción explícita cuando aplica; si falla no se muestra como guardada. No generar resúmenes persistentes/indexables de chats descartados como efecto secundario.
 
 Conocimiento: propuesta con fuente -> revisión humana -> aprobación -> índice autorizado. Editar exige revisión esperada. Revocar una fuente debe invalidar o marcar sus derivaciones y retirar los fragmentos correspondientes del índice.
 
