@@ -5,7 +5,9 @@ const obj=(properties,required=Object.keys(properties))=>({type:'object',additio
 const schemas={
  Category:{type:'string',enum:['general','vivienda','universidad','finanzas','personal','familia']},
  Attachment:obj({id:str(100),name:str(180),size:{type:'integer',minimum:0,maximum:26214400},type:str(120),status:{enum:['attached','uploading','ready','failed']}},['id','name','size','type']),
- CreateChat:obj({mode:{enum:['general','sandbox','agent']},agentId:{type:['string','null']}},['mode']),
+ Project:obj({id:str(100),name:str(160),category:ref('Category'),agentId:{type:['string','null']}},['id','name','category']),
+ CreateChat:obj({mode:{enum:['general','sandbox','agent']},agentId:{type:['string','null']},projectId:{type:['string','null']}},['mode']),
+ ChatPatch:obj({pinned:{type:'boolean'},archived:{type:'boolean'},title:str(200),projectId:{type:['string','null']}},[]),
  MessageInput:{type:'object',additionalProperties:false,properties:{content:{type:'string',maxLength:8000,default:''},attachments:{type:'array',items:ref('Attachment'),maxItems:8,default:[]}},anyOf:[{required:['content'],properties:{content:{type:'string',minLength:1,maxLength:8000}}},{required:['attachments'],properties:{attachments:{type:'array',minItems:1,maxItems:8}}}]},
  SaveChat:obj({category:ref('Category'),expectedRevision:{type:'integer',minimum:1}}),
  PromoteChat:obj({target:ref('Category'),selectedAttachmentIds:{type:'array',items:str(100),maxItems:20}}),
@@ -19,15 +21,17 @@ const schemas={
  ChangeInput:obj({description:str(4000)}),
  Error:obj({error:obj({code:str(100),message:str(),retryable:{type:'boolean'},requestId:str(100)},['code','message'])}),
  Envelope:obj({data:{},meta:{type:'object',properties:{cursor:{type:['string','null']},requestId:{type:'string'}}}},['data']),
- Chat:obj({id:str(100),mode:{enum:['general','sandbox','agent']},agentId:{type:['string','null']},category:ref('Category'),saved:{type:'boolean'},title:str(200),revision:{type:'integer'},sourceId:{type:['string','null']},createdAt:{type:'string',format:'date-time'},messages:{type:'array',items:obj({id:str(100),role:{enum:['user','assistant','imported']},content:{type:'string',maxLength:8000},attachments:{type:'array',items:ref('Attachment')},createdAt:{type:'string',format:'date-time'},status:{enum:['sending','delivered','complete','failed']},trust:{enum:['untrusted']},sourceRole:{type:'string'}},['id','role','content'])}},['id','mode','category','saved','revision','messages'])
+ Chat:obj({id:str(100),mode:{enum:['general','sandbox','agent']},agentId:{type:['string','null']},category:ref('Category'),projectId:{type:['string','null']},pinned:{type:'boolean'},archived:{type:'boolean'},saved:{type:'boolean'},title:str(200),revision:{type:'integer'},sourceId:{type:['string','null']},createdAt:{type:'string',format:'date-time'},updatedAt:{type:'string',format:'date-time'},messages:{type:'array',items:obj({id:str(100),role:{enum:['user','assistant','imported']},content:{type:'string',maxLength:8000},attachments:{type:'array',items:ref('Attachment')},createdAt:{type:'string',format:'date-time'},status:{enum:['sending','delivered','complete','failed']},trust:{enum:['untrusted']},sourceRole:{type:'string'}},['id','role','content'])}},['id','mode','category','saved','revision','messages'])
 };
 // path, method, operationId, description, input schema, authentication required
 export const routes=[
  ['/health','get','health','Public liveness. Reports backendConnected=false.',null,false],
- ['/bootstrap','get','bootstrap','Authenticated session, effective capabilities, agents and integration state.',null,true],
- ['/chats','get','listChats','Visible conversations; saved=true selects explicit history.',null,true],
+ ['/bootstrap','get','bootstrap','Authenticated session, effective capabilities, agents, projects and integration state.',null,true],
+ ['/projects','get','listProjects','Projects visible to the authenticated principal.',null,true],
+ ['/chats','get','listChats','Visible conversations; filter by project, pinned, archived or explicit saved history.',null,true],
  ['/chats','post','createChat','Create unsaved chat. Agent mode requires a registered agentId.','CreateChat',true],
  ['/chats/{id}','get','getChat','Read authorized conversation.',null,true],
+ ['/chats/{id}','patch','patchChat','Pin, archive, rename or move a conversation without changing agent permissions.','ChatPatch',true],
  ['/chats/{id}','delete','deleteChat','Discard and initiate transcript retention purge.',null,true],
  ['/chats/{id}/messages','post','sendMessage','Send message. Runtime integration must version the asynchronous run response.','MessageInput',true],
  ['/chats/{id}/save','post','saveChat','Archive explicitly; never change execution mode or add memory.','SaveChat',true],
@@ -63,7 +67,7 @@ for(const [path,method,operationId,summary,input,auth] of routes){
  if(path.includes('{id}'))parameters.push({name:'id',in:'path',required:true,schema:str(100)});
  if(method!=='get')parameters.push({name:'Idempotency-Key',in:'header',required:true,schema:{type:'string',format:'uuid'}},{name:'X-CSRF-Token',in:'header',required:true,schema:str(200)});
  if(method==='get'&&!path.includes('{id}')&&path!=='/health')parameters.push({name:'cursor',in:'query',schema:str(200)},{name:'limit',in:'query',schema:{type:'integer',minimum:1,maximum:100,default:50}});
- if(path==='/chats'&&method==='get')parameters.push({name:'saved',in:'query',schema:{type:'boolean'}});
+ if(path==='/chats'&&method==='get')parameters.push({name:'saved',in:'query',schema:{type:'boolean'}},{name:'projectId',in:'query',schema:str(100)},{name:'pinned',in:'query',schema:{type:'boolean'}},{name:'archived',in:'query',schema:{type:'boolean'}});
  if(path==='/files')parameters.push({name:'category',in:'query',schema:ref('Category')});
  if(path==='/events'&&method==='get')parameters.push({name:'from',in:'query',schema:{type:'string',format:'date'}},{name:'to',in:'query',schema:{type:'string',format:'date'}});
  if(parameters.length)op.parameters=parameters;
@@ -71,4 +75,4 @@ for(const [path,method,operationId,summary,input,auth] of routes){
  if(path==='/runs/{id}/events')op.responses[200]={description:'Events: message.delta, run.status, action.approval_required, computer.handoff_required, run.completed, run.failed. Never include secrets.',content:{'text/event-stream':{schema:{type:'string'}}}};
  (paths[path]??={})[method]=op;
 }
-export const openapi={openapi:'3.1.0',info:{title:'Lisa Personal API',version:'0.3.0',description:'DESIGN contract; NOT a working backend. Every private server route currently returns 501. DemoClient is local memory only. Server authentication and authorization are prerequisites for real data.'},servers:[{url:'/api/v1'}],paths,components:{securitySchemes:{sessionCookie:{type:'apiKey',in:'cookie',name:'lisa_session',description:'HttpOnly, Secure, SameSite. Backend derives identity from authenticated session or scoped service credential, never X-Agent-ID.'}},schemas}};
+export const openapi={openapi:'3.1.0',info:{title:'Lisa Personal API',version:'0.4.0',description:'DESIGN contract; NOT a working backend. Every private server route currently returns 501. DemoClient is local memory only. Server authentication and authorization are prerequisites for real data.'},servers:[{url:'/api/v1'}],paths,components:{securitySchemes:{sessionCookie:{type:'apiKey',in:'cookie',name:'lisa_session',description:'HttpOnly, Secure, SameSite. Backend derives identity from authenticated session or scoped service credential, never X-Agent-ID.'}},schemas}};
