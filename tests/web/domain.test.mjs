@@ -32,7 +32,7 @@ test('health reports backend disconnected',()=>{let payload;const response={setH
 test('source has no personal persistence or vendor SDKs',async()=>{const source=await readFile(new URL('../../apps/web/app.mjs',import.meta.url),'utf8');assert.ok(!/localStorage|sessionStorage|eval\(/.test(source));assert.ok(source.includes('escapeHtml'));});
 test('OpenAPI contract has distinct operations, authentication and resolvable schema references',async()=>{
  const {openapi,routes}=await import('../../contracts/openapi.mjs');
- assert.equal(routes.length,28);assert.equal(new Set(routes.map(r=>r[2])).size,28);
+ assert.equal(routes.length,30);assert.equal(new Set(routes.map(r=>r[2])).size,28);
  function walk(value){if(!value||typeof value!=='object')return;if(value.$ref){const name=value.$ref.split('/').at(-1);assert.ok(openapi.components.schemas[name],name);}Object.values(value).forEach(walk);}
  walk(openapi);
  for(const [path,methods] of Object.entries(openapi.paths))for(const operation of Object.values(methods))assert.equal(operation.security.length,path==='/health'?0:1);
