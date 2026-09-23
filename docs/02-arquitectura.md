@@ -1,56 +1,167 @@
-# 02 · Arquitectura y decisiones
+# Arquitectura de Lisa
 
-```mermaid
-flowchart TD
-  M["Móvil: chat y editor web"] --> G["OpenClaw: sesiones y agentes"]
-  M --> E["Acceso documental autenticado"]
-  G --> P["Políticas y herramientas por área"]
-  P --> K["Notas e índice de búsqueda"]
-  P --> D["Registro de documentos"]
-  E --> D
-  D --> F["Documentos y versiones"]
-  P --> W["Cola de gestiones y navegador"]
-  K --> B["Copia externa cifrada"]
-  F --> B
-  D --> B
+## Principio rector
+
+**Los datos personales pertenecen a Lisa, no a OpenClaw, Nextcloud, la UI ni al modelo.**
+
+Lisa separa cinco capas:
+
+```text
+┌─────────────────────────────────────────────────────────────┐
+│ 5. Interfaces                                               │
+│ Web/PWA · móvil · CLI · futuras interfaces                  │
+├─────────────────────────────────────────────────────────────┤
+│ 4. Agentes                                                  │
+│ General · especializados · Computer Use · automatizaciones  │
+├─────────────────────────────────────────────────────────────┤
+│ 3. Lisa API + Policy                                        │
+│ identidad · permisos · acciones · auditoría · búsqueda      │
+├─────────────────────────────────────────────────────────────┤
+│ 2. Servicios de datos                                       │
+│ Nextcloud · PostgreSQL · búsqueda/RAG · tareas/calendario   │
+├─────────────────────────────────────────────────────────────┤
+│ 1. Datos                                                    │
+│ archivos · objetos estables · conocimiento · historial      │
+└─────────────────────────────────────────────────────────────┘
 ```
 
-Es un diseño objetivo. El código actual cubre routing, localización desde un manifiesto ficticio y registro persistente local de mensajes/expedientes. No integra aún los servicios del diagrama.
+La capa de datos debe seguir siendo utilizable aunque se eliminen todas las demás.
 
-## Responsabilidades
+## Componentes
 
-- **OpenClaw:** canales, agentes, sesiones, invocación de modelos y herramientas. Mantener un adaptador pequeño y evitar un fork inicial.
-- **Servicio documental propio:** autorización, identidad, versiones, movimientos, resolución de enlaces e historial. Esta capa resuelve el requisito que un simple directorio o acceso SFTP no garantiza.
-- **Markdown:** conocimiento duradero, expedientes, decisiones, tareas y fuentes. Los originales no se sustituyen por resúmenes.
-- **Índice:** derivado y reconstruible; SQLite con búsqueda textual para empezar. Separar índice recuperable de registro de identidad, que sí es dato autoritativo.
-- **Editor:** probar SilverBullet en móvil y escritorio. Obsidian es alternativa si se resuelve explícitamente la sincronización móvil; una carpeta Drive en escritorio por sí sola no cierra ese requisito.
-- **Gestor de archivos:** opcional. SFTPGo facilita acceso y administración de archivos; no asumir que aporta identidad estable de documentos. Nextcloud puede reducir desarrollo propio, a cambio de otra aplicación y su operación.
+### Lisa UI
 
-## Registro de decisiones
+Frontend propio. Nunca accede directamente a bases de datos o secretos.
 
-| ID | Decisión propuesta | Motivo y condición de revisión |
-|---|---|---|
-| D01 | Servidor canónico | Evita depender de Drive para el contexto; confirmar antes de migrar |
-| D02 | Un UUID por documento lógico | No ligar identidad al path ni al hash; revisar si un proveedor con IDs satisface todo |
-| D03 | Un bot con temas por área | Entrada móvil explícita sin llamada LLM para clasificar cada mensaje |
-| D04 | Agentes separados y permisos reales | Separar memoria, skills y acceso; un workspace no basta |
-| D05 | SQLite, proceso escritor único | Operación pequeña y portable; migrar si hay escritores distribuidos |
-| D06 | Búsqueda textual antes de vectores | Menos infraestructura y coste; añadir embeddings tras evaluación |
-| D07 | Editor web primero | Facilita acceso móvil sin exigir una carpeta local sincronizada |
-| D08 | APIs de modelos | Requisito confirmado: no servir modelos locales |
+Responsabilidades:
+- chats;
+- agentes;
+- explorador de archivos;
+- calendario;
+- tareas;
+- búsqueda/conocimiento;
+- Computer Use/takeover;
+- configuración de cuentas y permisos;
+- Developer Mode.
 
-## Almacenamiento: elección que debe cerrarse
+### Lisa API
 
-| Opción | Papel | Condición |
-|---|---|---|
-| Directorios + servicio de identidad | Propuesta principal | Todas las mutaciones documentales pasan por el servicio |
-| Nextcloud canónico | Alternativa | Ensayar IDs, versiones, borrados, restores y movimientos; evitar cambios directos al almacén interno |
-| Drive canónico | Alternativa | Verificar continuidad de IDs según operación; servidor mantiene caché, no un segundo maestro |
-| Drive como copia/exportación | Complemento | Versionado y restauración; sincronizar no equivale a hacer backup |
-| SFTPGo | Acceso opcional | Empezar con documentos en lectura; escritura solo cuando sus eventos encajen en la identidad |
+Punto estable de integración.
 
-No instalar simultáneamente todos estos productos. B02 compara un recorrido completo antes de decidir.
+Dominios iniciales:
 
-## Qué significa filesystem
+```text
+/api/chats
+/api/agents
+/api/knowledge
+/api/files
+/api/calendar
+/api/tasks
+/api/actions
+/api/computers
+/api/credentials
+/api/audit
+```
 
-El sistema de archivos ofrece directorios, paths y permisos. Una herramienta filesystem o MCP expone operaciones al agente. SFTPGo ofrece protocolos e interfaz de acceso. Ninguno de esos conceptos garantiza por sí solo enlaces semánticos persistentes. El registro estable debe vivir en la aplicación o en un proveedor cuya semántica se haya validado.
+La UI y los agentes consumen la misma capa de dominio.
+
+### Authorization
+
+Cada petición se evalúa como:
+
+```text
+principal + action + resource + context
+```
+
+La implementación propuesta es compatible con OpenFGA, pero Lisa debe exponer una interfaz interna para poder sustituir el motor.
+
+### Nextcloud
+
+Se usa como infraestructura **headless** para:
+- archivos;
+- sincronización;
+- WebDAV;
+- calendario CalDAV;
+- contactos si se desean;
+- historial/versiones cuando proceda.
+
+La UI oficial queda como panel administrativo/emergencia. Lisa presenta su propia UI.
+
+### PostgreSQL
+
+Guarda:
+- IDs estables;
+- relaciones;
+- conversaciones;
+- categorías;
+- agentes;
+- permisos;
+- acciones;
+- auditoría;
+- enlaces entre objetos.
+
+### Runtime privado de agentes
+
+OpenClaw es el candidato inicial.
+
+Incluye General y agentes especializados. No es la fuente de verdad de conocimiento.
+
+### Runtime Sandbox
+
+Gateway/proceso/contenedor separado.
+
+No monta datos personales, sockets privados, secretos, tokens ni sesiones del runtime privado.
+
+Puede tener modelo, internet según política, navegador/Computer Use efímero y almacenamiento temporal.
+
+### Credenciales
+
+Los agentes no reciben contraseñas en contexto.
+
+```text
+agent → action request → Lisa policy → credential broker → target service
+```
+
+1Password es la fuente inicial de credenciales. Lisa almacena referencias/capacidades, nunca valores secretos en la BD.
+
+## Flujos clave
+
+### Nuevo chat con conocimiento
+
+1. Lisa crea una conversación `general`.
+2. Puede consultar conocimiento general mediante Lisa API.
+3. Guardar conversación es explícito/configurable.
+4. Guardar conversación y extraer conocimiento son acciones separadas.
+
+### Nuevo chat Sandbox
+
+1. La UI crea conversación en runtime Sandbox.
+2. No existe ruta hacia Personal Data Hub.
+3. Al acabar se puede descartar, guardar como General o promover a una categoría/agente.
+4. Promover crea una sesión nueva privada y copia solo transcript/adjuntos autorizados.
+
+### Computer Use
+
+```text
+agent → computer session → 2FA/CAPTCHA/confirmación
+                              ↓
+                         human takeover
+                              ↓
+                         release control
+                              ↓
+                         agent continues
+```
+
+## Separación código/datos
+
+```text
+/opt/lisa/app      código desplegado
+/srv/lisa/data     datos personales
+/srv/lisa/backups  copias cifradas
+```
+
+El agente de desarrollo puede editar código en una rama Git, pero no recibe por defecto acceso a `/srv/lisa/data`.
+
+## Evolución
+
+OpenClaw, Nextcloud, OpenFGA o cualquier UI son reemplazables detrás de adapters. Los contratos de Lisa son la frontera estable.
