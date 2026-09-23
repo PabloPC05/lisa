@@ -1,23 +1,60 @@
-# 09 · Decisiones vigentes y cambios
+# Decisiones vigentes
 
-Este registro separa instrucciones confirmadas de propuestas. Una instrucción posterior explícita del propietario prevalece sobre una anterior; se conserva el historial y se actualizan los documentos afectados en el mismo cambio.
+Estado de decisiones funcionales y técnicas de Lisa.
 
-| Fecha | Tema | Estado vigente | Sustituye / impacto |
-|---|---|---|---|
-| 2026-09-23 | Nombre | Confirmado: Lisa; repositorio `PabloPC05/lisa`; paquete `lisa` | Sustituye el nombre de proyecto Segundo Cerebro |
-| 2026-09-23 | Visibilidad | Confirmado: repositorio público autorizado | Sustituye el requisito inicial de repositorio privado; solo código, especificación y ejemplos ficticios |
-| 2026-09-23 | Continuidad | Confirmado: continuar desarrollando e incorporar cambios de opinión comunicados | Leer este registro y CONTINUAR antes de trabajar; actualizar estado y pruebas al terminar |
-| 2026-09-23 | Ejecución de modelos | Confirmado: modelos por API | No se requiere GPU ni inferencia local |
-| 2026-09-23 | Interfaz | Dirección expresada: interfaz modificable, toma de control gráfica y consola de desarrollo | Producto base, prioridades y diseño exacto pendientes; Telegram no es elección definitiva |
-| 2026-09-23 | Infraestructura | Pendiente: VPS o servidor propio | No fijar proveedor, máquina o capacidad por consultas exploratorias |
-| 2026-09-23 | Datos y editor | Propuestas: servidor canónico e IDs estables; evaluar editor y gestor | D01/D07 pendientes; no migrar originales todavía |
+## Producto
 
-## Protocolo de actualización
+- Nombre del sistema: **Lisa**.
+- Lisa será el centro personal de datos, no únicamente un bot.
+- Habrá una UI propia y reemplazable.
+- La UI de Nextcloud no será la experiencia principal.
+- Deben existir dos botones separados:
+  - **Nuevo chat · Con conocimiento**;
+  - **Nuevo chat · Sandbox**.
+- Además habrá 4–5 agentes especializados configurables.
+- Un chat Sandbox podrá descartarse, guardarse como General o continuarse en una categoría/agente.
+- La promoción desde Sandbox crea una nueva sesión privada; no eleva privilegios al sandbox.
+- Guardar historial y guardar conocimiento son decisiones separadas.
 
-1. Registrar el cambio confirmado y la decisión anterior que sustituye; no convertir una pregunta exploratoria en una elección.
-2. Revisar impacto en requisitos, arquitectura, interfaces, backlog, configuración y pruebas.
-3. Implementar los cambios reversibles autorizados. Pedir precisión solo ante ambigüedad material o acciones que requieran autorización específica.
-4. Actualizar CONTINUAR con lo realmente entregado y la siguiente tarea; citar la evidencia de pruebas.
-5. No copiar conversaciones personales al repositorio público. Registrar decisiones técnicas resumidas.
+## Datos
 
-Este archivo no recibe cambios automáticamente desde otros chats. El agente debe incorporar las nuevas instrucciones que tenga disponibles en cada sesión; las decisiones no comunicadas al proyecto no se pueden inferir.
+- Nextcloud será inicialmente la capa de archivos/sincronización y CalDAV.
+- PostgreSQL guardará IDs estables, relaciones, conversaciones, políticas y metadatos.
+- Los paths no serán identificadores permanentes.
+- Los datos personales viven fuera del repositorio y fuera del código.
+
+## Agentes
+
+- OpenClaw es el runtime candidato inicial.
+- Lisa tendrá un adapter; OpenClaw no se convierte en la fuente de verdad.
+- Los agentes especializados solo consultan su ámbito.
+- El chat General puede consultar conocimiento global autorizado.
+- El Sandbox vive en un runtime/contenedor separado.
+
+## Seguridad
+
+- Los prompts no cuentan como frontera de seguridad.
+- Las decisiones de autorización se aplican en Lisa API.
+- Se diseñará una capa compatible con OpenFGA.
+- La política es fail-closed.
+- 1Password será la fuente inicial de credenciales.
+- Los agentes podrán **usar** credenciales autorizadas, no leer valores secretos.
+- Acciones sensibles usan approvals/human takeover.
+- Los logs nunca contienen secretos.
+
+## UI
+
+- Web/PWA primero; móvil nativo puede llegar después.
+- Archivos, calendario y tareas se presentan con componentes propios.
+- Nextcloud queda accesible como interfaz de administración/emergencia.
+- Debe existir una futura vista Developer con agente de código, terminal, git diff, preview y Apply/Discard.
+- El agente de desarrollo no obtiene por defecto acceso a datos personales.
+
+## Pendientes deliberados
+
+- Motor final de tareas: CalDAV/Nextcloud Tasks vs Vikunja.
+- Motor de búsqueda/RAG.
+- Motor exacto de autorización (OpenFGA es preferido inicialmente).
+- Broker exacto para secret injection.
+- Framework frontend.
+- Autenticación de Lisa.
