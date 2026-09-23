@@ -95,3 +95,11 @@ La demo actual destruye todo al recargar, incluido lo marcado como guardado. El 
 Exportar originales, versiones que deban conservarse, Markdown, conversaciones seleccionadas y mapping UUID/proveedor en un formato legible. Un backup debe incluir DB Lisa, DB/config/volúmenes Nextcloud del mismo punto consistente, permisos y configuración. Los índices se reconstruyen.
 
 Secretos se recuperan con el procedimiento del gestor, no con un dump sin cifrar. Probar restauración en host limpio, hashes, enlaces, versiones, ausencia de fugas y acciones pendientes. No repetir automáticamente efectos externos cuyo resultado sea desconocido.
+
+## 10. Memoria Markdown
+
+El formato canónico de `KnowledgeItem` será Markdown portable. La UI ofrece lectura renderizada y edición del Markdown fuente, pero el HTML generado es derivado y reconstruible.
+
+Cada nota conserva `revision`, `updated_at`, estado y fuente. Editar exige `expectedRevision`; si otra sesión cambió la nota se devuelve conflicto y nunca se aplica silenciosamente última escritura gana. Las revisiones anteriores deben poder conservarse en producción.
+
+El lector soportará un subconjunto seguro inspirado en GFM: títulos, listas, listas de tareas, tablas, citas, enlaces, énfasis y bloques de código. HTML crudo se muestra escapado por defecto. Los enlaces se validan antes de renderizarse.
