@@ -70,7 +70,63 @@ export function makeFixtures() {
       {id:'demo-event-2', title:'Bloque de estudio · ejemplo', date:'2026-09-24', time:'10:00', category:'universidad'},
       {id:'demo-event-3', title:'Organizar documentos · ejemplo', date:'2026-09-25', time:'18:00', category:'vivienda'}
     ],
-    knowledge: [{id:'demo-note-1', title:'Cómo se organiza este espacio', category:'general', content:'Los documentos, las conversaciones y el conocimiento son cosas distintas. Guardar un chat no lo convierte automáticamente en memoria.', source:'Guía de demostración', status:'approved'}],
+    knowledge: [
+      {id:'demo-note-1', title:'Cómo se organiza este espacio', category:'general', format:'markdown', revision:3, updatedAt:'2026-09-23T18:20:00Z', source:'Guía de demostración', status:'approved', content:`# Cómo se organiza este espacio
+
+Lisa separa **documentos**, **conversaciones** y **conocimiento** para que guardar algo no cambie sus permisos ni su significado.
+
+## Principios
+
+- Una conversación guardada sigue siendo historial.
+- El conocimiento aprobado vive en Markdown.
+- Un proyecto organiza; no concede permisos.
+- Las fuentes se conservan para poder revisar y revocar.
+
+> Guardar una conversación no la convierte automáticamente en memoria.
+
+## Flujo de memoria
+
+| Paso | Estado |
+| --- | --- |
+| Conversación | Historial |
+| Propuesta | Pendiente de revisión |
+| Aprobación | Memoria activa |
+| Edición | Nueva revisión |
+
+## Checklist
+
+- [x] Mantener Markdown portable
+- [x] Conservar la fuente
+- [ ] Conectar persistencia PostgreSQL
+- [ ] Añadir backlinks reales
+`},
+      {id:'demo-note-2', title:'Diseño de proyectos', category:'personal', format:'markdown', revision:2, updatedAt:'2026-09-23T19:10:00Z', source:'Decisiones de producto', status:'approved', content:`# Diseño de proyectos
+
+Un **proyecto** agrupa trabajo relacionado sin cargar todas sus conversaciones en cada prompt.
+
+## Qué contiene
+
+1. Historial de conversaciones.
+2. Conversaciones fijadas.
+3. Archivos y notas relacionados.
+4. Agente por defecto.
+5. Contexto autorizado.
+
+### Regla importante
+
+`Project != Agent != Category != Memory`
+
+Los permisos se evalúan en cada recuperación de contexto.
+`},
+      {id:'demo-note-3', title:'Nota pendiente de revisión', category:'universidad', format:'markdown', revision:1, updatedAt:'2026-09-23T20:05:00Z', source:'Conversación de ejemplo', status:'proposed', content:`# Nota pendiente
+
+Esta nota representa una propuesta todavía **no aprobada**.
+
+- Revisar exactitud.
+- Confirmar fuentes.
+- Aprobar solo si merece formar parte de la memoria.
+`}
+    ],
     audit: []
   };
 }
