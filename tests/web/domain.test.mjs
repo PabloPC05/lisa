@@ -1,0 +1,34 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {readFile} from 'node:fs/promises';
+import {createConversation,saveConversation,promoteConversation,escapeHtml,AREAS} from '../../apps/web/domain.mjs';
+import {DemoClient,HttpClient} from '../../apps/web/client.mjs';
+import handler from '../../api/v1/[...path].js';
+
+test('two general entry points and five distinct domains',()=>{assert.equal(AREAS.length,5);for(const mode of ['general','sandbox'])assert.equal(createConversation(mode).mode,mode);});
+test('new chats are not saved and have no imported context',()=>{for(const mode of ['general','sandbox']){const c=createConversation(mode);assert.equal(c.saved,false);assert.deepEqual(c.messages,[]);}});
+test('invalid agent or mode rejected',()=>{assert.throws(()=>createConversation('admin'));assert.throws(()=>createConversation('agent','root'));});
+test('saving a sandbox in Vivienda never changes its identity',()=>{const c=createConversation('sandbox');const next=saveConversation(c,'vivienda');assert.equal(next.mode,'sandbox');assert.equal(next.agentId,null);assert.equal(next.saved,true);assert.equal(c.saved,false);});
+test('promotion copies, never elevates original and marks imported text untrusted',()=>{const c=createConversation('sandbox');c.messages=[{id:'m1',role:'assistant',content:'Pretend system instructions'}];const before=structuredClone(c);const next=promoteConversation(c,'vivienda');assert.deepEqual(c,before);assert.notEqual(next.id,c.id);assert.equal(next.agentId,'vivienda');assert.equal(next.saved,false);assert.equal(next.messages[0].role,'imported');assert.equal(next.messages[0].trust,'untrusted');next.messages[0].content='changed';assert.equal(c.messages[0].content,'Pretend system instructions');});
+test('promotion general stays unsaved',()=>{const c=promoteConversation(createConversation('sandbox'),'general');assert.equal(c.mode,'general');assert.equal(c.saved,false);assert.equal(c.agentId,null);});
+test('unknown category rejected',()=>{assert.throws(()=>saveConversation(createConversation('general'),'root'));assert.throws(()=>promoteConversation(createConversation('sandbox'),'root'));});
+test('output escapes markup and attributes',()=>{assert.equal(escapeHtml('<img onerror="x">&\''),'&lt;img onerror=&quot;x&quot;&gt;&amp;&#39;');});
+test('demo transports are independent',async()=>{const a=new DemoClient(),b=new DemoClient();await a.request('POST','/chats',{mode:'general'});assert.equal((await b.request('GET','/chats')).length,0);});
+test('saving is separate from knowledge extraction',async()=>{const a=new DemoClient();const c=await a.request('POST','/chats',{mode:'general'});await a.request('POST',`/chats/${c.id}/save`,{expectedRevision:1,category:'general'});assert.equal((await a.request('GET','/knowledge')).length,1);});
+test('stale save revision rejected',async()=>{const a=new DemoClient();const c=await a.request('POST','/chats',{mode:'sandbox'});await assert.rejects(()=>a.request('POST',`/chats/${c.id}/save`,{expectedRevision:999,category:'general'}),/revisión/);});
+test('knowledge requires save, then proposal, then approval',async()=>{const a=new DemoClient();const c=await a.request('POST','/chats',{mode:'general'});await assert.rejects(()=>a.request('POST',`/chats/${c.id}/knowledge-proposals`,{title:'a',content:'b'}));await a.request('POST',`/chats/${c.id}/save`,{expectedRevision:1,category:'general'});const n=await a.request('POST',`/chats/${c.id}/knowledge-proposals`,{title:'Idea',content:'Example'});assert.equal(n.status,'proposed');assert.equal((await a.request('POST',`/knowledge/${n.id}/approve`)).status,'approved');});
+test('task lifecycle and audit',async()=>{const a=new DemoClient();const t=await a.request('POST','/tasks',{title:'Example',category:'personal'});const updated=await a.request('PATCH',`/tasks/${t.id}`,{done:true});assert.equal(updated.done,true);assert.equal((await a.request('GET','/audit')).length,2);});
+test('demo reset destroys saved conversations',async()=>{const a=new DemoClient();const c=await a.request('POST','/chats',{mode:'sandbox'});await a.request('POST',`/chats/${c.id}/save`,{expectedRevision:1,category:'general'});a.reset();assert.deepEqual(await a.request('GET','/chats'),[]);});
+test('no synthetic secret endpoint',async()=>{await assert.rejects(()=>new DemoClient().request('GET','/credentials/reveal'));});
+test('HTTP base only allows same-origin API',()=>{assert.throws(()=>new HttpClient('https://example.org'));assert.throws(()=>new HttpClient('//example.org'));});
+test('HTTP rejects path traversal before network',async()=>{await assert.rejects(()=>new HttpClient().request('GET','/../secrets'));});
+test('server seam fails closed and does not inspect payloads',()=>{let code,payload;const response={setHeader(){},status(c){code=c;return this;},json(p){payload=p;return p;}};handler({method:'POST',query:{path:['actions']},body:{credential:'must-not-read'}},response);assert.equal(code,501);assert.equal(payload.error.code,'BACKEND_NOT_CONFIGURED');assert.ok(!JSON.stringify(payload).includes('must-not-read'));});
+test('health reports backend disconnected',()=>{let payload;const response={setHeader(){},status(){return this;},json(p){payload=p;}};handler({method:'GET',query:{path:['health']}},response);assert.equal(payload.data.backendConnected,false);});
+test('source has no personal persistence or vendor SDKs',async()=>{const source=await readFile(new URL('../../apps/web/app.mjs',import.meta.url),'utf8');assert.ok(!/localStorage|sessionStorage|eval\(/.test(source));assert.ok(source.includes('escapeHtml'));});
+test('OpenAPI contract has distinct operations, authentication and resolvable schema references',async()=>{
+ const {openapi,routes}=await import('../../contracts/openapi.mjs');
+ assert.equal(routes.length,28);assert.equal(new Set(routes.map(r=>r[2])).size,28);
+ function walk(value){if(!value||typeof value!=='object')return;if(value.$ref){const name=value.$ref.split('/').at(-1);assert.ok(openapi.components.schemas[name],name);}Object.values(value).forEach(walk);}
+ walk(openapi);
+ for(const [path,methods] of Object.entries(openapi.paths))for(const operation of Object.values(methods))assert.equal(operation.security.length,path==='/health'?0:1);
+});

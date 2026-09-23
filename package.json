@@ -1,0 +1,13 @@
+{
+  "name": "lisa-personal-platform",
+  "version": "0.3.0",
+  "private": true,
+  "type": "module",
+  "engines": {"node": ">=22"},
+  "scripts": {
+    "dev": "node tools/serve.mjs",
+    "build": "node tools/build.mjs",
+    "test": "node --test tests/web/*.test.mjs",
+    "check": "npm test && npm run build"
+  }
+}

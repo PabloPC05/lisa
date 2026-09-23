@@ -1,0 +1,52 @@
+name: UI checks and review bundle
+on:
+  push:
+    branches: [main]
+    paths: ['apps/web/**', 'api/**', 'contracts/**', 'tools/**', 'tests/web/**', 'package.json', 'vercel.json', '.github/workflows/ui.yml']
+  pull_request:
+    paths: ['apps/web/**', 'api/**', 'contracts/**', 'tools/**', 'tests/web/**', 'package.json', 'vercel.json', '.github/workflows/ui.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm run check
+      - uses: actions/upload-artifact@v4
+        with:
+          name: lisa-ui-review
+          path: dist/
+  review-bundle:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: check
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm run check
+      - name: Publish generated demo only
+        run: |
+          mkdir -p preview
+          cp dist/index.html preview/index.html
+          cp dist/openapi.json preview/openapi.json
+          cp dist/build-info.json preview/build-info.json
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -- preview/index.html preview/openapi.json preview/build-info.json
+          if ! git diff --cached --quiet; then
+            git commit -m 'build: refresh generated Lisa review bundle'
+            git push origin HEAD:main
+          fi
+# Only generated preview files are written. No force push, external deployment,
+# repository secrets or arbitrary source edits. preview/** does not retrigger this workflow.
