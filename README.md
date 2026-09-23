@@ -1,41 +1,83 @@
 # Lisa
 
-Servidor personal de conocimiento y gestiones: documentos identificados de forma estable, memoria Markdown por áreas, agentes con contexto selectivo y acceso móvil mediante OpenClaw y Telegram.
+**Lisa** es una plataforma personal self-hosted: un centro de datos, conocimiento, agentes y automatización que vive en tu propio servidor.
 
-**Estado: especificación v0.2 y prototipo local con sesiones SQLite.** No hay servidor desplegado, bot conectado, migración de documentos ni integración OpenClaw implementada. Fecha de preparación: 23-09-2026.
+Lisa **no depende de una UI, un modelo ni un framework de agentes concreto**. Los datos son la fuente de verdad; Nextcloud, OpenClaw, la UI web, el móvil o futuros agentes son clientes reemplazables.
 
-## Empieza aquí
+## Objetivo
 
-1. [CONTINUAR.md](CONTINUAR.md): estado real y siguiente tarea para una nueva sesión.
-2. [Especificación](docs/01-especificacion.md): alcance, requisitos y aceptación.
-3. [Arquitectura y decisiones](docs/02-arquitectura.md).
-4. [Archivos, identidad y sincronización](docs/03-datos.md).
-5. [Agentes, contexto y móvil](docs/04-agentes.md).
-6. [Contratos de integración](docs/05-contratos.md).
-7. [Despliegue y operación](docs/06-operacion.md).
-8. [Backlog](docs/07-backlog.md) y [fuentes](docs/08-fuentes.md).
-9. [Decisiones vigentes](docs/09-decisiones-vigentes.md): cambios y preferencias del propietario.
-10. [Sesiones persistentes y demo](docs/10-sesiones-locales.md).
+Lisa debe proporcionar:
 
-## Base ejecutable
+- un **centro personal de datos** con archivos, calendario, tareas, conocimiento y metadatos;
+- una **UI propia** que consuma APIs y pueda cambiarse sin modificar la capa de datos;
+- dos tipos de chat general:
+  - **Nuevo chat · Con conocimiento**: puede consultar el conocimiento personal general;
+  - **Nuevo chat · Sandbox**: aislado físicamente, sin acceso a datos personales;
+- 4–5 **agentes especializados** con permisos por dominio (Vivienda, Universidad, Finanzas, Personal, etc.);
+- capacidad de **guardar/promover** una conversación sandbox a General o a una categoría especializada;
+- Computer Use con **human takeover**;
+- calendario, tareas y archivos integrados;
+- uso de credenciales mediante **capacidades**, sin exponer secretos al modelo;
+- auditoría de acciones;
+- una futura vista **Developer** capaz de proponer cambios a Lisa mediante Git + preview + aprobación.
 
-Python 3.11 o superior, sin paquetes externos:
+## Arquitectura resumida
 
-```bash
-python -m unittest discover -s tests -v
-python -m lisa route --config config/example.json --user 1001 --chat=-10001 --topic 10
-python -m lisa resolve --config config/example.json --agent vivienda --id 11111111-1111-4111-8111-111111111111
+```text
+                    Lisa UI
+                      │
+                 Lisa API
+                      │
+             Authorization layer
+                      │
+      ┌───────────────┼─────────────────┐
+      │               │                 │
+ Personal Data    Private agents   Sandbox gateway
+      │               │                 │
+ Nextcloud        OpenClaw          isolated runtime
+ PostgreSQL       specialized       no personal mounts
+ Search/RAG       general agent     no credentials
+      │
+      ├─ Files / WebDAV
+      ├─ Calendar / CalDAV
+      ├─ Tasks
+      ├─ Knowledge
+      └─ stable object IDs
+
+Secrets / actions:
+1Password → credential broker → allowed service/action
 ```
 
-El primer comando ejecuta pruebas. El segundo calcula agente y clave de sesión para identidades ficticias. El tercero localiza un documento de demostración. No envía mensajes, no llama a modelos ni cambia archivos. `config/example.json` es **configuración propia del prototipo**, no configuración válida de OpenClaw.
+## Decisiones principales
 
-## Principios
+- **Nextcloud se usa headless**: almacenamiento/sync/API; Lisa no depende de su frontend.
+- **1Password no se entrega al modelo**: los agentes reciben capacidades limitadas y referencias a secretos.
+- Los permisos se aplican **fuera del prompt**.
+- El Sandbox se ejecuta en un **runtime/Gateway separado**.
+- Guardar un chat no significa automáticamente convertir todo su texto en conocimiento.
+- Promover un chat Sandbox crea una **nueva sesión privada** con una copia explícita del contexto; nunca eleva permisos al sandbox original.
+- La UI es reemplazable y el código vive separado de los datos personales.
 
-- Un corpus portable de Markdown y documentos, separado del código de este repositorio.
-- Identidad estable de documento independiente de nombre, carpeta y versión.
-- Un bot y temas privados por área como propuesta inicial; conversaciones y habilidades separadas.
-- El servidor almacena y orquesta; los modelos se consumen por API, sin GPU requerida.
-- Contexto bajo demanda, con límites medidos; tener archivos disponibles no equivale a incluirlos en el prompt.
-- Un único propietario de escritura por documento; recuperación y copias verificadas antes de migrar.
+## Documentación
 
-No subir documentos personales, mensajes, credenciales, sesiones de navegador ni copias de bases de datos a GitHub. El propietario ha autorizado que este repositorio sea **público**. No se ha escogido licencia de distribución: queda pendiente del propietario.
+1. [Especificación](docs/01-especificacion.md)
+2. [Arquitectura](docs/02-arquitectura.md)
+3. [Modelo de datos](docs/03-datos.md)
+4. [Agentes y chats](docs/04-agentes.md)
+5. [Contratos](docs/05-contratos.md)
+6. [Operación](docs/06-operacion.md)
+7. [Backlog](docs/07-backlog.md)
+8. [Fuentes](docs/08-fuentes.md)
+9. [Decisiones vigentes](docs/09-decisiones-vigentes.md)
+10. [Sesiones locales](docs/10-sesiones-locales.md)
+11. [Seguridad y permisos](docs/11-seguridad-permisos.md)
+12. [UI y experiencia](docs/12-ui.md)
+13. [Integraciones](docs/13-integraciones.md)
+
+## Estado
+
+Existe un prototipo Python local previo. Esta rama añade la arquitectura v1 de Lisa sin eliminarlo.
+
+El siguiente hito es implementar **Lisa API + autorización + almacenamiento de conversaciones**, después integrar Nextcloud y el runtime privado/sandbox.
+
+> Nunca subir a GitHub documentos personales, credenciales, tokens, cookies, bases de datos reales ni volcados del servidor.
