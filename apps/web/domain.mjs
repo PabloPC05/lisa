@@ -114,7 +114,7 @@ Un **proyecto** agrupa trabajo relacionado sin cargar todas sus conversaciones e
 
 ### Regla importante
 
-`Project != Agent != Category != Memory`
+**Project != Agent != Category != Memory**
 
 Los permisos se evalúan en cada recuperación de contexto.
 `},
