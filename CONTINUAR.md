@@ -1,28 +1,91 @@
-# Cómo retomar Lisa
+# CONTINUAR
 
-Leer primero [decisiones vigentes](docs/09-decisiones-vigentes.md), AGENTS.md y backlog. Las instrucciones posteriores explícitas del propietario prevalecen sobre propuestas anteriores.
+## Estado actual
 
-## Entregado
+Lisa ya no se define únicamente como servidor de memoria/agentes. La arquitectura vigente la convierte en una **plataforma personal self-hosted** con datos, conocimiento, agentes, calendario, tareas, credenciales y Computer Use.
 
-- Especificación, arquitectura propuesta, contratos y backlog.
-- Paquete Python `lisa`, encaminamiento y resolución de documentos ficticios.
-- Sesiones SQLite por agente/cuenta/usuario/chat/tema/expediente, recuperación tras reinicio, deduplicación y detección de conflictos.
-- CLI `record` y `history`; demos sin modelos ni servicios externos.
-- Registro de cambios de decisión y flujo de actualización entre sesiones.
-- Destino autorizado: repositorio público `PabloPC05/lisa`; preservar historial remoto al publicar.
+La rama de arquitectura es:
 
-Validación local: 18 pruebas aprobadas. Incluyen ocho pruebas nuevas de persistencia, separación, revocación, reintentos concurrentes y conflictos. La CI está configurada para Python 3.11 y 3.12; su resultado se consulta en GitHub. El movimiento documental probado sigue requiriendo actualizar manualmente el manifiesto.
+```text
+architecture/personal-os-v1
+```
 
-## No implementado
+## Decisiones cerradas
 
-Integración OpenClaw/Telegram, modelos, interfaz gráfica, editor, control de escritorio, autenticación web, registro SQL de documentos, OCR, búsqueda, copias automáticas y gestiones externas. SQLite implementa eventos locales, no el registro documental B03 ni una cola B16. El prototipo no es una frontera de seguridad para producción.
+- UI propia y reemplazable.
+- Nextcloud como backend headless de archivos/sync y CalDAV.
+- PostgreSQL para metadatos, IDs estables, chats, relaciones y auditoría.
+- Dos botones independientes:
+  - Nuevo chat · Con conocimiento;
+  - Nuevo chat · Sandbox.
+- El Sandbox se ejecuta separado y sin acceso técnico a información privada.
+- Un chat sandbox se puede descartar, guardar como general o promover a un agente.
+- Promover crea una sesión nueva privada; no eleva permisos del sandbox.
+- 4–5 agentes especializados configurables.
+- OpenClaw es el runtime inicial preferido, detrás de un adapter.
+- Permisos fuera del prompt, con AuthorizationService compatible con OpenFGA.
+- 1Password como fuente inicial de secretos.
+- Los agentes usan capacidades/referencias a credenciales; no leen passwords.
+- Nextcloud UI no es la UI de Lisa.
+- Developer Mode futuro mediante branch + tests + preview + diff + Apply.
 
-## Siguiente paso
+## Qué existe
 
-B01: verificar y fijar una versión oficial de OpenClaw, ensayar dos agentes/temas con reinicio, habilidades y trazas. Requiere entorno de integración y credenciales de prueba; no inventar configuración. Mantener el almacén local desacoplado hasta conocer el contrato del adaptador.
+- prototipo Python previo de sesiones/identidad;
+- documentación v1;
+- contratos de servicios;
+- modelo de permisos;
+- ejemplo de configuración de agentes;
+- compose de desarrollo para PostgreSQL, Nextcloud, Redis y OpenFGA.
 
-B02: cerrar elección de almacenamiento y editor mediante un recorrido de prueba. B20: evaluar interfaz con toma de control gráfica y consola de desarrollo según la dirección expresada; Telegram es todavía propuesta, no requisito definitivo. No contratar ni desplegar infraestructura como efecto secundario.
+## Próximo hito recomendado
 
-## Prompt de continuación
+Construir **Lisa API v0.1**.
 
-> Continúa Lisa. Lee AGENTS.md, docs/09-decisiones-vigentes.md y CONTINUAR.md. Incorpora mis nuevas decisiones disponibles, actualiza los documentos afectados y conserva el historial de cambios. Ejecuta las pruebas. Trabaja en el siguiente elemento del backlog sin presentar prototipos como integraciones completadas. Documenta pruebas, límites y estado real. No migres documentos personales ni actives gestiones reales sin autorización específica.
+Orden:
+
+1. Definir modelos PostgreSQL:
+   - principal;
+   - agent;
+   - conversation;
+   - message;
+   - category/scope;
+   - knowledge_item;
+   - document_ref;
+   - policy/audit.
+2. Implementar `AuthorizationService`.
+3. Implementar chats:
+   - general;
+   - sandbox metadata;
+   - save;
+   - promote.
+4. Implementar `FileService` con adapter Nextcloud.
+5. Implementar `CalendarService` CalDAV.
+6. Crear adapter OpenClaw private.
+7. Crear adapter OpenClaw sandbox.
+8. Implementar credential broker/1Password.
+9. Implementar UI mínima.
+10. Añadir Computer Use/takeover.
+
+## Reglas al continuar
+
+- No poner datos personales reales en fixtures públicos.
+- No guardar credenciales en `.env` del repositorio.
+- No acoplar UI a Nextcloud.
+- No permitir que el frontend llame directamente a 1Password.
+- No usar prompts como ACL.
+- No dar Docker socket al sandbox.
+- Toda acción privilegiada debe ser auditable.
+
+## Archivos clave
+
+- `README.md`
+- `docs/02-arquitectura.md`
+- `docs/04-agentes.md`
+- `docs/05-contratos.md`
+- `docs/09-decisiones-vigentes.md`
+- `docs/11-seguridad-permisos.md`
+- `docs/12-ui.md`
+- `docs/13-integraciones.md`
+- `config/agents.example.yaml`
+- `infra/compose.dev.yml`
