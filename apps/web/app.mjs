@@ -31,7 +31,7 @@ function icon(name) { return `<svg viewBox="0 0 24 24" aria-hidden="true"><path 
 function btn(label, action, kind='', extra='') { return `<button class="btn ${kind}" data-action="${action}" ${extra}>${label}</button>`; }
 function area(id) { return AREAS.find(a=>a.id===id) || {id:'general',name:'General',icon:'spark',color:'purple'}; }
 function options(selected='general') { return [{id:'general',name:'General'},...AREAS].map(a=>`<option value="${a.id}" ${a.id===selected?'selected':''}>${e(a.name)}</option>`).join(''); }
-const state={view:'home', chatId:null, category:'', filter:'', menu:false, sidebarCollapsed:false, month:8, year:2026, computer:'idle', busy:false};
+const state={view:'home', chatId:null, category:'', filter:'', menu:false, sidebarCollapsed:false, month:8, year:2026, computer:'idle', busy:false, chatDrafts:{}, chatSends:{}};
 const titles={home:'Inicio',chat:'Conversación',history:'Conversaciones',files:'Archivos',calendar:'Calendario',tasks:'Tareas',knowledge:'Conocimiento',agents:'Agentes',accounts:'Cuentas e integraciones',computer:'Ordenadores',developer:'Developer',settings:'Ajustes',audit:'Registro de actividad'};
 const mount=document.querySelector('#app');
 const dialog=document.querySelector('#dialog');
@@ -56,9 +56,124 @@ function empty(title,description,action=''){return `<div class="empty">${icon('l
 function taskRow(t){return `<div class="list-row ${t.done?'done':''}"><button class="check ${t.done?'checked':''}" data-task="${e(t.id)}" data-done="${t.done}" aria-label="${t.done?'Marcar pendiente':'Completar'}: ${e(t.title)}">${t.done?icon('check'):''}</button><div><strong>${e(t.title)}</strong><small>${e(area(t.category).name)} · ejemplo</small></div></div>`;}
 function eventRow(v){return `<div class="list-row"><div class="mini-date">${e(v.time)}</div><div><strong>${e(v.title)}</strong><small>${e(v.date)} · ${e(area(v.category).name)}</small></div></div>`;}
 async function home(){return document.querySelector('#home-dashboard').innerHTML;}
-async function chatView(){if(!state.chatId)return empty('Elige cómo empezar','Con tu conocimiento personal o desde un espacio Sandbox.',`${btn('Con conocimiento','new-general','primary')} ${btn('Sandbox','new-sandbox')}`);const c=await api.request('GET',`/chats/${state.chatId}`);const sandbox=c.mode==='sandbox';const name=c.mode==='agent'?area(c.agentId).name:sandbox?'Sandbox':'Con conocimiento';return `${heading(name,sandbox?'Explora sin utilizar tu conocimiento personal.':'Un espacio para preguntar y conectar ideas.')}
-<div class="chat-layout"><div class="chat-panel"><div class="chat-heading"><h2>${e(c.title)}</h2><span class="pill ${sandbox?'neutral':''}">${icon(sandbox?'shield':'spark')}${sandbox?'Sandbox · demo':'Contexto · demo'}</span></div><div class="messages" id="messages">${c.messages.length?c.messages.map(m=>`<div class="message ${e(m.role)}"><span class="message-label">${m.role==='user'?'Tú':m.role==='imported'?'Contexto importado · no confiable':'Lisa · respuesta simulada'}</span>${e(m.content)}</div>`).join(''):`<div class="empty" style="border:0;padding-top:60px">${icon(sandbox?'shield':'spark')}<h3>${sandbox?'Un comienzo en blanco.':'¿Qué te gustaría poner en orden?'}</h3><p>${sandbox?'Sin documentos, calendario, credenciales ni memoria personal. En esta demo no hay un runtime real.':'En el sistema completo podrás consultar el conocimiento que autorices. Esta vista solo simula la conversación.'}</p>${btn('Probar con una pregunta','sample')}</div>`}</div><form class="composer" data-form="message"><label class="sr-only" for="message">Mensaje de prueba</label><textarea id="message" name="content" placeholder="Escribe un mensaje de prueba…" maxlength="8000" required></textarea><div class="composer-footer"><small>Sin modelo conectado · no uses datos reales</small><button class="btn primary" type="submit" ${state.busy?'disabled':''}>Enviar ${icon('send')}</button></div></form></div>
-<aside class="context-card"><h3>Contexto de esta conversación</h3><p>${sandbox?'Nada de tu espacio personal se añade al contexto.':'El contexto dependerá de los permisos del agente, no de la carpeta donde guardes el chat.'}</p><div class="context-line"><span>Conocimiento</span><strong>${sandbox?'Ninguno':c.mode==='agent'?e(name):'General'}</strong></div><div class="context-line"><span>Historial</span><strong>${c.saved?'Guardado · demo':'Sin guardar'}</strong></div><div class="context-line"><span>Categoría</span><strong>${e(area(c.category).name)}</strong></div><div class="context-line"><span>Integraciones</span><strong>Ninguna</strong></div><span class="pill warning">Guardado ≠ memoria</span>${btn(`${icon('save')} Guardar`,'save-chat')}${btn(`${icon('folder')} Guardar en…`,'categorize')}${btn(`${icon('arrow')} Continuar con…`,'promote')}${btn(`${icon('layers')} Proponer conocimiento`,'extract','',c.saved?'':'disabled title="Guarda primero la conversación"')}${btn('Descartar chat','discard','danger')}</aside></div>`;}
+const MAX_CHAT_FILES=8;
+const MAX_CHAT_FILE_BYTES=25*1024*1024;
+function composerState(chatId=state.chatId){
+  if(!chatId)return {text:'',attachments:[]};
+  return state.chatDrafts[chatId] ||= {text:'',attachments:[]};
+}
+function sendingState(chatId=state.chatId){
+  if(!chatId)return {busy:false,queue:[],sending:null,token:null};
+  return state.chatSends[chatId] ||= {busy:false,queue:[],sending:null,token:null};
+}
+function formatBytes(value){
+  const n=Number(value||0); if(n<1024)return n+' B'; if(n<1024*1024)return (n/1024).toFixed(n<10240?1:0)+' KB'; return (n/1024/1024).toFixed(1)+' MB';
+}
+function timeLabel(value){if(!value)return '';try{return new Date(value).toLocaleTimeString('es',{hour:'2-digit',minute:'2-digit'});}catch{return '';}}
+function attachmentMarkup(files=[], removable=false){
+  if(!files.length)return '';
+  return `<div class="chat-attachments">${files.map(file=>`<span class="attachment-chip">${icon('file')}<span><strong>${e(file.name)}</strong><small>${e(formatBytes(file.size))}</small></span>${removable?`<button type="button" data-action="remove-attachment" data-attachment="${e(file.id)}" aria-label="Quitar ${e(file.name)}">${icon('close')}</button>`:''}</span>`).join('')}</div>`;
+}
+function chatMessageMarkup(message, messages, index){
+  const role=message.role;
+  const assistant=role==='assistant';
+  const user=role==='user';
+  const imported=role==='imported';
+  const label=user?'Tú':imported?'Contexto importado':'Lisa';
+  const status=message.status==='sending'?'Enviando…':message.status==='delivered'?'Entregado ✓✓':assistant?'Completado':'';
+  const content=message.content?`<div class="message-content">${e(message.content).replace(/\n/g,'<br>')}</div>`:'';
+  const previousUser=assistant?[...messages.slice(0,index)].reverse().find(m=>m.role==='user'):null;
+  const actions=message.pending?'':`<div class="message-actions">
+    ${message.content?`<button type="button" data-action="copy-message" data-message="${e(message.id)}">Copiar</button>`:''}
+    ${user?`<button type="button" data-action="reuse-message" data-message="${e(message.id)}">Editar y reenviar</button>`:''}
+    ${assistant&&previousUser?`<button type="button" data-action="retry-message" data-message="${e(message.id)}">Reintentar</button>`:''}
+  </div>`;
+  return `<article class="message ${e(role)} ${message.pending?'pending':''}">
+    <div class="message-avatar">${assistant?'L':user?'T':imported?'↳':'L'}</div>
+    <div class="message-main"><div class="message-meta"><strong>${label}</strong><span>${timeLabel(message.createdAt)}${status?' · '+status:''}</span></div>
+    ${content}${attachmentMarkup(message.attachments||[])}${actions}</div>
+  </article>`;
+}
+function stageFiles(fileList){
+  const draft=composerState(); const incoming=[...fileList];
+  for(const file of incoming){
+    if(draft.attachments.length>=MAX_CHAT_FILES){toast(`Máximo ${MAX_CHAT_FILES} adjuntos por mensaje.`);break;}
+    if(file.size>MAX_CHAT_FILE_BYTES){toast(`${file.name} supera 25 MiB.`);continue;}
+    if(draft.attachments.some(x=>x.name===file.name&&x.size===file.size))continue;
+    draft.attachments.push({id:globalThis.crypto?.randomUUID?.()||String(Date.now()+Math.random()),name:file.name,size:file.size,type:file.type||'application/octet-stream'});
+  }
+}
+async function sendChatPayload(chatId,payload){
+  const flow=sendingState(chatId);
+  if(flow.busy){flow.queue.push(payload);if(state.chatId===chatId&&state.view==='chat')await render();return 'queued';}
+  flow.busy=true;flow.sending=payload;const token={cancelled:false};flow.token=token;
+  if(state.chatId===chatId&&state.view==='chat')await render();
+  await new Promise(resolve=>setTimeout(resolve,520));
+  if(token.cancelled)return 'cancelled';
+  try{
+    await api.request('POST',`/chats/${chatId}/messages`,payload);
+  }catch(error){
+    const draft=composerState(chatId);
+    if(!draft.text)draft.text=payload.content||'';
+    draft.attachments=[...(payload.attachments||[]),...draft.attachments].slice(0,MAX_CHAT_FILES);
+    throw error;
+  }finally{
+    if(!token.cancelled){flow.busy=false;flow.sending=null;flow.token=null;}
+  }
+  if(state.chatId===chatId&&state.view==='chat')await render();
+  if(flow.queue.length&&!flow.busy){
+    const next=flow.queue.shift();
+    setTimeout(()=>sendChatPayload(chatId,next).catch(error=>toast(error.message||'No se pudo enviar el mensaje.')),0);
+  }
+  return 'sent';
+}
+async function chatView(){
+  if(!state.chatId)return empty('Elige cómo empezar','Con tu conocimiento personal o desde un espacio Sandbox.',`${btn('Con conocimiento','new-general','primary')} ${btn('Sandbox','new-sandbox')}`);
+  const c=await api.request('GET',`/chats/${state.chatId}`);
+  const sandbox=c.mode==='sandbox';
+  const name=c.mode==='agent'?area(c.agentId).name:sandbox?'Sandbox':'Con conocimiento';
+  const draft=composerState(c.id),flow=sendingState(c.id);
+  const messages=[...c.messages,...(flow.sending?[{id:'pending-send',role:'user',content:flow.sending.content,attachments:flow.sending.attachments||[],createdAt:new Date().toISOString(),status:'sending',pending:true}]:[])];
+  const queue=flow.queue.length?`<div class="send-queue"><div class="send-queue-title">${icon('clock')} ${flow.queue.length} ${flow.queue.length===1?'mensaje en cola':'mensajes en cola'}</div>${flow.queue.map((item,i)=>`<div class="queued-message"><span>${e((item.content||item.attachments?.[0]?.name||'Mensaje').slice(0,80))}</span><button type="button" data-action="cancel-queued" data-queue-index="${i}" aria-label="Quitar de la cola">${icon('close')}</button></div>`).join('')}</div>`:'';
+  return `${heading(name,sandbox?'Explora sin utilizar tu conocimiento personal.':'Un espacio para preguntar, adjuntar y trabajar con un agente.')}
+  <div class="chat-layout chat-layout-pro"><section class="chat-panel chat-panel-pro">
+    <div class="chat-heading chat-heading-pro"><div class="agent-heading"><span class="agent-avatar">${icon(sandbox?'shield':c.mode==='agent'?area(c.agentId).icon:'spark')}</span><div><h2>${e(c.title)}</h2><small>${sandbox?'Sandbox aislado':c.mode==='agent'?'Agente · '+e(name):'Chat general'} · demo</small></div></div>
+      <div class="chat-heading-actions"><span class="pill ${sandbox?'neutral':''}">${icon(sandbox?'shield':'spark')}${sandbox?'Sin contexto personal':'Contexto autorizado'}</span></div>
+    </div>
+    <div class="messages messages-pro" id="messages">${messages.length?messages.map((m,i)=>chatMessageMarkup(m,messages,i)).join(''):`<div class="chat-empty">${icon(sandbox?'shield':'spark')}<h3>${sandbox?'Un comienzo en blanco.':'¿Qué quieres hacer con '+e(name)+'?'}</h3><p>${sandbox?'Puedes escribir o adjuntar archivos de prueba sin utilizar conocimiento personal.':'Envía una instrucción, añade archivos o reutiliza un mensaje anterior. El backend real tendrá streaming y herramientas.'}</p>${btn('Probar con una pregunta','sample')}</div>`}</div>
+    ${flow.busy?`<div class="generation-status"><span class="generation-dot"></span><span>Lisa está procesando el envío…</span><button type="button" data-action="stop-generation">Detener</button></div>`:''}
+    ${queue}
+    <form class="composer composer-pro" data-form="message">
+      ${attachmentMarkup(draft.attachments,true)}
+      <div class="composer-shell" data-dropzone="chat">
+        <label class="sr-only" for="message">Mensaje</label>
+        <textarea id="message" name="content" placeholder="Escribe a ${e(name)}…" maxlength="8000" rows="1">${e(draft.text)}</textarea>
+        <div class="composer-toolbar">
+          <div class="composer-tools">
+            <button class="composer-icon" type="button" data-action="attach-files" aria-label="Adjuntar archivos" title="Adjuntar archivos">${icon('plus')}</button>
+            <span class="composer-capability">${icon('file')} Archivos</span>
+            <span class="composer-capability">${icon('layers')} Contexto</span>
+          </div>
+          <div class="composer-send">
+            <span class="composer-hint"><kbd>Enter</kbd> enviar · <kbd>Shift</kbd>+<kbd>Enter</kbd> salto</span>
+            ${flow.busy?`<button class="stop-btn" type="button" data-action="stop-generation" aria-label="Detener">${icon('close')}</button>`:''}
+            <button class="send-btn" type="submit" aria-label="${flow.busy?'Añadir mensaje a la cola':'Enviar mensaje'}">${flow.busy?icon('plus'):icon('send')}</button>
+          </div>
+        </div>
+      </div>
+      <input id="chat-files" type="file" multiple hidden accept=".pdf,.txt,.md,.csv,.json,.doc,.docx,.xls,.xlsx,.png,.jpg,.jpeg,.webp">
+      <div class="composer-note"><span>Hasta 8 archivos · 25 MiB por archivo</span><span>En esta demo solo se conserva metadato local; no se sube contenido.</span></div>
+    </form>
+  </section>
+  <aside class="context-card context-card-pro"><h3>Contexto del agente</h3><p>${sandbox?'Nada de tu espacio personal se añade al contexto.':'Los permisos del agente deciden qué puede recuperar; guardar o clasificar un chat no amplía ese acceso.'}</p>
+    <div class="context-line"><span>Conocimiento</span><strong>${sandbox?'Ninguno':c.mode==='agent'?e(name):'General autorizado'}</strong></div>
+    <div class="context-line"><span>Historial</span><strong>${c.saved?'Guardado · demo':'Sin guardar'}</strong></div>
+    <div class="context-line"><span>Adjuntos</span><strong>Por mensaje</strong></div>
+    <div class="context-line"><span>Integraciones</span><strong>Ninguna</strong></div>
+    <span class="pill warning">Guardar ≠ memoria</span>
+    ${btn(`${icon('save')} Guardar`,'save-chat')}${btn(`${icon('folder')} Guardar en…`,'categorize')}${btn(`${icon('arrow')} Continuar con…`,'promote')}${btn(`${icon('layers')} Proponer conocimiento`,'extract','',c.saved?'':'disabled title="Guarda primero la conversación"')}${btn('Descartar chat','discard','danger')}
+  </aside></div>`;
+}
 async function historyView(){const chats=await api.request('GET','/chats?saved=true');return heading('Conversaciones','Solo aparecen las que has decidido guardar durante esta demostración.')+(chats.length?`<div class="panel">${chats.map(c=>`<button class="list-row list-button" data-chat="${e(c.id)}"><span class="tile-icon small">${icon(c.mode==='sandbox'?'shield':'chat')}</span><div><strong>${e(c.title)}</strong><small>${e(area(c.category).name)} · modo ${e(c.mode)} · guardado en memoria de la demo</small></div><span class="trailing">${icon('chevron')}</span></button>`).join('')}</div>`:empty('Aún no hay conversaciones guardadas','Inicia un chat y pulsa Guardar. La demo no conserva datos tras recargar.',btn('Empezar con conocimiento','new-general','primary')));}
 async function filesView(){const files=await api.request('GET',`/files${state.category?'?category='+state.category:''}`);const filtered=files.filter(f=>f.name.toLocaleLowerCase().includes(state.filter.toLocaleLowerCase()));return heading('Tus archivos','La interfaz de Lisa; en el futuro, Nextcloud por debajo.',btn(`${icon('cloud')} Integración Nextcloud`,'nextcloud'))+`<div class="chips"><button class="chip ${!state.category?'active':''}" data-category="">Todos</button>${AREAS.map(a=>`<button class="chip ${state.category===a.id?'active':''}" data-category="${a.id}">${a.name}</button>`).join('')}<form data-form="search" style="margin-left:auto"><label class="sr-only" for="file-search">Buscar archivos</label><input id="file-search" name="query" value="${e(state.filter)}" placeholder="Buscar archivo…" style="border:1px solid var(--line);border-radius:8px;padding:6px 10px;background:var(--panel);color:var(--ink);max-width:170px"></form></div><div class="file-grid">${filtered.map(f=>`<button class="file-card" data-file="${f.id}"><div class="file-cover">${icon('file')}</div><strong>${e(f.name)}</strong><small>${e(area(f.category).name)} · ${f.size} · v${f.version}</small><div class="resource-line">ID estable de ejemplo · ${f.id}</div></button>`).join('')}</div>${!filtered.length?empty('No hay coincidencias','Prueba otra categoría o búsqueda.'):''}`;}
 async function tasksView(){const list=await api.request('GET','/tasks');return heading('Una cosa cada vez','Organiza lo pendiente sin perder de vista el contexto.',btn(`${icon('plus')} Nueva tarea`,'new-task','primary'))+`<div class="chips"><span class="pill">${list.filter(t=>!t.done).length} pendientes</span><span class="pill neutral">${list.filter(t=>t.done).length} completadas</span><span class="pill neutral">Persistencia: solo esta demo</span></div><div class="panel">${list.map(taskRow).join('')}</div>`;}
@@ -79,11 +194,15 @@ async function handleAction(action,target){
  if(action==='theme'){toast('Esta propuesta visual está fijada en modo claro.');return;}
  if(action==='menu'){state.menu=!state.menu;document.querySelector('.shell').classList.toggle('menu-open',state.menu);const b=document.querySelector('.mobile-menu');b?.setAttribute('aria-expanded',String(state.menu));return;}
  if(action==='sidebar-collapse'){state.sidebarCollapsed=!state.sidebarCollapsed;await render();return;}
- if(action==='sidebar-collapse'){state.sidebarCollapsed=!state.sidebarCollapsed;await render();return;}
  if(action==='new-general'||action==='new-sandbox'){await newChat(action==='new-general'?'general':'sandbox');return;}
  if(action==='audit'||action==='accounts'){nav(action);return;}
  if(action==='start-agent'){await newChat('agent',target.dataset.id);return;}
- if(action==='sample'){document.querySelector('#message').value='¿Cómo podría organizar mis ideas en este espacio?';document.querySelector('#message').focus();return;}
+ if(action==='sample'){const draft=composerState();draft.text='¿Cómo podría organizar mis ideas en este espacio?';const box=document.querySelector('#message');if(box){box.value=draft.text;box.focus();}return;}
+ if(action==='attach-files'){document.querySelector('#chat-files')?.click();return;}
+ if(action==='remove-attachment'){const draft=composerState();draft.attachments=draft.attachments.filter(file=>file.id!==target.dataset.attachment);await render();document.querySelector('#message')?.focus();return;}
+ if(action==='cancel-queued'){const flow=sendingState();const index=Number(target.dataset.queueIndex);if(Number.isInteger(index)&&index>=0)flow.queue.splice(index,1);await render();return;}
+ if(action==='stop-generation'){const flow=sendingState();if(flow.token)flow.token.cancelled=true;const active=flow.sending;flow.busy=false;flow.sending=null;flow.token=null;if(active){const draft=composerState();if(!draft.text&&!draft.attachments.length){draft.text=active.content||'';draft.attachments=[...(active.attachments||[])];}else{flow.queue.unshift(active);}}await render();toast('Envío detenido. El borrador se ha recuperado.');return;}
+ if(action==='copy-message'||action==='reuse-message'||action==='retry-message'){const c=await api.request('GET',`/chats/${state.chatId}`);let message=c.messages.find(m=>m.id===target.dataset.message);if(action==='retry-message'){const index=c.messages.findIndex(m=>m.id===target.dataset.message);message=[...c.messages.slice(0,index)].reverse().find(m=>m.role==='user');}if(!message)return;if(action==='copy-message'){if(navigator.clipboard?.writeText)await navigator.clipboard.writeText(message.content||'');toast('Mensaje copiado.');return;}const draft=composerState();draft.text=message.content||'';draft.attachments=(message.attachments||[]).map(file=>({...file,id:globalThis.crypto?.randomUUID?.()||file.id}));await render();document.querySelector('#message')?.focus();toast(action==='retry-message'?'Mensaje preparado para reintentar.':'Mensaje cargado para editar y reenviar.');return;}
  if(action==='save-chat'){const c=await api.request('GET',`/chats/${state.chatId}`);await api.request('POST',`/chats/${c.id}/save`,{category:c.category,expectedRevision:c.revision});await render();toast('Guardado en el historial de la demo. No se ha añadido conocimiento.');return;}
  if(action==='categorize'||action==='promote'){const c=await api.request('GET',`/chats/${state.chatId}`);modal(action==='promote'?'Continuar con otro agente':'Guardar en una categoría',`<p class="modal-copy">${action==='promote'?'Se crea una conversación nueva. La original no cambia de permisos. El texto importado se trata como contenido no confiable.':'Solo cambia la clasificación en el historial. Un chat Sandbox continúa siendo Sandbox.'}</p><form data-form="${action}"><label class="field">Destino<select name="target">${options(c.category)}</select></label><div class="note-box">${action==='promote'?'La nueva conversación empieza sin guardar. No se transfieren cookies, herramientas, credenciales ni archivos.':'Guardar no añade el contenido a la memoria personal.'}</div><div class="modal-footer"><button class="btn primary" type="submit">${action==='promote'?'Crear nueva conversación':'Guardar aquí'}</button></div></form>`);return;}
  if(action==='discard'){modal('Descartar esta conversación',`<p class="modal-copy">Se eliminará de la memoria de esta demo. Esta acción no afecta a ninguna cuenta externa.</p><div class="modal-footer">${btn('Cancelar','close')}${btn('Descartar','confirm-discard','danger')}</div>`);return;}
@@ -113,7 +232,7 @@ document.addEventListener('click',async ev=>{const target=ev.target.closest('but
  if(target.dataset.action)await handleAction(target.dataset.action,target);
  }catch(error){toast(error.message||'No se pudo completar la acción.');}});
 document.addEventListener('submit',async ev=>{const form=ev.target;if(!form.dataset.form)return;ev.preventDefault();const body=Object.fromEntries(new FormData(form));const kind=form.dataset.form;try{
- if(kind==='message'){if(state.busy)return;state.busy=true;const submit=form.querySelector('button[type="submit"]');submit.disabled=true;try{await api.request('POST',`/chats/${state.chatId}/messages`,{content:body.content});}finally{state.busy=false;submit.disabled=false;}await render();document.querySelector('#message')?.focus();return;}
+ if(kind==='message'){const chatId=state.chatId,draft=composerState(chatId),content=String(body.content||'').trim(),attachments=[...draft.attachments];if(!content&&!attachments.length)return;const payload={content,attachments};draft.text='';draft.attachments=[];const flow=sendingState(chatId);if(flow.busy){flow.queue.push(payload);await render();document.querySelector('#message')?.focus();toast('Mensaje añadido a la cola.');return;}await sendChatPayload(chatId,payload);document.querySelector('#message')?.focus();return;}
  if(kind==='search'){state.filter=body.query;await render();return;}
  if(kind==='categorize'){const c=await api.request('GET',`/chats/${state.chatId}`);await api.request('POST',`/chats/${c.id}/save`,{category:body.target,expectedRevision:c.revision});dialog.close();await render();toast('Clasificado sin cambiar el modo ni los permisos.');return;}
  if(kind==='promote'){const c=await api.request('POST',`/chats/${state.chatId}/promotions`,{target:body.target,selectedAttachmentIds:[]});state.chatId=c.id;dialog.close();await render();toast('Nueva conversación creada. La original no ha cambiado.');return;}
@@ -122,6 +241,12 @@ document.addEventListener('submit',async ev=>{const form=ev.target;if(!form.data
  if(kind==='event'){await api.request('POST','/events',body);dialog.close();await render();toast('Evento de ejemplo creado.');return;}
  if(kind==='developer'){dialog.close();modal('Propuesta · sin ejecutar',`<p class="modal-copy">${e(body.content)}</p><pre class="code">Estado: propuesta de demostración\nDestino: nueva rama de código\nDatos: solo fixtures\nValidaciones: tests, diff, preview\nPublicación: aprobación humana</pre><div class="modal-footer">${btn('Cerrar','close')}${btn('Aplicar · backend pendiente','none','primary','disabled')}</div>`);return;}
  }catch(error){toast(error.message||'No se pudo completar la operación.');}});
+document.addEventListener('input',ev=>{if(ev.target?.id==='message')composerState().text=ev.target.value;});
+document.addEventListener('change',async ev=>{if(ev.target?.id!=='chat-files')return;stageFiles(ev.target.files||[]);ev.target.value='';await render();document.querySelector('#message')?.focus();});
+document.addEventListener('keydown',ev=>{if(ev.target?.id!=='message'||ev.isComposing)return;if(ev.key==='Enter'&&!ev.shiftKey&&window.innerWidth>760){ev.preventDefault();ev.target.form?.requestSubmit();}});
+document.addEventListener('paste',async ev=>{if(ev.target?.id!=='message')return;const files=[...(ev.clipboardData?.files||[])];if(!files.length)return;ev.preventDefault();stageFiles(files);await render();document.querySelector('#message')?.focus();});
+document.addEventListener('dragover',ev=>{if(ev.target.closest?.('[data-dropzone="chat"]'))ev.preventDefault();});
+document.addEventListener('drop',async ev=>{if(!ev.target.closest?.('[data-dropzone="chat"]'))return;ev.preventDefault();const files=[...(ev.dataTransfer?.files||[])];if(!files.length)return;stageFiles(files);await render();document.querySelector('#message')?.focus();});
 window.addEventListener('hashchange',()=>{const v=location.hash.slice(1);if(views[v]){state.view=v;render().catch(err=>toast(err.message));}});
 const initial=location.hash.slice(1);if(views[initial])state.view=initial;
 render().catch(error=>{mount.textContent=`No se pudo iniciar Lisa: ${error.message}`;});
