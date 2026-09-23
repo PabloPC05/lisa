@@ -4,136 +4,96 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="robots" content="noindex,nofollow">
-  <meta name="theme-color" content="#df1f2d">
-  <meta name="description" content="Lisa · Preview de tu espacio personal de datos y agentes. Solo datos ficticios.">
+  <meta name="theme-color" content="#5289be">
+  <meta name="description" content="Lisa · Tu espacio personal bajo un cielo que acompaña tu día. Demostración con datos ficticios.">
   <title>Lisa · Tu espacio personal</title>
   <link rel="stylesheet" href="./styles.css">
+  <link rel="stylesheet" href="./sky.css">
 </head>
 <body>
   <a class="skip-link" href="#main">Saltar al contenido</a>
   <div id="app"><p class="loading">Preparando Lisa…</p></div>
-
   <template id="home-dashboard">
-    <div class="dashboard-head">
-      <div>
-        <div class="eyebrow">Tu espacio, de un vistazo</div>
-        <h1>Inicio</h1>
-        <p>Una vista operativa de las aplicaciones de Lisa.</p>
+    <div id="sky-home" class="sky-home">
+      <div class="sky-world" aria-hidden="true">
+        <div class="sky-gradient"></div><div class="sky-grain"></div>
+        <div class="sky-stars" data-sky-stars></div>
+        <div class="sky-sun"><div></div></div><div class="sky-moon"></div>
+        <div class="sky-haze sky-haze-one"></div><div class="sky-haze sky-haze-two"></div>
+        <svg class="sky-landscape" viewBox="0 0 1600 720" preserveAspectRatio="none">
+          <defs>
+            <linearGradient id="sky-mist" x1="0" y1="0" x2="0" y2="1"><stop stop-color="currentColor" stop-opacity=".02"/><stop offset="1" stop-color="currentColor" stop-opacity=".6"/></linearGradient>
+          </defs>
+          <path class="sky-mountain-far" d="M0 540 95 464 170 501 320 346 425 445 505 387 645 512 761 405 879 498 1030 368 1098 416 1245 300 1400 428 1485 390 1600 470V720H0Z"/>
+          <path class="sky-mountain-near" d="M0 590 160 518 281 588 404 480 590 619 720 555 916 600 1027 499 1157 570 1320 456 1510 584 1600 560V720H0Z"/>
+        </svg>
+        <svg class="sky-cloudbank sky-cloudbank-back" viewBox="0 0 1600 400" preserveAspectRatio="none"><path d="M0 175C60 159 86 196 121 196 177 196 166 231 216 231 267 231 294 180 360 195 415 207 385 242 447 239 522 235 508 200 580 211 640 220 673 259 752 244 820 231 801 189 859 183 925 176 913 215 970 214 1055 211 1084 144 1150 151 1211 157 1198 198 1260 198 1350 197 1305 128 1380 129 1455 130 1437 203 1510 177 1555 161 1571 142 1600 154V400H0Z"/></svg>
+        <svg class="sky-cloudbank sky-cloudbank-front" viewBox="0 0 1600 400" preserveAspectRatio="none"><path d="M0 205C81 172 180 196 169 233 156 272 222 237 258 258 298 282 238 282 268 299 317 327 357 278 435 285 529 293 512 327 598 323 684 319 730 270 818 284 886 295 842 322 919 326 1005 331 1030 297 1108 300 1210 304 1189 244 1262 229 1322 217 1364 253 1406 218 1465 169 1514 134 1600 148V400H0Z"/></svg>
+        <svg class="sky-birds" viewBox="0 0 150 55"><path d="M5 23Q16 13 26 24Q36 12 47 17M81 37Q89 27 98 36Q106 24 116 29M119 9Q128 2 135 9Q143 1 150 4"/></svg>
       </div>
-      <div class="dashboard-actions">
-        <button class="btn primary" data-new="general">Nuevo chat</button>
-        <button class="btn" data-new="sandbox">Sandbox</button>
+      <div class="sky-topline">
+        <div class="sky-location"><span class="sky-live-dot"></span><span>UN POCO DE AIRE, UN POCO DE LISA</span></div>
+        <div class="sky-time-control">
+          <button class="sky-clock-button sky-glass" data-sky-toggle aria-expanded="false" aria-controls="sky-time-panel" aria-label="Cambiar la hora del paisaje">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M12 7v5l3 2"/></svg>
+            <time data-sky-clock>--:--</time><span class="sky-clock-divider"></span><span data-sky-phase>Cielo</span><svg class="sky-small-icon" viewBox="0 0 24 24"><path d="m8 10 4 4 4-4"/></svg>
+          </button>
+          <section class="sky-time-panel sky-glass" id="sky-time-panel" data-sky-panel hidden aria-label="La luz de tu espacio">
+            <div class="sky-panel-heading"><strong>La luz de tu espacio</strong><output data-sky-output>--:--</output></div>
+            <p>El cielo acompaña la hora de tu dispositivo. También puedes viajar por el día.</p>
+            <label class="sky-range-label" for="sky-time-slider">Hora del paisaje</label>
+            <input id="sky-time-slider" data-sky-slider type="range" min="0" max="1439" step="1" value="720" aria-valuetext="12:00">
+            <div class="sky-range-ticks"><span>00:00</span><span>06:00</span><span>12:00</span><span>18:00</span><span>23:59</span></div>
+            <div class="sky-time-presets"><button data-sky-preset="7" aria-pressed="false">Amanecer</button><button data-sky-preset="13" aria-pressed="false">Día</button><button data-sky-preset="19" aria-pressed="false">Atardecer</button><button data-sky-preset="23" aria-pressed="false">Noche</button></div>
+            <button class="sky-live-button" data-sky-live aria-pressed="true"><span class="sky-live-dot"></span>Usar la hora real</button>
+            <small>Hora local · <span data-sky-timezone></span><br>Escena ilustrada, no meteorología ni posición astronómica.</small>
+          </section>
+        </div>
+      </div>
+      <div class="sky-content">
+        <section class="sky-intro" aria-label="Bienvenida">
+          <div class="sky-date" data-sky-date>Tu espacio personal</div>
+          <h1 data-sky-greeting>Hola, de nuevo.</h1>
+          <p class="sky-tagline">Deja espacio a tus <em>ideas.</em></p>
+          <p class="sky-description">Todo lo que importa, un poco más cerca.</p>
+        </section>
+        <div class="sky-conversation sky-glass">
+          <button class="sky-ask" data-new="general"><span class="sky-lisa-spark">✳</span><span>¿Qué tienes en mente?<small>Inicia una conversación con Lisa</small></span><span class="sky-send-arrow">↗</span></button>
+          <button class="sky-sandbox" data-new="sandbox" title="Nueva conversación sin acceso al conocimiento personal"><svg viewBox="0 0 24 24"><path d="m12 3 8 3v6c0 5-8 9-8 9s-8-4-8-9V6Z"/><path d="m9 12 2 2 4-4"/></svg>Sandbox</button>
+        </div>
+        <nav class="sky-portals" aria-label="Aplicaciones de Lisa">
+          <button class="sky-portal sky-glass" data-nav="files"><span class="sky-portal-art sky-folder-art"><svg viewBox="0 0 64 64"><path d="M9 19q0-4 4-4h13l6 7h19q4 0 4 4v24H9Z"/><path d="M8 29q0-3 3-3h44q3 0 2 4l-5 21H12Z"/></svg></span><span><strong>Archivos</strong><small>Un lugar para todo</small></span><span class="sky-portal-arrow">↗</span></button>
+          <button class="sky-portal sky-glass" data-nav="knowledge"><span class="sky-portal-art sky-book-art"><svg viewBox="0 0 64 64"><path d="M10 15q13-3 22 5 9-8 22-5v33q-13-3-22 4-9-7-22-4Z"/><path d="M32 20v32M16 24q6-1 10 2M16 31q6-1 10 2M38 26q5-3 10-2M38 33q5-3 10-2"/></svg></span><span><strong>Conocimiento</strong><small>Ideas que se quedan</small></span><span class="sky-portal-arrow">↗</span></button>
+          <button class="sky-portal sky-glass" data-nav="agents"><span class="sky-portal-art sky-orbit-art"><svg viewBox="0 0 64 64"><circle cx="32" cy="32" r="9"/><ellipse cx="32" cy="32" rx="26" ry="11" transform="rotate(-35 32 32)"/><circle cx="49" cy="19" r="4"/><circle cx="14" cy="44" r="3"/></svg></span><span><strong>Agentes</strong><small>Cada uno, su mundo</small></span><span class="sky-portal-arrow">↗</span></button>
+          <button class="sky-portal sky-glass" data-nav="calendar"><span class="sky-portal-art sky-calendar-art"><svg viewBox="0 0 64 64"><rect x="12" y="14" width="40" height="39" rx="6"/><path d="M12 26h40M23 10v9M42 10v9"/><path d="m25 38 5 5 10-11"/></svg></span><span><strong>Tu día</strong><small>Una cosa cada vez</small></span><span class="sky-portal-arrow">↗</span></button>
+        </nav>
+        <div class="sky-widgets">
+          <section class="sky-widget sky-glass">
+            <div class="sky-widget-title"><h2>Un pequeño plan</h2><button data-nav="tasks" aria-label="Abrir todas las tareas">↗</button></div>
+            <div class="sky-task-line"><span class="sky-task-circle"></span><button data-nav="tasks">Revisar el diseño de Lisa<small>Personal · ejemplo</small></button></div>
+            <div class="sky-task-line"><span class="sky-task-circle"></span><button data-new="sandbox">Probar un chat Sandbox<small>Un espacio sin contexto personal</small></button></div>
+            <button class="sky-text-link" data-nav="tasks">Ver mis tareas <span>→</span></button>
+          </section>
+          <section class="sky-widget sky-glass">
+            <div class="sky-widget-title"><h2>A mano</h2><button data-nav="files" aria-label="Abrir archivos">↗</button></div>
+            <button class="sky-file-line" data-file="demo-file-2"><span class="sky-file-mark">md</span><span>Ideas para el próximo curso<small>Universidad · archivo de ejemplo</small></span><span class="sky-file-arrow">↗</span></button>
+            <button class="sky-file-line" data-file="demo-file-3"><span class="sky-file-mark">csv</span><span>Presupuesto de ejemplo<small>Finanzas · archivo de ejemplo</small></span><span class="sky-file-arrow">↗</span></button>
+            <button class="sky-text-link" data-nav="history">Retomar una conversación <span>→</span></button>
+          </section>
+          <section class="sky-widget sky-glass sky-memory-widget">
+            <div class="sky-widget-title"><h2>Lo que permanece</h2><button data-nav="knowledge" aria-label="Abrir conocimiento">↗</button></div>
+            <div class="sky-memory-symbol" aria-hidden="true">✧</div>
+            <p>Tus ideas encuentran<br>su propio lugar.</p>
+            <button class="sky-text-link" data-nav="knowledge">Abrir mi conocimiento <span>→</span></button>
+          </section>
+        </div>
+        <footer class="sky-footer"><span><span class="sky-live-dot"></span><span data-sky-sync>Sincronizado con tu hora</span></span><button data-sky-motion aria-pressed="true" aria-label="Pausar movimiento del cielo"><svg viewBox="0 0 24 24"><path d="M8 6v12M16 6v12"/></svg><span data-sky-motion-label>Pausar cielo</span></button></footer>
       </div>
     </div>
-
-    <div class="dashboard-grid">
-      <section class="widget widget-wide">
-        <div class="widget-head">
-          <div><span class="widget-kicker">CONVERSACIONES</span><h2>Empezar o continuar</h2></div>
-          <button class="widget-link" data-nav="history">Ver historial →</button>
-        </div>
-        <div class="conversation-actions">
-          <button class="conversation-card primary-card" data-new="general">
-            <span class="conversation-mark">✦</span>
-            <span><strong>Con conocimiento</strong><small>Usa el contexto personal que autorices.</small></span>
-          </button>
-          <button class="conversation-card" data-new="sandbox">
-            <span class="conversation-mark">◇</span>
-            <span><strong>Sandbox</strong><small>Empieza sin acceso a tus datos personales.</small></span>
-          </button>
-        </div>
-      </section>
-
-      <section class="widget">
-        <div class="widget-head">
-          <div><span class="widget-kicker">CALENDARIO</span><h2>Próximos eventos</h2></div>
-          <button class="widget-link" data-nav="calendar">Abrir →</button>
-        </div>
-        <div class="widget-list">
-          <div class="widget-row static"><span class="mini-date">17:00</span><span class="widget-main"><strong>Revisión del prototipo</strong><small>Hoy · Personal</small></span></div>
-          <div class="widget-row static"><span class="mini-date">10:00</span><span class="widget-main"><strong>Bloque de estudio</strong><small>Mañana · Universidad</small></span></div>
-          <div class="widget-row static"><span class="mini-date">18:00</span><span class="widget-main"><strong>Organizar documentos</strong><small>25 sept · Vivienda</small></span></div>
-        </div>
-      </section>
-
-      <section class="widget">
-        <div class="widget-head">
-          <div><span class="widget-kicker">TAREAS</span><h2>3 pendientes</h2></div>
-          <button class="widget-link" data-nav="tasks">Abrir →</button>
-        </div>
-        <div class="widget-list">
-          <div class="widget-row static"><button class="check" data-task="demo-task-1" data-done="false" aria-label="Completar tarea"></button><span class="widget-main"><strong>Revisar el diseño de Lisa</strong><small>Personal</small></span></div>
-          <div class="widget-row static"><button class="check" data-task="demo-task-2" data-done="false" aria-label="Completar tarea"></button><span class="widget-main"><strong>Probar un chat Sandbox</strong><small>Personal</small></span></div>
-          <div class="widget-row static"><button class="check" data-task="demo-task-3" data-done="false" aria-label="Completar tarea"></button><span class="widget-main"><strong>Organizar una carpeta</strong><small>Vivienda</small></span></div>
-        </div>
-        <div class="widget-footer"><button class="widget-cta" data-action="new-task">+ Añadir tarea</button></div>
-      </section>
-
-      <section class="widget">
-        <div class="widget-head">
-          <div><span class="widget-kicker">ARCHIVOS</span><h2>Recientes</h2></div>
-          <button class="widget-link" data-nav="files">Abrir →</button>
-        </div>
-        <div class="widget-list">
-          <button class="widget-row" data-file="demo-file-1"><span class="widget-icon">PDF</span><span class="widget-main"><strong>Contrato de ejemplo.pdf</strong><small>Vivienda · 240 KB</small></span></button>
-          <button class="widget-row" data-file="demo-file-2"><span class="widget-icon">MD</span><span class="widget-main"><strong>Ideas para el próximo curso.md</strong><small>Universidad · 3 KB</small></span></button>
-          <button class="widget-row" data-file="demo-file-3"><span class="widget-icon">CSV</span><span class="widget-main"><strong>Presupuesto de ejemplo.csv</strong><small>Finanzas · 8 KB</small></span></button>
-        </div>
-      </section>
-
-      <section class="widget">
-        <div class="widget-head">
-          <div><span class="widget-kicker">CONOCIMIENTO</span><h2>Lo que has decidido conservar</h2></div>
-          <button class="widget-link" data-nav="knowledge">Abrir →</button>
-        </div>
-        <div class="knowledge-summary">
-          <span class="knowledge-orb">◉</span>
-          <div><strong>1 elemento aprobado</strong><small>Conversaciones y conocimiento siguen siendo capas separadas.</small></div>
-        </div>
-      </section>
-
-      <section class="widget widget-wide">
-        <div class="widget-head">
-          <div><span class="widget-kicker">AGENTES</span><h2>Áreas especializadas</h2></div>
-          <button class="widget-link" data-nav="agents">Ver permisos →</button>
-        </div>
-        <div class="agent-strip">
-          <button class="agent-tile" data-agent="vivienda"><span>⌂</span><strong>Vivienda</strong></button>
-          <button class="agent-tile" data-agent="universidad"><span>▤</span><strong>Universidad</strong></button>
-          <button class="agent-tile" data-agent="finanzas"><span>⌁</span><strong>Finanzas</strong></button>
-          <button class="agent-tile" data-agent="personal"><span>○</span><strong>Personal</strong></button>
-          <button class="agent-tile" data-agent="familia"><span>♡</span><strong>Familia</strong></button>
-        </div>
-      </section>
-
-      <section class="widget">
-        <div class="widget-head">
-          <div><span class="widget-kicker">INTEGRACIONES</span><h2>Preparadas para conectar</h2></div>
-          <button class="widget-link" data-nav="accounts">Gestionar →</button>
-        </div>
-        <div class="widget-list">
-          <div class="widget-row static"><span class="status-dot"></span><span class="widget-main"><strong>Nextcloud</strong><small>API / WebDAV / CalDAV</small></span></div>
-          <div class="widget-row static"><span class="status-dot"></span><span class="widget-main"><strong>1Password</strong><small>Credential broker</small></span></div>
-          <div class="widget-row static"><span class="status-dot muted-dot"></span><span class="widget-main"><strong>OpenClaw</strong><small>Runtime pendiente</small></span></div>
-        </div>
-      </section>
-
-      <section class="widget">
-        <div class="widget-head">
-          <div><span class="widget-kicker">ORDENADORES</span><h2>Computer Use</h2></div>
-          <button class="widget-link" data-nav="computer">Abrir →</button>
-        </div>
-        <div class="device-summary">
-          <span class="device-hero">▣</span>
-          <div><strong>Sin sesión activa</strong><small>El takeover humano aparecerá aquí cuando el backend esté conectado.</small></div>
-        </div>
-      </section>
-    </div>
-    <div class="dashboard-footnote">Datos ficticios · UI desacoplada del backend · permisos por agente</div>
   </template>
-
   <dialog id="dialog"></dialog>
   <div id="toast" role="status" aria-live="polite"></div>
+  <script type="module" src="./sky.mjs"></script>
   <script type="module" src="./app.mjs"></script>
 </body>
 </html>
