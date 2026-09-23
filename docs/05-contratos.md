@@ -1,50 +1,123 @@
-# 05 · Contratos propios de integración
+# Contratos de integración
 
-Diseño pendiente de implementar. No son endpoints nativos de OpenClaw, SFTPGo, Drive o SilverBullet. Preferir adaptador de herramientas al runtime en vez de alterar su núcleo.
+Lisa usa adapters. La UI nunca llama directamente a Nextcloud, 1Password u OpenClaw.
 
-## Herramientas documentales
+## Files
 
-| Operación | Entrada | Salida / fallo |
-|---|---|---|
-| search | actor autenticado, scope, query, límite | fragmentos, ID, versión, localizador; sin cruces de ACL |
-| resolve | actor, ID, versión opcional | metadatos y acceso temporal autenticado; 404 opaco si no accesible |
-| ingest | actor, staging_id, área propuesta, idempotency_key | ID y versión, o NEEDS_REVIEW |
-| move | actor, ID, destino, expected_revision | misma identidad; 409 si revisión cambió |
-| append_version | actor, ID, staging_id, expected_revision | versión nueva sin destruir anterior |
-| propose_note_change | actor, note_id, diff, expected_revision | propuesta verificable y resultado de validación |
-| apply_note_change | actor, proposal_id, expected_revision | revisión nueva o conflicto |
-
-La identidad del actor procede del transporte autenticado; nunca aceptar `agent=vivienda` enviado por un cliente como prueba de autorización. El `--agent` de la demo es solo selector de una simulación local.
-
-## Esquema mínimo de nota
-
-```yaml
-id: 22222222-2222-4222-8222-222222222222
-area: Vivienda
-type: expediente
-status: abierto
-revision: 1
-updated_at: 2026-09-23T00:00:00Z
-sources:
-  - document_id: 11111111-1111-4111-8111-111111111111
-    version: 1
-    locator: pagina 1
+```text
+FileService.list(parentId, principal)
+FileService.get(fileId, principal)
+FileService.upload(...)
+FileService.move(fileId, destinationId)
+FileService.rename(fileId, name)
+FileService.delete(fileId)
+FileService.search(query, scope)
 ```
 
-Cuerpo: resumen, hechos con fuentes, incertidumbres, decisiones, tareas y registro de cambios. No convertir una respuesta especulativa en hecho persistente. Las fechas de actualización no sustituyen fecha del documento ni de los hechos.
+Adapter inicial: Nextcloud WebDAV/OCS.
 
-## Eventos y trabajos
+Todo objeto visible por Lisa debe tener un ID estable independiente de path.
 
-Job: `id`, `kind`, `area`, `actor_id`, `idempotency_key`, `payload_ref`, `state`, `attempts`, `created_at`, `deadline`, `result_ref`. Estados: queued → running → succeeded / needs_review / failed / cancelled. Reintento limitado con backoff solo para errores transitorios; una entrega de email ambigua requiere reconciliación antes de repetir.
+## Calendar
 
-Una transacción persiste trabajo y evento de salida mediante outbox. Un consumidor idempotente marca entrega por identificador externo. Guardar payloads sensibles fuera de logs. Cancelación detiene nuevas acciones; no presume deshacer efectos ya completados.
+```text
+CalendarService.list(range, calendars)
+CalendarService.create(event)
+CalendarService.update(eventId, patch)
+CalendarService.delete(eventId)
+```
 
-## Gestiones y navegador (fase posterior)
+Adapter inicial: Nextcloud CalDAV. Google Calendar puede añadirse como adapter sin cambiar la UI.
 
-Preparar → previsualizar → autorizar cuando proceda → ejecutar → comprobar resultado → registrar evidencia. La propuesta incluye destinatario, sitio, contenido exacto, importe si existe y efectos. La autorización vincula hash de propuesta y caduca; cambios invalidan autorización. No reutilizar un «sí» para otro envío.
+## Tasks
 
-Priorizar API oficial cuando exista. Browser/computer use requiere worker separado, timeouts, cuotas CPU/RAM, perfil por identidad y capturas protegidas. CAPTCHA/2FA se resuelven mediante intervención del usuario, no se sortean. Nunca poner el gestor de contraseñas completo a disposición del prompt; estudiar broker de secretos con cuentas/tokens limitados.
+```text
+TaskService.list(filter)
+TaskService.create(task)
+TaskService.update(taskId, patch)
+TaskService.complete(taskId)
+```
 
-## Errores
+Backend inicial por decidir entre Tasks/CalDAV y Vikunja. La API de Lisa oculta esa decisión.
 
-400 validación; 401 autenticación; 404 documento no visible/no existente sin filtrar existencia; 409 conflicto; 413 tamaño; 429 cuota; 503 proveedor no disponible. Un error de modelo no debe dejar a medias una escritura del documento. Correlation ID en logs, sin contenido íntegro por defecto.
+## Knowledge
+
+```text
+KnowledgeService.search(query, principal, scope)
+KnowledgeService.create(item, source)
+KnowledgeService.link(a, relation, b)
+KnowledgeService.revoke(itemId)
+```
+
+Nunca se permite búsqueda fuera del scope autorizado.
+
+## Chats
+
+```text
+ChatService.create(mode, agentId?)
+ChatService.send(chatId, message)
+ChatService.save(chatId)
+ChatService.extractKnowledge(chatId, selection?)
+ChatService.promote(chatId, destinationAgent, selectedAttachments?)
+ChatService.delete(chatId)
+```
+
+`mode`:
+- `general`
+- `sandbox`
+- `agent`
+
+`promote` copia contexto a una sesión nueva con permisos de destino.
+
+## Authorization
+
+```text
+AuthorizationService.check(principal, action, resource, context) -> allow/deny
+```
+
+Fail closed.
+
+## Credentials
+
+```text
+CredentialService.canUse(principal, credentialRef, purpose)
+CredentialService.execute(principal, credentialRef, target, action)
+```
+
+No existe `CredentialService.revealPassword()` para agentes.
+
+Adapter inicial: 1Password + broker de credenciales.
+
+## Agent runtime
+
+```text
+AgentRuntime.start(agentId, conversationId)
+AgentRuntime.send(sessionId, message)
+AgentRuntime.cancel(sessionId)
+AgentRuntime.events(sessionId)
+AgentRuntime.startComputer(sessionId)
+```
+
+Adapter inicial: OpenClaw.
+
+Debe haber dos configuraciones de runtime:
+- private;
+- sandbox aislado.
+
+## Audit
+
+Toda acción privilegiada produce:
+
+```json
+{
+  "actor": "agent:vivienda",
+  "action": "calendar.create",
+  "resource": "calendar:personal",
+  "decision": "allow",
+  "approval": "automatic",
+  "timestamp": "...",
+  "correlation_id": "..."
+}
+```
+
+Los logs no almacenan secretos.
