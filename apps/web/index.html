@@ -5,13 +5,133 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="robots" content="noindex,nofollow">
   <meta name="theme-color" content="#df1f2d">
-  <meta name="description" content="Lisa · Dashboard personal de datos, agentes y aplicaciones. Solo datos ficticios.">
+  <meta name="description" content="Lisa · Preview de tu espacio personal de datos y agentes. Solo datos ficticios.">
   <title>Lisa · Tu espacio personal</title>
   <link rel="stylesheet" href="./styles.css">
 </head>
 <body>
   <a class="skip-link" href="#main">Saltar al contenido</a>
-  <div id="app"><p class="loading">Preparando tu espacio de demostración…</p></div>
+  <div id="app"><p class="loading">Preparando Lisa…</p></div>
+
+  <template id="home-dashboard">
+    <div class="dashboard-head">
+      <div>
+        <div class="eyebrow">Tu espacio, de un vistazo</div>
+        <h1>Inicio</h1>
+        <p>Una vista operativa de las aplicaciones de Lisa.</p>
+      </div>
+      <div class="dashboard-actions">
+        <button class="btn primary" data-new="general">Nuevo chat</button>
+        <button class="btn" data-new="sandbox">Sandbox</button>
+      </div>
+    </div>
+
+    <div class="dashboard-grid">
+      <section class="widget widget-wide">
+        <div class="widget-head">
+          <div><span class="widget-kicker">CONVERSACIONES</span><h2>Empezar o continuar</h2></div>
+          <button class="widget-link" data-nav="history">Ver historial →</button>
+        </div>
+        <div class="conversation-actions">
+          <button class="conversation-card primary-card" data-new="general">
+            <span class="conversation-mark">✦</span>
+            <span><strong>Con conocimiento</strong><small>Usa el contexto personal que autorices.</small></span>
+          </button>
+          <button class="conversation-card" data-new="sandbox">
+            <span class="conversation-mark">◇</span>
+            <span><strong>Sandbox</strong><small>Empieza sin acceso a tus datos personales.</small></span>
+          </button>
+        </div>
+      </section>
+
+      <section class="widget">
+        <div class="widget-head">
+          <div><span class="widget-kicker">CALENDARIO</span><h2>Próximos eventos</h2></div>
+          <button class="widget-link" data-nav="calendar">Abrir →</button>
+        </div>
+        <div class="widget-list">
+          <div class="widget-row static"><span class="mini-date">17:00</span><span class="widget-main"><strong>Revisión del prototipo</strong><small>Hoy · Personal</small></span></div>
+          <div class="widget-row static"><span class="mini-date">10:00</span><span class="widget-main"><strong>Bloque de estudio</strong><small>Mañana · Universidad</small></span></div>
+          <div class="widget-row static"><span class="mini-date">18:00</span><span class="widget-main"><strong>Organizar documentos</strong><small>25 sept · Vivienda</small></span></div>
+        </div>
+      </section>
+
+      <section class="widget">
+        <div class="widget-head">
+          <div><span class="widget-kicker">TAREAS</span><h2>3 pendientes</h2></div>
+          <button class="widget-link" data-nav="tasks">Abrir →</button>
+        </div>
+        <div class="widget-list">
+          <div class="widget-row static"><button class="check" data-task="demo-task-1" data-done="false" aria-label="Completar tarea"></button><span class="widget-main"><strong>Revisar el diseño de Lisa</strong><small>Personal</small></span></div>
+          <div class="widget-row static"><button class="check" data-task="demo-task-2" data-done="false" aria-label="Completar tarea"></button><span class="widget-main"><strong>Probar un chat Sandbox</strong><small>Personal</small></span></div>
+          <div class="widget-row static"><button class="check" data-task="demo-task-3" data-done="false" aria-label="Completar tarea"></button><span class="widget-main"><strong>Organizar una carpeta</strong><small>Vivienda</small></span></div>
+        </div>
+        <div class="widget-footer"><button class="widget-cta" data-action="new-task">+ Añadir tarea</button></div>
+      </section>
+
+      <section class="widget">
+        <div class="widget-head">
+          <div><span class="widget-kicker">ARCHIVOS</span><h2>Recientes</h2></div>
+          <button class="widget-link" data-nav="files">Abrir →</button>
+        </div>
+        <div class="widget-list">
+          <button class="widget-row" data-file="demo-file-1"><span class="widget-icon">PDF</span><span class="widget-main"><strong>Contrato de ejemplo.pdf</strong><small>Vivienda · 240 KB</small></span></button>
+          <button class="widget-row" data-file="demo-file-2"><span class="widget-icon">MD</span><span class="widget-main"><strong>Ideas para el próximo curso.md</strong><small>Universidad · 3 KB</small></span></button>
+          <button class="widget-row" data-file="demo-file-3"><span class="widget-icon">CSV</span><span class="widget-main"><strong>Presupuesto de ejemplo.csv</strong><small>Finanzas · 8 KB</small></span></button>
+        </div>
+      </section>
+
+      <section class="widget">
+        <div class="widget-head">
+          <div><span class="widget-kicker">CONOCIMIENTO</span><h2>Lo que has decidido conservar</h2></div>
+          <button class="widget-link" data-nav="knowledge">Abrir →</button>
+        </div>
+        <div class="knowledge-summary">
+          <span class="knowledge-orb">◉</span>
+          <div><strong>1 elemento aprobado</strong><small>Conversaciones y conocimiento siguen siendo capas separadas.</small></div>
+        </div>
+      </section>
+
+      <section class="widget widget-wide">
+        <div class="widget-head">
+          <div><span class="widget-kicker">AGENTES</span><h2>Áreas especializadas</h2></div>
+          <button class="widget-link" data-nav="agents">Ver permisos →</button>
+        </div>
+        <div class="agent-strip">
+          <button class="agent-tile" data-agent="vivienda"><span>⌂</span><strong>Vivienda</strong></button>
+          <button class="agent-tile" data-agent="universidad"><span>▤</span><strong>Universidad</strong></button>
+          <button class="agent-tile" data-agent="finanzas"><span>⌁</span><strong>Finanzas</strong></button>
+          <button class="agent-tile" data-agent="personal"><span>○</span><strong>Personal</strong></button>
+          <button class="agent-tile" data-agent="familia"><span>♡</span><strong>Familia</strong></button>
+        </div>
+      </section>
+
+      <section class="widget">
+        <div class="widget-head">
+          <div><span class="widget-kicker">INTEGRACIONES</span><h2>Preparadas para conectar</h2></div>
+          <button class="widget-link" data-nav="accounts">Gestionar →</button>
+        </div>
+        <div class="widget-list">
+          <div class="widget-row static"><span class="status-dot"></span><span class="widget-main"><strong>Nextcloud</strong><small>API / WebDAV / CalDAV</small></span></div>
+          <div class="widget-row static"><span class="status-dot"></span><span class="widget-main"><strong>1Password</strong><small>Credential broker</small></span></div>
+          <div class="widget-row static"><span class="status-dot muted-dot"></span><span class="widget-main"><strong>OpenClaw</strong><small>Runtime pendiente</small></span></div>
+        </div>
+      </section>
+
+      <section class="widget">
+        <div class="widget-head">
+          <div><span class="widget-kicker">ORDENADORES</span><h2>Computer Use</h2></div>
+          <button class="widget-link" data-nav="computer">Abrir →</button>
+        </div>
+        <div class="device-summary">
+          <span class="device-hero">▣</span>
+          <div><strong>Sin sesión activa</strong><small>El takeover humano aparecerá aquí cuando el backend esté conectado.</small></div>
+        </div>
+      </section>
+    </div>
+    <div class="dashboard-footnote">Datos ficticios · UI desacoplada del backend · permisos por agente</div>
+  </template>
+
   <dialog id="dialog"></dialog>
   <div id="toast" role="status" aria-live="polite"></div>
   <script type="module" src="./app.mjs"></script>
