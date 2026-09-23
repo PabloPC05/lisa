@@ -6,6 +6,13 @@ export const AREAS = [
   { id: 'personal', name: 'Personal', icon: 'user', color: 'purple', description: 'Planes, ideas y las cosas del día a día.' },
   { id: 'familia', name: 'Familia', icon: 'heart', color: 'rose', description: 'Información y gestiones familiares, en su lugar.' }
 ];
+export const PROJECTS = [
+  {id:'demo-project-vivienda',name:'Vivienda · Proyecto',category:'vivienda',agentId:'vivienda'},
+  {id:'demo-project-universidad',name:'Universidad · Proyecto',category:'universidad',agentId:'universidad'},
+  {id:'demo-project-finanzas',name:'Finanzas · Proyecto',category:'finanzas',agentId:'finanzas'},
+  {id:'demo-project-personal',name:'Personal · Proyecto',category:'personal',agentId:'personal'},
+  {id:'demo-project-familia',name:'Familia · Proyecto',category:'familia',agentId:'familia'}
+];
 export const uid = () => {
   if (globalThis.crypto.randomUUID) return globalThis.crypto.randomUUID();
   const b = globalThis.crypto.getRandomValues(new Uint8Array(16));
@@ -19,10 +26,12 @@ export function text(value, max = 8000) {
   if (typeof value !== 'string' || !value.trim() || value.length > max) throw new Error(`Introduce entre 1 y ${max} caracteres.`);
   return value.trim();
 }
-export function createConversation(mode, agentId = null) {
+export function createConversation(mode, agentId = null, projectId = null) {
   if (!['general', 'sandbox', 'agent'].includes(mode)) throw new Error('Modo desconocido.');
   if (mode === 'agent' && !AREAS.some(a => a.id === agentId)) throw new Error('Agente desconocido.');
-  return { id: uid(), mode, agentId: mode === 'agent' ? agentId : null, category: mode === 'agent' ? agentId : 'general', title: 'Nueva conversación', saved: false, revision: 1, messages: [], createdAt: new Date().toISOString(), sourceId: null };
+  if (projectId && !PROJECTS.some(p => p.id === projectId)) throw new Error('Proyecto desconocido.');
+  const now = new Date().toISOString();
+  return { id: uid(), mode, agentId: mode === 'agent' ? agentId : null, category: mode === 'agent' ? agentId : 'general', projectId, pinned:false, archived:false, title: 'Nueva conversación', saved: Boolean(projectId), revision: 1, messages: [], createdAt: now, updatedAt: now, sourceId: null };
 }
 export function saveConversation(chat, category = chat.category) {
   if (!categoryOK(category)) throw new Error('Categoría desconocida.');
@@ -33,6 +42,8 @@ export function promoteConversation(chat, target) {
   const result = createConversation(target === 'general' ? 'general' : 'agent', target);
   result.title = chat.title;
   result.sourceId = chat.id;
+  result.projectId = null;
+  result.saved = false;
   // Imports remain untrusted text, never executable tool calls or system instructions.
   result.messages = chat.messages.map(m => ({ id: uid(), role: 'imported', content: m.content, sourceRole: m.role, trust: 'untrusted' }));
   return result;
@@ -40,6 +51,7 @@ export function promoteConversation(chat, target) {
 export function escapeHtml(value) { return String(value ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch])); }
 export function makeFixtures() {
   return {
+    projects: copy(PROJECTS),
     files: [
       {id:'demo-file-1', name:'Contrato de ejemplo.pdf', category:'vivienda', type:'PDF', size:'240 KB', version:1, content:'Documento ficticio para revisar la vista de archivos. No contiene contratos ni datos reales.'},
       {id:'demo-file-2', name:'Ideas para el próximo curso.md', category:'universidad', type:'MD', size:'3 KB', version:2, content:'Nota de demostración. Objetivo: reunir apuntes, lecturas y preguntas en un mismo espacio.'},
