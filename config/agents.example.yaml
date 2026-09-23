@@ -1,0 +1,116 @@
+# Example only. Do not put real credentials or personal paths here.
+version: 1
+
+chats:
+  general:
+    runtime: private
+    knowledge_scopes: ["*"]
+    persistence: ask
+    knowledge_extraction: ask
+  sandbox:
+    runtime: sandbox
+    knowledge_scopes: []
+    persistence: ephemeral
+    promotion_targets:
+      - general
+      - vivienda
+      - universidad
+      - finanzas
+      - personal
+
+agents:
+  general:
+    runtime: private
+    knowledge:
+      read: ["*"]
+      write: []
+    files:
+      read: ["*"]
+      write: []
+    calendar: [read, create, update]
+    tasks: [read, create, update]
+    credentials:
+      use: []
+      reveal: []
+    computer: true
+
+  vivienda:
+    runtime: private
+    knowledge:
+      read: [vivienda]
+      write: [vivienda]
+    files:
+      read: [vivienda]
+      write: [vivienda]
+    calendar: [read, create, update]
+    tasks: [read, create, update]
+    credentials:
+      use:
+        - endesa
+        - seguro-hogar
+      reveal: []
+    computer: true
+
+  universidad:
+    runtime: private
+    knowledge:
+      read: [universidad]
+      write: [universidad]
+    files:
+      read: [universidad]
+      write: [universidad]
+    calendar: [read, create, update]
+    tasks: [read, create, update]
+    credentials:
+      use:
+        - usc
+      reveal: []
+    computer: true
+
+  finanzas:
+    runtime: private
+    knowledge:
+      read: [finanzas]
+      write: [finanzas]
+    files:
+      read: [finanzas]
+      write: [finanzas]
+    calendar: [read]
+    tasks: [read, create, update]
+    credentials:
+      use: []
+      reveal: []
+    computer: true
+    approvals:
+      external_write: confirm
+      financial_action: human_takeover
+
+  personal:
+    runtime: private
+    knowledge:
+      read: [personal]
+      write: [personal]
+    files:
+      read: [personal]
+      write: [personal]
+    calendar: [read, create, update]
+    tasks: [read, create, update]
+    credentials:
+      use: []
+      reveal: []
+    computer: true
+
+  sandbox:
+    runtime: sandbox
+    knowledge:
+      read: []
+      write: []
+    files:
+      read: []
+      write: []
+    calendar: []
+    tasks: []
+    credentials:
+      use: []
+      reveal: []
+    computer: ephemeral
