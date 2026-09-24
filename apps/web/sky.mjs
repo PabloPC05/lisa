@@ -2,10 +2,10 @@
 export const SKY_STOPS = [
   {h:0, top:'#17294d', middle:'#394c78', bottom:'#9b92b6', cloud:'#c4d0e5', ink:'#f5f2ff', muted:'#d1dbee', glass:'30,48,79', stars:1},
   {h:5, top:'#29335b', middle:'#695d89', bottom:'#caa8b0', cloud:'#e2c9d5', ink:'#fff5f5', muted:'#e6dce9', glass:'58,49,83', stars:.65},
-  {h:7, top:'#809ecb', middle:'#c6b9d2', bottom:'#f8d6b8', cloud:'#fff3e5', ink:'#243e59', muted:'#3e5470', glass:'250,240,246', stars:0},
-  {h:10, top:'#5289be', middle:'#88b9dd', bottom:'#d6e7ea', cloud:'#fffaf1', ink:'#183c59', muted:'#35566f', glass:'247,250,255', stars:0},
-  {h:14, top:'#4b86be', middle:'#8cbbdf', bottom:'#d7e9ed', cloud:'#fffaf1', ink:'#183c59', muted:'#35566f', glass:'247,250,255', stars:0},
-  {h:17, top:'#6d91bd', middle:'#b5b8d2', bottom:'#efd5c0', cloud:'#fff3e2', ink:'#243e59', muted:'#3e5470', glass:'249,245,248', stars:0},
+  {h:7, top:'#86acd3', middle:'#b9c7dc', bottom:'#f1cfb7', cloud:'#fff9f1', ink:'#25445c', muted:'#466379', glass:'245,249,252', stars:0},
+  {h:10, top:'#6ca5d7', middle:'#75afe0', bottom:'#8bbce3', cloud:'#fff9f1', ink:'#17344b', muted:'#35546d', glass:'240,248,255', stars:0},
+  {h:14, top:'#68a2d5', middle:'#78b0de', bottom:'#91bfe2', cloud:'#fff9f1', ink:'#17344b', muted:'#35546d', glass:'240,248,255', stars:0},
+  {h:17, top:'#779ccb', middle:'#aebbd1', bottom:'#e8ccb6', cloud:'#fff9f1', ink:'#29455a', muted:'#506579', glass:'248,246,242', stars:0},
   {h:19, top:'#6c659d', middle:'#bd91af', bottom:'#f4c6a3', cloud:'#ffe4cb', ink:'#fff7ef', muted:'#f4e2e6', glass:'89,71,102', stars:.12},
   {h:21, top:'#2c3b68', middle:'#645f8f', bottom:'#b49bbc', cloud:'#d8cee6', ink:'#f5f2ff', muted:'#d1dbee', glass:'41,44,77', stars:.75},
   {h:24, top:'#17294d', middle:'#394c78', bottom:'#9b92b6', cloud:'#c4d0e5', ink:'#f5f2ff', muted:'#d1dbee', glass:'30,48,79', stars:1}
