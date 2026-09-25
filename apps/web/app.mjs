@@ -1,4 +1,4 @@
-import { AREAS, escapeHtml } from './domain.mjs';
+import { AREAS, FINANCE_TYPES, financeTotals, financePositionMetrics, escapeHtml } from './domain.mjs';
 import { DemoClient, HttpClient } from './client.mjs';
 
 const api = new DemoClient();
@@ -32,8 +32,8 @@ function icon(name) { return `<svg viewBox="0 0 24 24" aria-hidden="true"><path 
 function btn(label, action, kind='', extra='') { return `<button class="btn ${kind}" data-action="${action}" ${extra}>${label}</button>`; }
 function area(id) { return AREAS.find(a=>a.id===id) || {id:'general',name:'General',icon:'spark',color:'purple'}; }
 function options(selected='general') { return [{id:'general',name:'General'},...AREAS].map(a=>`<option value="${a.id}" ${a.id===selected?'selected':''}>${e(a.name)}</option>`).join(''); }
-const state={view:'home', chatId:null, category:'', filter:'', menu:false, sidebarCollapsed:false, month:8, year:2026, computer:'idle', busy:false, chatDrafts:{}, chatSends:{}, knowledgeId:null, knowledgeQuery:'', knowledgeCategory:'', knowledgeMode:'read'};
-const titles={home:'Inicio',chat:'Conversación',history:'Conversaciones',files:'Archivos',calendar:'Calendario',tasks:'Tareas',knowledge:'Conocimiento',agents:'Agentes',accounts:'Cuentas e integraciones',computer:'Ordenadores',developer:'Developer',settings:'Ajustes',audit:'Registro de actividad'};
+const state={view:'home', chatId:null, category:'', filter:'', menu:false, sidebarCollapsed:false, month:8, year:2026, computer:'idle', busy:false, chatDrafts:{}, chatSends:{}, knowledgeId:null, knowledgeQuery:'', knowledgeCategory:'', knowledgeMode:'read', financeRange:'6m'};
+const titles={home:'Inicio',chat:'Conversación',history:'Conversaciones',files:'Archivos',calendar:'Calendario',tasks:'Tareas',knowledge:'Conocimiento',finance:'Finanzas',agents:'Agentes',accounts:'Cuentas e integraciones',computer:'Ordenadores',developer:'Developer',settings:'Ajustes',audit:'Registro de actividad'};
 const mount=document.querySelector('#app');
 const dialog=document.querySelector('#dialog');
 let toastTimer;
@@ -47,7 +47,7 @@ function sidebar() {return `<button class="menu-shade" data-action="menu" aria-l
 <button class="new-chat" data-new="sandbox">${icon('shield')}<span>Nuevo chat Sandbox</span>${icon('plus')}</button>
 <div class="nav-group">${navItem('home','Inicio','home')}${navItem('history','Conversaciones','chat')}</div>
 <div class="nav-group"><div class="nav-label">Tus agentes</div>${AREAS.map(a=>`<button class="nav-item" data-agent="${a.id}" title="${e(a.name)}">${icon(a.icon)}<span>${a.name}</span><i class="dot" aria-hidden="true"></i></button>`).join('')}</div>
-<div class="nav-group"><div class="nav-label">Tu espacio</div>${navItem('files','Archivos','folder')}${navItem('calendar','Calendario','calendar')}${navItem('tasks','Tareas','tasks')}${navItem('knowledge','Conocimiento','layers')}</div>
+<div class="nav-group"><div class="nav-label">Tu espacio</div>${navItem('files','Archivos','folder')}${navItem('calendar','Calendario','calendar')}${navItem('tasks','Tareas','tasks')}${navItem('knowledge','Conocimiento','layers')}${navItem('finance','Finanzas','chart')}</div>
 <div class="sidebar-bottom">${navItem('computer','Ordenadores','monitor')}${navItem('accounts','Cuentas','lock')}${navItem('developer','Developer','code')}${navItem('settings','Ajustes','settings')}<div class="profile"><span class="avatar">L</span><div><strong>Mi espacio</strong><small>Preview · datos ficticios</small></div></div></div></aside>`;}
 function topbar(){return `<header class="topbar"><button class="icon-btn mobile-menu" data-action="menu" aria-label="Abrir navegación" aria-expanded="${state.menu}">${icon('menu')}</button><div class="breadcrumb">Mi espacio ${icon('chevron')} <strong>${e(titles[state.view]||'Inicio')}</strong></div><div class="topbar-right"><span class="pill">${icon('spark')} Preview 0.4</span><button class="icon-btn" data-action="audit" aria-label="Ver registro de actividad">${icon('clock')}</button></div></header>`;}
 const banner=()=>`<div class="demo-note">${icon('info')}<span>Demostración interactiva. Solo datos ficticios; sin IA ni servicios conectados. Los cambios se pierden al recargar. No introduzcas información personal.</span></div>`;
@@ -56,6 +56,37 @@ function section(title,action=''){return `<div class="section-head"><h2>${title}
 function empty(title,description,action=''){return `<div class="empty">${icon('layers')}<h3>${title}</h3><p>${description}</p>${action}</div>`;}
 function taskRow(t){return `<div class="list-row ${t.done?'done':''}"><button class="check ${t.done?'checked':''}" data-task="${e(t.id)}" data-done="${t.done}" aria-label="${t.done?'Marcar pendiente':'Completar'}: ${e(t.title)}">${t.done?icon('check'):''}</button><div><strong>${e(t.title)}</strong><small>${e(area(t.category).name)} · ejemplo</small></div></div>`;}
 function eventRow(v){return `<div class="list-row"><div class="mini-date">${e(v.time)}</div><div><strong>${e(v.title)}</strong><small>${e(v.date)} · ${e(area(v.category).name)}</small></div></div>`;}
+const eur=new Intl.NumberFormat('es-ES',{style:'currency',currency:'EUR',maximumFractionDigits:2});
+function financeMoney(value){return eur.format(Number(value||0));}
+function financePct(value){const n=Number(value||0);return `${n>0?'+':''}${n.toFixed(2)} %`;}
+function financeClass(value){return Number(value)>0?'positive':Number(value)<0?'negative':'neutral';}
+function financeHistoryForRange(rows,range){
+  const clean=[...rows].sort((a,b)=>String(a.date).localeCompare(String(b.date)));
+  if(range==='all'||clean.length<2)return clean;
+  const days={ '1m':31,'3m':93,'6m':186,'1y':366 }[range]||186;
+  const latest=new Date(clean.at(-1).date+'T12:00:00Z');
+  const cutoff=new Date(latest);cutoff.setUTCDate(cutoff.getUTCDate()-days);
+  const filtered=clean.filter(row=>new Date(row.date+'T12:00:00Z')>=cutoff);
+  return filtered.length>=2?filtered:clean.slice(-2);
+}
+function financeChart(rows){
+  if(!rows.length)return '<div class="finance-chart-empty">Guarda una valoración para empezar el histórico.</div>';
+  const values=rows.map(r=>Number(r.value));const min=Math.min(...values),max=Math.max(...values),span=Math.max(max-min,1);
+  const w=760,h=230,p=18;
+  const points=rows.map((row,index)=>{const x=p+(w-p*2)*(rows.length===1?.5:index/(rows.length-1));const y=h-p-(h-p*2)*(Number(row.value)-min)/span;return {x,y,row};});
+  const line=points.map(p=>`${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' ');
+  const area=`${p},${h-p} ${line} ${w-p},${h-p}`;
+  const first=rows[0],last=rows.at(-1),change=Number(last.value)-Number(first.value),changePct=Number(first.value)?change/Number(first.value)*100:0;
+  return `<div class="finance-chart-wrap">
+    <div class="finance-chart-head"><div><span>Periodo</span><strong>${financeMoney(first.value)} → ${financeMoney(last.value)}</strong></div><span class="finance-delta ${financeClass(change)}">${financeMoney(change)} · ${financePct(changePct)}</span></div>
+    <svg class="finance-chart" viewBox="0 0 ${w} ${h}" role="img" aria-label="Evolución del valor de la cartera">
+      <defs><linearGradient id="finance-area" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="currentColor" stop-opacity=".18"/><stop offset="1" stop-color="currentColor" stop-opacity=".015"/></linearGradient></defs>
+      <polygon points="${area}" fill="url(#finance-area)"></polygon><polyline points="${line}" fill="none" stroke="currentColor" stroke-width="3" vector-effect="non-scaling-stroke"></polyline>
+      ${points.map(p=>`<circle cx="${p.x}" cy="${p.y}" r="4"></circle>`).join('')}
+    </svg>
+    <div class="finance-axis"><span>${e(first.date)}</span><span>${e(last.date)}</span></div>
+  </div>`;
+}
 async function home(){return document.querySelector('#home-dashboard').innerHTML;}
 const MAX_CHAT_FILES=8;
 const MAX_CHAT_FILE_BYTES=25*1024*1024;
@@ -191,6 +222,47 @@ async function historyView(){const chats=await api.request('GET','/chats?saved=t
 async function filesView(){const files=await api.request('GET',`/files${state.category?'?category='+state.category:''}`);const filtered=files.filter(f=>f.name.toLocaleLowerCase().includes(state.filter.toLocaleLowerCase()));return heading('Tus archivos','La interfaz de Lisa; en el futuro, Nextcloud por debajo.',btn(`${icon('cloud')} Integración Nextcloud`,'nextcloud'))+`<div class="chips"><button class="chip ${!state.category?'active':''}" data-category="">Todos</button>${AREAS.map(a=>`<button class="chip ${state.category===a.id?'active':''}" data-category="${a.id}">${a.name}</button>`).join('')}<form data-form="search" style="margin-left:auto"><label class="sr-only" for="file-search">Buscar archivos</label><input id="file-search" name="query" value="${e(state.filter)}" placeholder="Buscar archivo…" style="border:1px solid var(--line);border-radius:8px;padding:6px 10px;background:var(--panel);color:var(--ink);max-width:170px"></form></div><div class="file-grid">${filtered.map(f=>`<button class="file-card" data-file="${f.id}"><div class="file-cover">${icon('file')}</div><strong>${e(f.name)}</strong><small>${e(area(f.category).name)} · ${f.size} · v${f.version}</small><div class="resource-line">ID estable de ejemplo · ${f.id}</div></button>`).join('')}</div>${!filtered.length?empty('No hay coincidencias','Prueba otra categoría o búsqueda.'):''}`;}
 async function tasksView(){const list=await api.request('GET','/tasks');return heading('Una cosa cada vez','Organiza lo pendiente sin perder de vista el contexto.',btn(`${icon('plus')} Nueva tarea`,'new-task','primary'))+`<div class="chips"><span class="pill">${list.filter(t=>!t.done).length} pendientes</span><span class="pill neutral">${list.filter(t=>t.done).length} completadas</span><span class="pill neutral">Persistencia: solo esta demo</span></div><div class="panel">${list.map(taskRow).join('')}</div>`;}
 async function calendarView(){const events=await api.request('GET','/events');const first=new Date(state.year,state.month,1);const offset=(first.getDay()+6)%7;const total=new Date(state.year,state.month+1,0).getDate();const month=first.toLocaleDateString('es',{month:'long',year:'numeric'});let cells='';for(let i=0;i<offset;i++)cells+='<div class="day blank"></div>';for(let d=1;d<=total;d++){const date=`${state.year}-${String(state.month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;cells+=`<button class="day ${date==='2026-09-23'?'today':''}" data-date="${date}" aria-label="Crear evento el ${date}"><span class="day-number">${d}</span>${events.filter(v=>v.date===date).map(v=>`<span class="day-event ${area(v.category).color}">${e(v.time)} ${e(v.title)}</span>`).join('')}</button>`;}return heading('Tu tiempo, con perspectiva','Calendario de muestra. La sincronización CalDAV todavía no está conectada.',btn(`${icon('plus')} Nuevo evento`,'new-event','primary'))+`<div class="calendar-toolbar"><button class="icon-btn" data-month="-1" aria-label="Mes anterior">←</button><h2>${e(month)}</h2><button class="icon-btn" data-month="1" aria-label="Mes siguiente">→</button><span class="pill neutral">Fechas de ejemplo</span></div><div class="panel calendar-panel"><div class="calendar-grid">${['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'].map(d=>`<div class="day-name">${d}</div>`).join('')}${cells}</div></div>${section('Agenda de demostración')}<div class="panel">${events.sort((a,b)=>(a.date+a.time).localeCompare(b.date+b.time)).map(eventRow).join('')}</div>`;}
+
+function financePositionForm(position=null){
+  const p=position||{type:'Fondo',currency:'EUR',fxToEur:1,account:'Manual'};
+  return `<form data-form="finance-position">
+    <input type="hidden" name="id" value="${e(position?.id||'')}">
+    <div class="grid-2"><label class="field">Activo<input name="name" required maxlength="120" value="${e(p.name||'')}" placeholder="Nombre del fondo, ETF, acción…"></label><label class="field">Ticker / ISIN<input name="symbol" maxlength="24" value="${e(p.symbol||'')}" placeholder="Opcional"></label></div>
+    <div class="grid-2"><label class="field">Tipo<select name="type">${FINANCE_TYPES.map(type=>`<option ${type===p.type?'selected':''}>${e(type)}</option>`).join('')}</select></label><label class="field">Cuenta / origen<input name="account" maxlength="80" value="${e(p.account||'Manual')}" placeholder="Manual, bróker…"></label></div>
+    <div class="grid-2"><label class="field">Cantidad<input type="number" step="any" min="0.00000001" name="quantity" required value="${e(p.quantity??'')}"></label><label class="field">Precio medio<input type="number" step="any" min="0" name="avgPrice" required value="${e(p.avgPrice??'')}"></label></div>
+    <div class="grid-2"><label class="field">Precio actual<input type="number" step="any" min="0" name="currentPrice" required value="${e(p.currentPrice??'')}"></label><label class="field">Divisa<input name="currency" maxlength="3" pattern="[A-Za-z]{3}" required value="${e(p.currency||'EUR')}"></label></div>
+    <label class="field">Cambio de esa divisa a EUR<input type="number" step="any" min="0.00000001" name="fxToEur" required value="${e(p.fxToEur??1)}"><small>Para EUR usa 1. En esta demo no se consulta ningún cambio automáticamente.</small></label>
+    <div class="modal-footer"><button class="btn primary" type="submit">${position?'Guardar cambios':'Añadir posición'}</button></div>
+  </form>`;
+}
+async function financeView(){
+  const [positions,snapshots]=await Promise.all([api.request('GET','/finance/positions'),api.request('GET','/finance/snapshots')]);
+  const totals=financeTotals(positions);
+  const today=new Date().toISOString().slice(0,10);
+  const current={id:'current',date:today,value:Number(totals.value.toFixed(2)),invested:Number(totals.invested.toFixed(2))};
+  const history=[...snapshots.filter(s=>s.date!==today),current].sort((a,b)=>a.date.localeCompare(b.date));
+  const visible=financeHistoryForRange(history,state.financeRange);
+  const allocations=new Map();
+  positions.forEach(position=>{const value=financePositionMetrics(position).value;allocations.set(position.type,(allocations.get(position.type)||0)+value);});
+  const maxAllocation=Math.max(...allocations.values(),1);
+  return heading('Tus finanzas','Introduce tus posiciones y revisa su valor, rentabilidad y evolución. En esta entrega todo permanece solo durante la sesión.',btn(`${icon('plus')} Añadir posición`,'finance-add','primary'))+
+  `<div class="finance-status"><span class="pill warning">Manual · sin cotizaciones automáticas</span><span class="pill neutral">Renta 4 / otras fuentes: integración futura</span><button class="subtle-btn" data-action="finance-snapshot">${icon('save')} Guardar valoración de hoy</button></div>
+  <section class="finance-kpis">
+    <article class="finance-kpi"><span>Valor actual</span><strong>${financeMoney(totals.value)}</strong><small>${positions.length} posiciones</small></article>
+    <article class="finance-kpi"><span>Capital invertido</span><strong>${financeMoney(totals.invested)}</strong><small>Coste medio convertido a EUR</small></article>
+    <article class="finance-kpi ${financeClass(totals.gain)}"><span>Resultado</span><strong>${financeMoney(totals.gain)}</strong><small>${financePct(totals.invested?totals.gain/totals.invested*100:0)}</small></article>
+    <article class="finance-kpi"><span>Última valoración</span><strong>${e(history.at(-1)?.date||'—')}</strong><small>Histórico manual</small></article>
+  </section>
+  <div class="finance-grid">
+    <section class="finance-card finance-performance"><div class="finance-card-head"><div><span class="finance-kicker">Cartera</span><h2>Evolución</h2></div><div class="finance-range">${[['1m','1M'],['3m','3M'],['6m','6M'],['1y','1A'],['all','Todo']].map(([id,label])=>`<button data-finance-range="${id}" class="${state.financeRange===id?'active':''}">${label}</button>`).join('')}</div></div>${financeChart(visible)}</section>
+    <section class="finance-card"><div class="finance-card-head"><div><span class="finance-kicker">Distribución</span><h2>Por tipo de activo</h2></div></div><div class="finance-allocation">${[...allocations.entries()].sort((a,b)=>b[1]-a[1]).map(([type,value])=>`<div class="finance-allocation-row"><div><strong>${e(type)}</strong><span>${financeMoney(value)}</span></div><div class="finance-allocation-track"><i style="width:${Math.max(4,value/maxAllocation*100).toFixed(1)}%"></i></div><small>${totals.value?(value/totals.value*100).toFixed(1):'0.0'} %</small></div>`).join('')||'<div class="finance-chart-empty">Añade una posición para ver la distribución.</div>'}</div></section>
+  </div>
+  ${section('Posiciones',`<span class="pill neutral">${positions.length} activas</span>`)}
+  <div class="finance-table-wrap"><table class="finance-table"><thead><tr><th>Activo</th><th>Tipo / origen</th><th>Cantidad</th><th>Precio medio</th><th>Precio actual</th><th>Valor</th><th>Resultado</th><th></th></tr></thead><tbody>
+  ${positions.map(position=>{const m=financePositionMetrics(position);return `<tr><td><strong>${e(position.name)}</strong><small>${e(position.symbol||'Sin ticker')} · ${e(position.currency)}</small></td><td><strong>${e(position.type)}</strong><small>${e(position.account)}</small></td><td>${Number(position.quantity).toLocaleString('es-ES',{maximumFractionDigits:6})}</td><td>${Number(position.avgPrice).toLocaleString('es-ES',{maximumFractionDigits:4})} ${e(position.currency)}</td><td>${Number(position.currentPrice).toLocaleString('es-ES',{maximumFractionDigits:4})} ${e(position.currency)}</td><td><strong>${financeMoney(m.value)}</strong></td><td><strong class="${financeClass(m.gain)}">${financeMoney(m.gain)}</strong><small class="${financeClass(m.gainPct)}">${financePct(m.gainPct)}</small></td><td><div class="finance-row-actions"><button data-action="finance-edit" data-id="${e(position.id)}" aria-label="Editar ${e(position.name)}">Editar</button><button data-action="finance-delete" data-id="${e(position.id)}" aria-label="Eliminar ${e(position.name)}">Eliminar</button></div></td></tr>`;}).join('')}
+  </tbody></table>${positions.length?'':empty('Todavía no hay posiciones','Añade tu primera posición para empezar a construir la cartera.',btn('Añadir posición','finance-add','primary'))}</div>
+  <p class="finance-footnote">La gráfica combina valoraciones guardadas con el valor actual calculado a partir de tus precios manuales. No representa datos de mercado en tiempo real.</p>`;
+}
 function knowledgeSlug(value){
   return String(value||'seccion').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'').slice(0,80)||'seccion';
 }
@@ -294,10 +366,16 @@ function computerView(){const label={idle:'Sin sesión activa',waiting:'Esperand
 function developerView(){return heading('Lisa, a tu manera','Diseña cambios sin tocar tus datos ni la versión estable.',btn(`${icon('plus')} Proponer un cambio`,'dev-proposal','primary'))+`<div class="split"><div class="panel"><div class="eyebrow">Entorno de desarrollo</div><h2>Código separado de tu vida personal.</h2><p style="font-size:12px;margin-top:13px;line-height:1.9">Este panel será el punto de entrada para un agente programador, un editor y una terminal aislada. En esta versión solo puedes revisar el flujo propuesto.</p><pre class="code">$ git switch -c propuesta/cambio-ui\n$ ejecutar pruebas\n$ abrir preview\n\n# Vista ilustrativa. No se ejecutan comandos.\n# Sin acceso a documentos, secretos o producción.</pre>${btn('Terminal pendiente del backend','none','','disabled')}</div><div class="panel"><h2>Del cambio a la versión estable</h2>${[{title:'Propuesta',desc:'Describe el resultado deseado.'},{title:'Rama y preview',desc:'El agente trabaja sobre código y fixtures, no sobre datos privados.'},{title:'Pruebas y revisión',desc:'Ver diff, pruebas y permisos afectados.'},{title:'Aplicar o descartar',desc:'Publicar exige autorización. Conservar versión anterior para rollback.'}].map((s,i)=>`<div class="step"><b>${i+1}</b><div><strong>${s.title}</strong><p>${s.desc}</p></div></div>`).join('')}</div></div>`;}
 async function auditView(){const rows=await api.request('GET','/audit');return heading('Actividad visible','Registro de interacciones simuladas. No es una auditoría de producción.')+(rows.length?`<div class="panel">${rows.map(r=>`<div class="timeline">${icon('check')}<div><strong style="font-size:12px">${e(r.action)}</strong><p>${e(r.resource)}</p></div><span class="pill neutral" style="margin-left:auto">${new Date(r.at).toLocaleTimeString('es')}</span></div>`).join('')}</div>`:empty('Todavía no hay actividad','Guarda un chat, crea una tarea o promueve una conversación para revisar el flujo.'));}
 function settingsView(){return heading('Un sistema que puedas cambiar','Configuración y estado real de esta entrega.')+`<div class="grid-2"><div class="panel"><h2>Modo de demostración</h2><p style="font-size:12px;margin:15px 0;line-height:1.8">Los datos viven en memoria del navegador. No usamos almacenamiento local para mensajes ni enviamos tus textos a un servidor. Recargar elimina también las conversaciones marcadas como guardadas en la demo.</p><div class="btn-row">${btn('Reiniciar la demo','reset','danger')}${btn('Cambiar tema','theme')}</div></div><div class="panel"><h2>API preparada, backend pendiente</h2><p style="font-size:12px;margin:15px 0;line-height:1.8">Las vistas consumen un adaptador común. La base futura es <code>/api/v1</code>. Los endpoints privados no se abren sin autenticación: actualmente rechazan acciones con un error explícito de no implementado.</p>${btn('Comprobar endpoint','check-api')}</div><div class="panel"><h2>Revisar este diseño</h2><p style="font-size:12px;margin:15px 0;line-height:1.8">Prueba ambos chats, guarda uno, clasifícalo y continúa en otro agente. Revisa también los tamaños de móvil y el modo oscuro.</p>${btn(`${icon('download')} Descargar checklist`,'download-checklist')}</div><div class="panel"><h2>Sin conexiones ocultas</h2><p style="font-size:12px;margin:15px 0;line-height:1.8">Nextcloud, 1Password, OpenClaw, modelos, escritorio y terminal están pendientes. No se ha desplegado el servidor personal ni se han migrado archivos.</p>${btn('Ver integraciones','accounts')}</div></div>`;}
-const views={home,chat:chatView,history:historyView,files:filesView,tasks:tasksView,calendar:calendarView,knowledge:knowledgeView,agents:agentsView,accounts:accountsView,computer:computerView,developer:developerView,audit:auditView,settings:settingsView};
+const views={home,chat:chatView,history:historyView,files:filesView,tasks:tasksView,calendar:calendarView,knowledge:knowledgeView,finance:financeView,agents:agentsView,accounts:accountsView,computer:computerView,developer:developerView,audit:auditView,settings:settingsView};
 async function render(){const body=await (views[state.view]||home)();mount.innerHTML=`<div class="shell ${state.menu?'menu-open':''} ${state.sidebarCollapsed?'collapsed':''}">${sidebar()}<div class="main-wrap">${topbar()}<main class="content" id="main" tabindex="-1">${banner()}${body}</main></div></div>`;document.title=`${titles[state.view]||'Inicio'} · Lisa`;if(state.view==='chat'){const box=document.querySelector('#messages');if(box)box.scrollTop=box.scrollHeight;}}
 async function newChat(mode,agentId,projectId=null){const c=await api.request('POST','/chats',{mode,agentId,projectId});state.chatId=c.id;nav('chat');}
 function eventModal(date='2026-09-23'){modal('Nuevo evento de ejemplo',`<form data-form="event"><label class="field">Título<input name="title" required maxlength="160" placeholder="¿Qué quieres organizar?"></label><div class="grid-2"><label class="field">Fecha<input type="date" name="date" value="${e(date)}" required></label><label class="field">Hora<input type="time" name="time" value="10:00" required></label></div><label class="field">Categoría<select name="category">${options()}</select></label><div class="modal-footer"><button class="btn primary" type="submit">Crear en la demo</button></div></form>`);}
+async function financeModal(id=null){
+  const positions=id?await api.request('GET','/finance/positions'):[];
+  const position=id?positions.find(p=>p.id===id):null;
+  if(id&&!position)throw new Error('Posición no encontrada.');
+  modal(position?'Editar posición':'Añadir posición',financePositionForm(position));
+}
 async function handleAction(action,target){
  if(action==='close'){dialog.close();return;}
  if(action==='theme'){toast('Esta propuesta visual está fijada en modo claro.');return;}
@@ -325,6 +403,11 @@ async function handleAction(action,target){
  if(action==='knowledge-cancel-edit'){state.knowledgeMode='read';await render();return;}
  if(action==='new-task'){modal('Nueva tarea',`<form data-form="task"><label class="field">Qué hay que hacer<input name="title" required maxlength="200" placeholder="Una tarea de ejemplo…"></label><label class="field">Categoría<select name="category">${options('personal')}</select></label><div class="modal-footer"><button class="btn primary" type="submit">Crear en la demo</button></div></form>`);return;}
  if(action==='new-event'){eventModal();return;}
+ if(action==='finance-add'){await financeModal();return;}
+ if(action==='finance-edit'){await financeModal(target.dataset.id);return;}
+ if(action==='finance-delete'){const positions=await api.request('GET','/finance/positions');const position=positions.find(p=>p.id===target.dataset.id);if(!position)throw new Error('Posición no encontrada.');modal('Eliminar posición',`<p class="modal-copy">Se eliminará <strong>${e(position.name)}</strong> de esta sesión de demostración.</p><div class="modal-footer">${btn('Cancelar','close')}${btn('Eliminar','finance-confirm-delete','danger',`data-id="${e(position.id)}"`)}</div>`);return;}
+ if(action==='finance-confirm-delete'){await api.request('DELETE',`/finance/positions/${target.dataset.id}`);dialog.close();await render();toast('Posición eliminada de la demo.');return;}
+ if(action==='finance-snapshot'){await api.request('POST','/finance/snapshots',{});await render();toast('Valoración de hoy guardada en la sesión.');return;}
  if(action==='integration'||action==='nextcloud'){const id=action==='nextcloud'?'nextcloud':target.dataset.id;modal(`Integración: ${id}`,`<p class="modal-copy">Estado: pendiente de implementación y pruebas con el servicio real.</p><pre class="code">UI → Lisa API → autorización → adaptador\n\n${e(id)}\n\nSin tokens ni credenciales en el frontend.\nLa conexión se configurará en el servidor.</pre><p class="modal-copy">Las capacidades se publicarán desde /api/v1/bootstrap. El contrato completo está en contracts/openapi.mjs y en la especificación del repositorio.</p>${btn('Conexión no disponible en demo','none','','disabled')}`);return;}
  if(action.startsWith('computer-')){const transitions={'computer-wait':'waiting','computer-take':'human','computer-release':'waiting','computer-stop':'paused'};state.computer=transitions[action];api.log('computer.simulation',state.computer);await render();toast('Transición visual simulada. No se ha controlado ningún ordenador.');return;}
  if(action==='dev-proposal'){modal('Proponer un cambio de interfaz',`<form data-form="developer"><label class="field">Describe el cambio<textarea name="content" maxlength="4000" required placeholder="Por ejemplo: añadir una vista de documentos pendientes…"></textarea></label><div class="note-box">Se mostrará una propuesta visual. No se ejecutarán comandos, cambios en Git ni despliegues.</div><div class="modal-footer"><button class="btn primary" type="submit">Revisar propuesta</button></div></form>`);return;}
@@ -338,6 +421,7 @@ document.addEventListener('click',async ev=>{const target=ev.target.closest('but
  if(target.dataset.new){await newChat(target.dataset.new);return;}
  if(target.dataset.agent){const projects=await api.request('GET','/projects');const project=projects.find(p=>p.agentId===target.dataset.agent);await newChat('agent',target.dataset.agent,project?.id||null);return;}
  if(target.dataset.chat){state.chatId=target.dataset.chat;nav('chat');return;}
+ if(target.dataset.financeRange){state.financeRange=target.dataset.financeRange;await render();return;}
  if(target.hasAttribute('data-category')){state.category=target.dataset.category;await render();return;}
  if(target.dataset.knowledge){state.knowledgeId=target.dataset.knowledge;state.knowledgeMode='read';await render();return;}
  if(target.hasAttribute('data-knowledge-category')){state.knowledgeCategory=target.dataset.knowledgeCategory;state.knowledgeId=null;state.knowledgeMode='read';await render();return;}
@@ -356,6 +440,7 @@ document.addEventListener('submit',async ev=>{const form=ev.target;if(!form.data
  if(kind==='knowledge-edit'){const updated=await api.request('PATCH',`/knowledge/${body.id}`,{title:body.title,content:body.content,expectedRevision:Number(body.expectedRevision)});state.knowledgeId=updated.id;state.knowledgeMode='read';await render();toast(`Memoria actualizada · revisión v${updated.revision}.`);return;}
  if(kind==='task'){await api.request('POST','/tasks',body);dialog.close();await render();toast('Tarea creada en la demo.');return;}
  if(kind==='event'){await api.request('POST','/events',body);dialog.close();await render();toast('Evento de ejemplo creado.');return;}
+ if(kind==='finance-position'){const id=String(body.id||'');delete body.id;if(id)await api.request('PATCH',`/finance/positions/${id}`,body);else await api.request('POST','/finance/positions',body);dialog.close();await render();toast(id?'Posición actualizada.':'Posición añadida a la demo.');return;}
  if(kind==='developer'){dialog.close();modal('Propuesta · sin ejecutar',`<p class="modal-copy">${e(body.content)}</p><pre class="code">Estado: propuesta de demostración\nDestino: nueva rama de código\nDatos: solo fixtures\nValidaciones: tests, diff, preview\nPublicación: aprobación humana</pre><div class="modal-footer">${btn('Cerrar','close')}${btn('Aplicar · backend pendiente','none','primary','disabled')}</div>`);return;}
  }catch(error){toast(error.message||'No se pudo completar la operación.');}});
 document.addEventListener('input',ev=>{if(ev.target?.id==='message')composerState().text=ev.target.value;if(ev.target?.id==='knowledge-search'){state.knowledgeQuery=ev.target.value;clearTimeout(globalThis.__knowledgeSearchTimer);globalThis.__knowledgeSearchTimer=setTimeout(()=>render().catch(error=>toast(error.message)),180);}if(ev.target?.id==='knowledge-markdown'){const preview=document.querySelector('#knowledge-live-preview');if(preview)preview.innerHTML=markdownReader(ev.target.value);}});
