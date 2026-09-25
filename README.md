@@ -68,7 +68,7 @@ La demo pública de Vercel no almacenará esta memoria. El detalle y las fases M
 
 ## API preparada, no abierta sin protección
 
-`DemoClient` y `HttpClient` comparten `request(method, path, body)`. Las vistas usan actualmente **solo DemoClient**. El contrato OpenAPI 3.1 define **28 operaciones** sobre chats, conocimiento, archivos, calendario, tareas, acciones, control de escritorio y cambios de código.
+`DemoClient` y `HttpClient` comparten `request(method, path, body)`. Las vistas usan actualmente **solo DemoClient**. El contrato OpenAPI 3.1 define **31 operaciones** sobre chats, conocimiento, archivos, calendario, tareas, finanzas, acciones, control de escritorio y cambios de código.
 
 El adaptador HTTP apunta al mismo origen, `/api/v1`. La función de servidor incluida devuelve `501 BACKEND_NOT_CONFIGURED` para las funciones privadas; solo `/api/v1/health` responde con `backendConnected: false`. No se ha implementado autenticación, almacenamiento personal, ejecución de agentes ni enforcement de políticas. Activar un backend exige completar esas piezas, no solo cambiar una URL.
 
@@ -76,7 +76,7 @@ El adaptador HTTP apunta al mismo origen, `/api/v1`. La función de servidor inc
 
 El repositorio incluye `vercel.json`: raíz del repo, `npm run build`, salida `dist`, sin dependencias de instalación. Solo se debe publicar la demo ficticia hasta completar la seguridad del backend.
 
-**No se ha confirmado un despliegue en Vercel en esta entrega.** El conector anunció una acción de despliegue que devolvió `Tool deploy_to_vercel not found`; su importador de diseños rechazó el HTML de GitHub porque solo admite otro dominio. El código y el bundle sí están en `main`. Véase [despliegue y revisión](docs/14-ui-despliegue.md) para importar este mismo repositorio en Vercel sin modificarlo.
+**La UI de revisión está publicada y verificada en Vercel.** Sigue siendo una demo sin backend ni datos personales; la publicación no habilita Nextcloud, modelos, memoria, credenciales ni acciones. El estado verificable del despliegue está en [CONTINUAR](CONTINUAR.md) y [despliegue y revisión](docs/14-ui-despliegue.md).
 
 ## Documentación de continuidad
 
