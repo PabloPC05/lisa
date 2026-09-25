@@ -49,6 +49,46 @@ export function promoteConversation(chat, target) {
   return result;
 }
 export function escapeHtml(value) { return String(value ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch])); }
+
+export const FINANCE_TYPES = ['Fondo','ETF','Acción','Renta fija','Efectivo','Cripto','Otro'];
+function financeFinite(value,label,{positive=false,nonNegative=false}={}) {
+  const n=Number(value);
+  if(!Number.isFinite(n) || (positive && n<=0) || (nonNegative && n<0)) throw new Error(`${label} inválido.`);
+  return n;
+}
+export function normalizeFinancePosition(input,id=uid()) {
+  const type=String(input?.type||'Otro');
+  if(!FINANCE_TYPES.includes(type)) throw new Error('Tipo de activo desconocido.');
+  const currency=String(input?.currency||'EUR').trim().toUpperCase();
+  if(!/^[A-Z]{3}$/.test(currency)) throw new Error('Divisa inválida.');
+  return {
+    id,
+    name:text(input?.name,120),
+    symbol:String(input?.symbol||'').trim().toUpperCase().slice(0,24),
+    type,
+    account:String(input?.account||'Manual').trim().slice(0,80)||'Manual',
+    quantity:financeFinite(input?.quantity,'Cantidad',{positive:true}),
+    avgPrice:financeFinite(input?.avgPrice,'Precio medio',{nonNegative:true}),
+    currentPrice:financeFinite(input?.currentPrice,'Precio actual',{nonNegative:true}),
+    currency,
+    fxToEur:currency==='EUR'?1:financeFinite(input?.fxToEur,'Cambio a EUR',{positive:true}),
+    updatedAt:new Date().toISOString()
+  };
+}
+export function financePositionMetrics(position) {
+  const fx=Number(position.fxToEur||1);
+  const invested=Number(position.quantity)*Number(position.avgPrice)*fx;
+  const value=Number(position.quantity)*Number(position.currentPrice)*fx;
+  const gain=value-invested;
+  return {invested,value,gain,gainPct:invested?gain/invested*100:0};
+}
+export function financeTotals(positions=[]) {
+  return positions.reduce((total,position)=>{
+    const metrics=financePositionMetrics(position);
+    total.invested+=metrics.invested; total.value+=metrics.value; total.gain+=metrics.gain;
+    return total;
+  },{invested:0,value:0,gain:0,gainPct:0});
+}
 export function makeFixtures() {
   return {
     projects: copy(PROJECTS),
@@ -127,6 +167,21 @@ Esta nota representa una propuesta todavía **no aprobada**.
 - Aprobar solo si merece formar parte de la memoria.
 `}
     ],
+    finance: {
+      positions: [
+        {id:'demo-position-1',name:'Fondo global de ejemplo',symbol:'GLOBAL-A',type:'Fondo',account:'Cuenta de ejemplo',quantity:72.5,avgPrice:101.40,currentPrice:107.20,currency:'EUR',fxToEur:1,updatedAt:'2026-09-25T10:00:00Z'},
+        {id:'demo-position-2',name:'ETF dividendos de ejemplo',symbol:'DIV-100',type:'ETF',account:'Cuenta de ejemplo',quantity:31,avgPrice:43.80,currentPrice:45.10,currency:'EUR',fxToEur:1,updatedAt:'2026-09-25T10:00:00Z'},
+        {id:'demo-position-3',name:'Monetario de ejemplo',symbol:'CASH-LIKE',type:'Renta fija',account:'Cuenta de ejemplo',quantity:58.2,avgPrice:100,currentPrice:101.05,currency:'EUR',fxToEur:1,updatedAt:'2026-09-25T10:00:00Z'}
+      ],
+      snapshots: [
+        {id:'demo-snapshot-1',date:'2026-04-01',value:14220,invested:14000},
+        {id:'demo-snapshot-2',date:'2026-05-01',value:14380,invested:14000},
+        {id:'demo-snapshot-3',date:'2026-06-01',value:14610,invested:14250},
+        {id:'demo-snapshot-4',date:'2026-07-01',value:14540,invested:14250},
+        {id:'demo-snapshot-5',date:'2026-08-01',value:14960,invested:14500},
+        {id:'demo-snapshot-6',date:'2026-09-01',value:15240,invested:14500}
+      ]
+    },
     audit: []
   };
 }

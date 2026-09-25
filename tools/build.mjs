@@ -24,5 +24,5 @@ await mkdir(new URL('dist/',root),{recursive:true});
 await writeFile(new URL('dist/index.html',root),html);
 await writeFile(new URL('dist/openapi.json',root),JSON.stringify(openapi,null,2)+'\n');
 const hash=createHash('sha256').update(script).digest('base64');
-await writeFile(new URL('dist/build-info.json',root),JSON.stringify({version:'0.5.0-sky',scriptSha256:hash,mode:'demo',home:'sky-local-clock'},null,2));
+await writeFile(new URL('dist/build-info.json',root),JSON.stringify({version:'0.6.0-finance',scriptSha256:hash,mode:'demo',home:'sky-local-clock',finance:'manual-portfolio'},null,2));
 console.log(`Built dist/index.html (${Buffer.byteLength(html)} bytes), openapi.json, build-info.json`);

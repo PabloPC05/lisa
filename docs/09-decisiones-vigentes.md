@@ -1,6 +1,6 @@
 # 09 · Decisiones vigentes y evolución
 
-Actualizado: 24-09-2026. Una instrucción posterior explícita del propietario prevalece. Mantener separados requisito confirmado, opción técnica propuesta y funcionalidad implementada.
+Actualizado: 25-09-2026. Una instrucción posterior explícita del propietario prevalece. Mantener separados requisito confirmado, opción técnica propuesta y funcionalidad implementada.
 
 ## Registro de cambios
 
@@ -16,6 +16,7 @@ Actualizado: 24-09-2026. Una instrucción posterior explícita del propietario p
 | Proyectos | Historial por proyecto; conversaciones fijables y archivables | Proyecto organiza, no concede permisos ni convierte chats en memoria |
 | Identidades visuales | Mezclar estilos según funcionalidad; Windows 98 solo en Archivos | No convertir todo Lisa en Windows 98 ni modificar visualmente Nextcloud |
 | Inicio Cielo | Paisaje/cielo inspirado en Zainab Kabira 2026, sincronizado con la hora y conservando transparencias | Sustituye el fondo rojo/blanco del Inicio v0.4; conserva accesos operativos, widgets ligeros y sidebar |
+| Finanzas v0.6 | Aplicación de cartera para introducir posiciones, calcular valor/P&L, ver distribución y seguir evolución mediante valoraciones | Añade control financiero sin conectar todavía cuentas reales; fuente manual primero y adaptadores de bróker después |
 | Publicación comprobada | UI Sky desplegada en el proyecto Vercel lisa y URL verificada | Supera bloqueo de intentos previos; sigue siendo demo sin datos personales |
 
 ## Confirmado por el propietario
@@ -30,6 +31,7 @@ Actualizado: 24-09-2026. Una instrucción posterior explícita del propietario p
 - Trabajar en main y publicar una UI auditable con contratos preparados para backend.
 - Estilos específicos por aplicación. Solo Archivos tendrá estética del Explorador de Windows 98.
 - Inicio basado en https://www.awwwards.com/sites/zainab-kabira-portfolio-2026 : cielo/paisaje, hora del momento, transparencias y sensación de nube. No volver a un gestor de ventanas.
+- Finanzas como aplicación propia: poder introducir posiciones y revisar su evolución. Mantener la capa de datos desacoplada para conectar después fuentes como Renta 4 u otros proveedores sin rehacer la interfaz.
 
 ## Implementación actual
 
@@ -38,6 +40,7 @@ Actualizado: 24-09-2026. Una instrucción posterior explícita del propietario p
 - Inicio Cielo implementado en `sky.mjs`, `sky.css` y la plantilla `home-dashboard`. Estado visual exclusivo `body.sky-home-active`, eliminado al navegar a otras aplicaciones. Conserva el shell translúcido con tintes de cielo, serif editorial en la bienvenida y accesos a las vistas existentes.
 - Fecha/saludo/paleta derivados del reloj local; interpolación horaria, presets, pausa de animación y reduced-motion. Sin geolocalización, meteorología ni efemérides. El sol/luna son ilustrativos. Ver 16.
 - Las demás vistas mantienen sus diseños actuales blanco/negro/rojo, lector Markdown y compositor. **Archivos Win98 es requisito futuro, no implementación terminada.**
+- Finanzas v0.6 añade posiciones manuales, conversión manual a EUR, valor invertido/actual, P&L, distribución por tipo de activo, histórico de valoraciones y edición/eliminación. En la demo los datos siguen en memoria y no hay cotizaciones, FX ni cuentas de inversión conectadas.
 - DemoClient efímero; HttpClient preparado para mismo origen `/api/v1`. Stub privado deniega funciones con 501 hasta implementar autenticación/servicios.
 - OpenAPI 3.1 inicial con 31 operaciones. Conocimiento durable en Markdown canónico; HTML derivado. Ediciones crean revisión y requieren control optimista.
 - Chats de proyecto guardados automáticamente dentro del proyecto; fuera, guardado explícito. `pinned` y `archived` son navegación, no controles de acceso ni memoria.
