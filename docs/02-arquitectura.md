@@ -10,6 +10,7 @@ Fecha: 23-09-2026. La UI v0.3 implementa solo la capa de presentación y una sim
 | Lisa API / BFF | Identidad, contratos, validación, autorización y composición | Confiar en un agentId enviado como prueba de identidad |
 | AuthorizationService | Decidir principal/acción/recurso/contexto | Delegar decisiones a prompts |
 | Personal Data Hub | Fuentes, registro estable, relaciones e historial autorizado | Depender de un runtime como único almacén |
+| Lisa Memory Engine | Current Truth, Timeline, procedencia, ingesta y recuperación compartida | Convertir cada chat en memoria ni mantener una verdad distinta por modelo |
 | Nextcloud adapter | Archivos/versions/CalDAV vía interfaces soportadas | Modificar el datadir interno de Nextcloud como si fuese una carpeta común |
 | AgentRuntime adapter | Runs, cancelación, mensajes/eventos y capabilities | Incluir reglas personales únicamente en el proveedor |
 | Sandbox controller | Entorno efímero, mounts/red/quotas y destrucción | Compartir perfil, tokens o sockets privados |
@@ -54,9 +55,13 @@ Los archivos no necesitan un agente para existir. Una migración de proveedor co
 
 ## 5. Memoria y acceso
 
-Agente General: puede recuperar áreas autorizadas, con capacidades de acción separadas. Especializados: recuperación limitada a áreas concedidas. Sandbox: ninguna fuente personal. Developer: código y fixtures por defecto. El contexto debe registrar fuentes y heredar etiquetas de confidencialidad. Autorización precede a la búsqueda; no filtrar solo después de enviar fragmentos al modelo.
+La memoria personal futura se implementará como un **Lisa Memory Engine** compartido por todos los agentes. El diseño objetivo combina: Markdown portable para conocimiento visible; PostgreSQL para estado, revisiones, hechos, eventos, relaciones y procedencia; búsqueda híbrida por texto/metadata y, tras evaluación, vectores; y una interfaz Lisa API/MCP interna. En desarrollo local puede evaluarse PGLite, manteniendo PostgreSQL como objetivo del servidor.
 
-Guardar un chat no vuelve fiable a su agente ni concede credenciales. El registro del agente y el archivado de una sesión son estados independientes.
+El patrón de conocimiento será **Current Truth + Timeline + Sources**: mantener arriba la verdad vigente, conservar debajo cómo cambió y poder explicar de qué fuente sale cada afirmación. La ingesta automática generará candidatos de memoria y aplicará la política de aprobación antes de promoverlos a conocimiento confiable. Véase [17 · Memoria personal y segundo cerebro](17-memoria-segundo-cerebro.md).
+
+Agente General: puede recuperar áreas autorizadas, con capacidades de acción separadas. Especializados: recuperación limitada a áreas concedidas. Sandbox: ninguna fuente personal. Developer: código y fixtures por defecto. El contexto debe registrar fuentes y heredar etiquetas de confidencialidad. **Autorización precede a la búsqueda y también a MCP**; no filtrar solo después de enviar fragmentos al modelo.
+
+Guardar un chat no vuelve fiable a su agente ni concede credenciales. El registro del agente, el archivado de una sesión y la promoción de información a memoria durable son estados independientes. Los agentes no leen directamente PostgreSQL ni directorios de conocimiento: usan servicios de dominio que aplican scopes, auditoría y procedencia.
 
 ## 6. Acciones y trabajos
 
@@ -75,7 +80,7 @@ La opción inicial del producto real es servir UI y API desde el mismo origen pr
 ```text
 /opt/lisa/releases/<commit>     código inmutable desplegado
 /srv/lisa/nextcloud             volúmenes administrados por Nextcloud
-/srv/lisa/postgres              metadatos y registros
+/srv/lisa/postgres              metadatos, memoria estructurada e índices aprobados
 /srv/lisa/runtime/private       sesiones privadas
 /srv/lisa/runtime/sandbox       disco efímero separado; sin montajes privados
 /srv/lisa/quarantine            ingesta no confiable
