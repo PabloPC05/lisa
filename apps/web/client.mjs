@@ -1,4 +1,4 @@
-import { AREAS, uid, copy, text, createConversation, saveConversation, promoteConversation, makeFixtures, categoryOK } from './domain.mjs';
+import { AREAS, uid, copy, text, createConversation, saveConversation, promoteConversation, makeFixtures, categoryOK, normalizeFinancePosition, financeTotals } from './domain.mjs';
 
 /** All views use this transport. Demo state is memory-only and disappears on reload. */
 export class DemoClient {
@@ -72,6 +72,32 @@ export class DemoClient {
     }
     if (method === 'GET' && route === '/files') return copy(this.data.files.filter(f => !q.get('category') || f.category === q.get('category')));
     if (method === 'GET' && route.startsWith('/files/')) { const f=this.data.files.find(f=>f.id === route.slice(7)); if (!f) throw new Error('Archivo no encontrado.'); return copy(f); }
+    if (method === 'GET' && route === '/finance/positions') return copy(this.data.finance.positions);
+    if (method === 'GET' && route === '/finance/snapshots') return copy(this.data.finance.snapshots).sort((a,b)=>a.date.localeCompare(b.date));
+    if (method === 'POST' && route === '/finance/positions') {
+      const position=normalizeFinancePosition(body); this.data.finance.positions.unshift(position); this.log('finance.position.create',position.id); return copy(position);
+    }
+    const financePosition=route.match(/^\/finance\/positions\/([^/]+)$/);
+    if(financePosition){
+      const index=this.data.finance.positions.findIndex(p=>p.id===financePosition[1]);
+      if(index<0) throw new Error('Posición no encontrada.');
+      if(method==='PATCH'){
+        const next=normalizeFinancePosition({...this.data.finance.positions[index],...body},this.data.finance.positions[index].id);
+        this.data.finance.positions[index]=next; this.log('finance.position.update',next.id); return copy(next);
+      }
+      if(method==='DELETE'){
+        const [removed]=this.data.finance.positions.splice(index,1); this.log('finance.position.delete',removed.id); return null;
+      }
+    }
+    if (method === 'POST' && route === '/finance/snapshots') {
+      const date=String(body.date||new Date().toISOString().slice(0,10));
+      if(!/^\d{4}-\d{2}-\d{2}$/.test(date)) throw new Error('Fecha de valoración inválida.');
+      const totals=financeTotals(this.data.finance.positions);
+      const item={id:uid(),date,value:Number(totals.value.toFixed(2)),invested:Number(totals.invested.toFixed(2))};
+      const previous=this.data.finance.snapshots.findIndex(s=>s.date===date);
+      if(previous>=0)this.data.finance.snapshots[previous]=item;else this.data.finance.snapshots.push(item);
+      this.log('finance.snapshot.save',item.id); return copy(item);
+    }
     for (const collection of ['tasks','events','knowledge','audit']) {
       if (method === 'GET' && route === `/${collection}`) return copy(this.data[collection]);
     }
