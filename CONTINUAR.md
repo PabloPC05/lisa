@@ -1,16 +1,16 @@
-# CONTINUAR · Lisa · Inicio Cielo + Finanzas
+# CONTINUAR · Lisa · Inicio Cielo + Finanzas + Memory vNext
 
 Actualizado: 25-09-2026 (hora de Madrid). **Trabajar desde `main`**. Leer primero docs/09-decisiones-vigentes.md y docs/16-inicio-cielo.md. No continuar desde una rama antigua sin comparar cambios.
 
 ## Estado real
 
-Implementado: especificación de plataforma personal; UI de revisión con DemoClient en memoria; dos entradas a chat (conocimiento y Sandbox), cinco agentes, sidebar colapsable, adjuntos/cola/cancelar/reintentar, historial por proyecto y fijadas, biblioteca Markdown con lectura/edición/revisiones; HttpClient preparado; OpenAPI 3.1 y stub HTTP sin efectos; CI y bundle autocontenido. Se conserva el prototipo Python/SQLite anterior.
+Implementado: especificación de plataforma personal; **arquitectura futura de memoria/segundo cerebro documentada (no implementada)**; UI de revisión con DemoClient en memoria; dos entradas a chat (conocimiento y Sandbox), cinco agentes, sidebar colapsable, adjuntos/cola/cancelar/reintentar, historial por proyecto y fijadas, biblioteca Markdown con lectura/edición/revisiones; HttpClient preparado; OpenAPI 3.1 y stub HTTP sin efectos; CI y bundle autocontenido. Se conserva el prototipo Python/SQLite anterior.
 
 La portada mantiene el paisaje de cielo con transparencias, nubes y luz vinculada al reloj del dispositivo. Incluye selector de hora/presets, pausa de movimiento, reduced-motion y navegación a las aplicaciones existentes. Chat, Conocimiento, Archivos y las demás vistas mantienen su diseño anterior. **El estilo Windows 98 de Archivos está solicitado, pero todavía NO implementado.** No hay gestor de ventanas.
 
 Se añade Finanzas v0.6 como aplicación funcional de la demo: alta/edición/borrado de posiciones, coste y valor actual convertidos a EUR, P&L, distribución por tipo, gráfico de evolución por periodos y valoraciones manuales. Los ejemplos son ficticios y los cambios desaparecen al recargar. No hay cotizaciones, FX, Renta 4, MyInvestor ni otro bróker conectado; la interfaz queda preparada para sustituir la fuente manual por adaptadores posteriores.
 
-No implementado: backend personal persistente, autenticación/ACL de servidor, Nextcloud/CalDAV reales, modelos, OpenClaw, Sandbox de ejecución, broker 1Password, browser/desktop remoto, terminal ni autoedición operativa. No se han migrado datos ni configurado credenciales. El cielo no usa localización, meteorología ni efemérides: es una representación ilustrada de la hora local.
+No implementado: backend personal persistente, autenticación/ACL de servidor, **Lisa Memory Engine real (Markdown + PostgreSQL + Current Truth/Timeline + hybrid search + MCP)**, Nextcloud/CalDAV reales, modelos, OpenClaw, Sandbox de ejecución, broker 1Password, browser/desktop remoto, terminal ni autoedición operativa. No se han migrado datos ni configurado credenciales. El cielo no usa localización, meteorología ni efemérides: es una representación ilustrada de la hora local.
 
 ## Vercel: publicación verificada
 
@@ -56,8 +56,9 @@ Guardar en esta demo NO sobrevive a una recarga. Los chats creados dentro de pro
 4. Skin Windows 98 exclusiva para Archivos, conservando capacidades modernas y backend desacoplado. No está incluida en el código actual.
 3. L08/L09: DTOs/validadores e identidad/CSRF/permisos con denegación por defecto; quitar acoplamientos de vistas a DemoClient.
 4. L10–L14: PostgreSQL, persistencia/retención, promoción idempotente, Nextcloud de prueba y mapping UUID/ETag/restauración.
-5. L15–L18: runtime privado y Sandbox separados, modelo limitado, recuperación autorizada y evaluada de conocimiento.
-6. Después: calendario/tareas, broker 1Password y acciones, worker gráfico/takeover y Developer aislado.
+5. **M01–M05** después de L09/L10: modelo de memoria, Markdown Current Truth/Timeline, ingestor, búsqueda híbrida y MCP interno; ver docs/17. No introducir Mem0/Graphiti por defecto.
+6. L15–L18: runtime privado y Sandbox separados, modelo limitado, recuperación autorizada y evaluada de conocimiento.
+7. Después: calendario/tareas, broker 1Password y acciones, worker gráfico/takeover y Developer aislado.
 
 ## Decisiones de seguridad y arquitectura
 
@@ -67,6 +68,6 @@ Antes de datos reales, probar autorización por recurso antes de recuperar conte
 
 ## Referencias
 
-README; docs/01,02,03,06,07,09,11,13,14,15,16; contracts/openapi.mjs; apps/web/client.mjs; apps/web/sky.mjs; apps/web/sky.css; api/v1/[...path].js; tests/web/.
+README; docs/01,02,03,06,07,09,11,13,14,15,16,17; contracts/openapi.mjs; apps/web/client.mjs; apps/web/sky.mjs; apps/web/sky.css; api/v1/[...path].js; tests/web/.
 
 Documentar siempre qué se ejecutó y qué sigue propuesto. La publicación Vercel no significa que Nextcloud, una IA o las acciones autónomas estén conectados.
