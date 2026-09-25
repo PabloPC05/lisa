@@ -9,7 +9,7 @@ export class DemoClient {
   async request(method, path, body = {}) {
     const [route, query = ''] = path.split('?');
     const q = new URLSearchParams(query);
-    if (method === 'GET' && route === '/bootstrap') return {mode:'demo', agents:copy(AREAS), projects:copy(this.data.projects), integrations:[], version:'0.4.0'};
+    if (method === 'GET' && route === '/bootstrap') return {mode:'demo', agents:copy(AREAS), projects:copy(this.data.projects), integrations:[], version:'0.6.0'};
     if (method === 'GET' && route === '/projects') return copy(this.data.projects);
     if (method === 'GET' && route === '/chats') return copy(this.chats.filter(c => {
       if (q.get('saved') === 'true' && !c.saved) return false;
