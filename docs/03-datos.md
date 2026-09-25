@@ -45,6 +45,10 @@ Enlace de diseño: `/d/<uuid>`; una cita histórica añade `?v=<revision>`. El r
 | DocumentVersion | documento, revisión, SHA-256, bytes, mapping de proveedor, fecha, autor/origen |
 | ProviderMapping | instancia, objeto proveedor, UUID Lisa, etag, ubicación, estado de reconciliación |
 | KnowledgeItem | UUID, título, Markdown, revisión, estado proposed/approved/revoked, etiquetas |
+| MemoryFact | UUID, sujeto/tema, tipo, valor vigente, estado, revisión, política/confianza y etiquetas |
+| MemoryEvent | UUID, memory_fact opcional, tipo de cambio/evento, instante, actor y payload normalizado |
+| MemorySource | memory_id, tipo de fuente, source UUID/revisión/mensaje/fragmento, relación y estado |
+| MemoryRelation | origen, relación, destino, vigencia opcional y procedencia; grafo dedicado no requerido inicialmente |
 | SourceReference | UUID fuente, revisión, página/sección/fragmento y relación |
 | Project | UUID, nombre, categoría/ámbito, agente por defecto, instrucciones/contexto autorizado, estado |\n| Conversation | UUID, modo de creación inmutable, identidad ejecutora, categoría, project_id opcional, pinned, archived, etiquetas, saved_at, revision, source_id, updated_at |
 | Message | UUID, conversación, orden, rol, texto/adjuntos, origen, etiqueta de confianza |
@@ -98,8 +102,25 @@ Secretos se recuperan con el procedimiento del gestor, no con un dump sin cifrar
 
 ## 10. Memoria Markdown
 
-El formato canónico de `KnowledgeItem` será Markdown portable. La UI ofrece lectura renderizada y edición del Markdown fuente, pero el HTML generado es derivado y reconstruible.
+El formato canónico de `KnowledgeItem` será Markdown portable. La UI ofrece lectura renderizada y edición del Markdown fuente, pero el HTML generado es derivado y reconstruible. El segundo cerebro futuro usará el patrón **Current Truth + Timeline + Sources**: la parte vigente se puede consolidar sin destruir el historial ni la procedencia.
 
 Cada nota conserva `revision`, `updated_at`, estado y fuente. Editar exige `expectedRevision`; si otra sesión cambió la nota se devuelve conflicto y nunca se aplica silenciosamente última escritura gana. Las revisiones anteriores deben poder conservarse en producción.
 
 El lector soportará un subconjunto seguro inspirado en GFM: títulos, listas, listas de tareas, tablas, citas, enlaces, énfasis y bloques de código. HTML crudo se muestra escapado por defecto. Los enlaces se validan antes de renderizarse.
+
+
+## 11. Lisa Memory Engine futuro
+
+La memoria personal se tratará como una capa de dominio propia, no como un efecto secundario del historial de chat. Conversaciones, documentos e integraciones autorizadas podrán alimentar un **Memory Ingestor** que extraiga candidatos a hechos, preferencias, decisiones, entidades y eventos. Un candidato no obtiene más permisos ni confianza por haber sido generado por un LLM.
+
+Persistencia objetivo:
+
+- **Markdown**: conocimiento durable, portable y editable.
+- **PostgreSQL**: hechos vigentes, timeline, fuentes, relaciones, revisiones, labels y estado de indexación.
+- **PGLite**: opción de desarrollo/local a evaluar, no autoridad obligatoria de producción.
+- **Índice híbrido derivado**: búsqueda de texto + metadata y embeddings cuando superen evaluación; pgvector es la primera opción a probar si se necesitan vectores.
+- **MCP/API internos**: acceso compartido por runtimes sin entregar tablas ni filesystem directamente al agente.
+
+No se adoptarán Mem0, Graphiti, GBrain u OpenHuman como almacenes paralelos de verdad. GBrain y OpenHuman son referencias de diseño; Mem0 y Graphiti quedan como componentes a evaluar si resuelven una necesidad demostrada. Detalle en [17 · Memoria personal y segundo cerebro](17-memoria-segundo-cerebro.md).
+
+La autorización ocurre antes de recall/search. Revocar una fuente debe invalidar hechos derivados cuando corresponda y retirar/reconstruir sus chunks. El índice vectorial o textual se puede borrar y reconstruir; Current Truth, Timeline y sus fuentes no.
