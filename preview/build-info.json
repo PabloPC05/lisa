@@ -1,6 +1,7 @@
 {
-  "version": "0.5.0-sky",
-  "scriptSha256": "VhRI7RE3OiTUP6W18dNFpy25SDL4FzqpKCOd/DCNXVs=",
+  "version": "0.6.0-finance",
+  "scriptSha256": "ZOOFntPZrGuIHrJeSswbACE60Zi3vUlL9Hw9do1gDuY=",
   "mode": "demo",
-  "home": "sky-local-clock"
+  "home": "sky-local-clock",
+  "finance": "manual-portfolio"
 }

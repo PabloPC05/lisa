@@ -276,6 +276,34 @@ dialog{border:1px solid rgba(255,255,255,.9);background:rgba(255,255,255,.88);ba
 @media(max-width:1180px){.knowledge-shell{grid-template-columns:220px minmax(0,1fr)}.knowledge-outline{display:none}}
 @media(max-width:850px){.knowledge-shell{grid-template-columns:1fr}.knowledge-library{position:static;max-height:260px}.knowledge-reader{min-height:560px}.knowledge-editor-grid{grid-template-columns:1fr;min-height:auto}.knowledge-editor textarea{min-height:360px}.knowledge-preview{min-height:360px}.markdown-body{padding:28px 24px 44px}}
 @media(max-width:520px){.knowledge-doc-head{padding:17px}.knowledge-doc-head h1{font-size:22px}.markdown-body{padding:22px 17px 35px}.knowledge-library{border-radius:15px}.knowledge-reader{border-radius:16px}}
+
+
+/* Lisa v0.6 · Finanzas */
+.finance-status{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin:-4px 0 14px}.finance-status .subtle-btn{margin-left:auto}
+.finance-kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-bottom:12px}
+.finance-kpi,.finance-card{background:rgba(255,255,255,.72);backdrop-filter:blur(26px) saturate(145%);-webkit-backdrop-filter:blur(26px) saturate(145%);border:1px solid rgba(255,255,255,.92);box-shadow:0 12px 40px rgba(43,29,25,.065)}
+.finance-kpi{min-height:112px;border-radius:17px;padding:15px;display:flex;flex-direction:column;justify-content:flex-end}
+.finance-kpi>span{font-size:8px;text-transform:uppercase;letter-spacing:1.05px;color:#938b86;font-weight:750}
+.finance-kpi>strong{font-size:22px;letter-spacing:-.65px;margin:7px 0 3px}.finance-kpi>small{font-size:8px;color:#9d9590}
+.finance-kpi.positive>strong,.positive{color:#18794e!important}.finance-kpi.negative>strong,.negative{color:#b32635!important}.neutral{color:inherit}
+.finance-grid{display:grid;grid-template-columns:minmax(0,1.65fr) minmax(260px,.8fr);gap:12px;margin-bottom:18px}
+.finance-card{border-radius:19px;padding:16px;min-width:0}.finance-performance{min-height:355px}
+.finance-card-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;margin-bottom:10px}.finance-card-head h2{font-size:15px}
+.finance-kicker{display:block;font-size:7.5px;letter-spacing:1.2px;text-transform:uppercase;color:var(--red);font-weight:760;margin-bottom:3px}
+.finance-range{display:flex;gap:3px;padding:3px;background:rgba(20,20,20,.035);border-radius:10px}.finance-range button{border:0;background:transparent;color:#918984;border-radius:8px;padding:5px 7px;font-size:7.5px}.finance-range button.active{background:#fff;color:var(--ink);box-shadow:0 2px 8px rgba(30,20,18,.07)}
+.finance-chart-wrap{color:var(--red);padding-top:7px}.finance-chart-head{display:flex;justify-content:space-between;gap:12px;align-items:flex-end;color:var(--ink);margin-bottom:5px}.finance-chart-head>div span{display:block;font-size:7.5px;color:#9b938e}.finance-chart-head>div strong{display:block;font-size:10px;margin-top:2px}
+.finance-delta{font-size:9px;font-weight:730}.finance-chart{display:block;width:100%;height:225px;overflow:visible}.finance-chart circle{fill:#fff;stroke:currentColor;stroke-width:2}.finance-axis{display:flex;justify-content:space-between;color:#a29a95;font-size:7.5px;margin-top:-2px}
+.finance-chart-empty{min-height:180px;display:grid;place-items:center;text-align:center;color:#9e9691;font-size:9px;border:1px dashed rgba(20,20,20,.1);background:rgba(255,255,255,.3)}
+.finance-allocation{display:flex;flex-direction:column;gap:13px;padding-top:5px}.finance-allocation-row>div:first-child{display:flex;align-items:center;justify-content:space-between;gap:9px;margin-bottom:5px}.finance-allocation-row strong{font-size:9px}.finance-allocation-row span,.finance-allocation-row small{font-size:7.5px;color:#938b86}.finance-allocation-row small{display:block;text-align:right;margin-top:4px}
+.finance-allocation-track{height:5px!important;border-radius:999px;background:rgba(20,20,20,.06);overflow:hidden}.finance-allocation-track i{display:block;height:100%;background:var(--red);border-radius:inherit}
+.finance-table-wrap{overflow:auto;border:1px solid rgba(20,20,20,.07);background:rgba(255,255,255,.72);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border-radius:18px;box-shadow:0 12px 36px rgba(43,29,25,.05)}
+.finance-table{width:100%;border-collapse:collapse;min-width:930px}.finance-table th{padding:10px 12px;text-align:left;font-size:7px;letter-spacing:.8px;text-transform:uppercase;color:#958d88;background:rgba(248,246,244,.72);border-bottom:1px solid rgba(20,20,20,.07)}.finance-table td{padding:11px 12px;border-bottom:1px solid rgba(20,20,20,.055);font-size:9px;vertical-align:middle}.finance-table tbody tr:last-child td{border-bottom:0}.finance-table td>strong{display:block;font-size:9.5px}.finance-table td>small{display:block;font-size:7.5px;margin-top:2px;color:#9c948f}
+.finance-row-actions{display:flex;gap:6px;justify-content:flex-end}.finance-row-actions button{border:0;background:transparent;color:#89817c;font-size:7.5px;padding:4px}.finance-row-actions button:hover{color:var(--red)}
+.finance-footnote{font-size:8px;color:#9c948f;margin:9px 5px 0;line-height:1.55}
+.field small{display:block;font-size:7.5px;color:#9d9590;margin-top:5px;line-height:1.45}
+@media(max-width:1080px){.finance-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.finance-grid{grid-template-columns:1fr}.finance-performance{min-height:auto}}
+@media(max-width:620px){.finance-kpis{grid-template-columns:1fr 1fr}.finance-kpi{min-height:96px}.finance-kpi>strong{font-size:17px}.finance-card-head{flex-direction:column}.finance-range{width:100%;justify-content:space-between}.finance-status .subtle-btn{margin-left:0;width:100%;justify-content:flex-start}}
+@media(max-width:430px){.finance-kpis{grid-template-columns:1fr}.finance-chart{height:185px}}
 </style>
   <style>/* Sky is a local visual identity for Home. Other applications keep styles.css. */
 body.sky-home-active{--bg:#5187b9;--sky-top:#5289be;--sky-middle:#88b9dd;--sky-bottom:#d6e7ea;--sky-cloud:#fffaf1;--sky-ink:#183c59;--sky-muted:#35566f;--sky-glass:247,250,255;--sky-stars:0;--sky-px:0px;--sky-py:0px;--red:var(--sky-ink);--muted:var(--sky-muted);--ink:var(--sky-ink);--line:rgba(255,255,255,.28);background:var(--sky-top);color:var(--sky-ink);isolation:isolate}
@@ -323,7 +351,7 @@ body.sky-home-active:before,body.sky-home-active:after{display:none}
 .sky-content{max-width:1020px;margin:0 auto}.sky-intro{padding:40px 4px 29px;text-align:center;color:#fffaf2;text-shadow:0 2px 26px #29355414}.sky-date{font-size:10px;letter-spacing:1.3px;text-transform:uppercase;color:#fff7efde;margin-bottom:13px}.sky-intro h1{font-family:Georgia,'Times New Roman',serif;font-weight:400;font-size:clamp(48px,5.8vw,85px);letter-spacing:-3.3px;line-height:1.07;margin:0}.sky-tagline{font-family:Georgia,'Times New Roman',serif;font-size:clamp(23px,2.6vw,36px);font-weight:400;letter-spacing:-.6px;margin:7px 0 14px;color:#fffaf2}.sky-tagline em{font-weight:400}.sky-description{font-size:12px;letter-spacing:.1px;color:#fff7efde}
 .sky-conversation{max-width:660px;margin:0 auto 26px;border-radius:24px;display:flex;align-items:center;padding:7px 10px 7px 9px;min-height:65px;background:rgba(var(--sky-glass),.42)}
 .sky-ask{flex:1;display:flex;align-items:center;gap:13px;text-align:left;min-width:0;border:0;background:none;padding:5px 9px;color:var(--sky-ink);font-size:13px}.sky-ask small{display:block;font-size:9px;margin-top:3px;color:var(--sky-muted)}.sky-lisa-spark{font-size:28px;line-height:1}.sky-send-arrow{display:grid;place-items:center;width:29px;height:29px;margin-left:auto;border-radius:50%;background:#ffffff31;border:1px solid #ffffff44;font-size:19px}.sky-sandbox{display:flex;align-items:center;justify-content:center;gap:5px;min-height:37px;border:0;border-left:1px solid #ffffff4a;background:transparent;padding:5px 11px;color:var(--sky-muted);font-size:10px}.sky-sandbox svg{width:14px;height:14px}
-.sky-portals{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:13px;margin-bottom:20px}.sky-portal{border-radius:22px;min-height:97px;display:flex;align-items:center;text-align:left;padding:16px 12px;gap:9px;color:var(--sky-ink);position:relative}.sky-portal:hover{transform:translateY(-4px);background:rgba(var(--sky-glass),.43);box-shadow:0 16px 34px #203b5720,inset 0 1px 0 #ffffff55}.sky-portal strong{display:block;font-size:12px;font-weight:550}.sky-portal small{display:block;font-size:9px;color:var(--sky-muted);margin-top:4px;white-space:nowrap}.sky-portal-arrow{position:absolute;right:10px;top:9px;opacity:.65;font-size:12px}.sky-portal-art{flex:0 0 50px;width:50px;height:54px;display:grid;place-items:center;filter:drop-shadow(0 5px 6px #243e5320)}.sky-portal-art svg{width:50px;height:50px;stroke-width:1.4;stroke:#ffffffad;fill:#ffffff22}.sky-folder-art svg path:first-child{fill:#f5dba4;stroke:#fff0c4}.sky-folder-art svg path:last-child{fill:#edce91;stroke:#fff0c4}.sky-book-art svg path:first-child{fill:#d9e8ed;stroke:#fffbf0}.sky-book-art svg path:last-child{stroke:#7d9bb7;fill:none}.sky-orbit-art svg circle:first-child{fill:#cbd1f0;stroke:#e8e9ff}.sky-orbit-art svg ellipse{fill:none;stroke:#e8e9ff;stroke-width:2}.sky-orbit-art svg circle:not(:first-child){fill:#fff1da;stroke:#fff7e7}.sky-calendar-art svg rect{fill:#deebee;stroke:#f5fffa}.sky-calendar-art svg path{stroke:#7ca4b7;stroke-width:2.3}
+.sky-portals{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:13px;margin-bottom:20px}.sky-portal{border-radius:22px;min-height:97px;display:flex;align-items:center;text-align:left;padding:16px 12px;gap:9px;color:var(--sky-ink);position:relative}.sky-portal:hover{transform:translateY(-4px);background:rgba(var(--sky-glass),.43);box-shadow:0 16px 34px #203b5720,inset 0 1px 0 #ffffff55}.sky-portal strong{display:block;font-size:12px;font-weight:550}.sky-portal small{display:block;font-size:9px;color:var(--sky-muted);margin-top:4px;white-space:nowrap}.sky-portal-arrow{position:absolute;right:10px;top:9px;opacity:.65;font-size:12px}.sky-portal-art{flex:0 0 50px;width:50px;height:54px;display:grid;place-items:center;filter:drop-shadow(0 5px 6px #243e5320)}.sky-portal-art svg{width:50px;height:50px;stroke-width:1.4;stroke:#ffffffad;fill:#ffffff22}.sky-folder-art svg path:first-child{fill:#f5dba4;stroke:#fff0c4}.sky-folder-art svg path:last-child{fill:#edce91;stroke:#fff0c4}.sky-book-art svg path:first-child{fill:#d9e8ed;stroke:#fffbf0}.sky-book-art svg path:last-child{stroke:#7d9bb7;fill:none}.sky-orbit-art svg circle:first-child{fill:#cbd1f0;stroke:#e8e9ff}.sky-orbit-art svg ellipse{fill:none;stroke:#e8e9ff;stroke-width:2}.sky-orbit-art svg circle:not(:first-child){fill:#fff1da;stroke:#fff7e7}.sky-calendar-art svg rect{fill:#deebee;stroke:#f5fffa}.sky-calendar-art svg path{stroke:#7ca4b7;stroke-width:2.3}.sky-finance-art svg path:first-child{fill:none;stroke:#f4fff7}.sky-finance-art svg path:nth-child(2){fill:none;stroke:#8bc8a6;stroke-width:2.6}.sky-finance-art svg circle{fill:#eefbf3;stroke:#8bc8a6;stroke-width:1.8}
 .sky-widgets{display:grid;grid-template-columns:1.1fr 1.2fr .85fr;gap:13px}.sky-widget{border-radius:22px;padding:17px 18px 13px;min-width:0;color:var(--sky-ink)}.sky-widget-title{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}.sky-widget-title h2{font-size:12px;letter-spacing:0;font-weight:600}.sky-widget-title>button{border:0;background:none;font-size:15px;opacity:.7;width:24px;height:24px;display:grid;place-items:center}.sky-task-line{display:flex;align-items:center;gap:9px;margin:11px 0}.sky-task-circle{width:13px;height:13px;border-radius:50%;border:1px solid currentColor;opacity:.5;flex-shrink:0}.sky-task-line button{border:0;background:none;text-align:left;padding:0;color:var(--sky-ink);font-size:10px;line-height:1.4}.sky-task-line small,.sky-file-line small{display:block;font-size:8px;margin-top:3px;color:var(--sky-muted)}.sky-text-link{display:flex;align-items:center;justify-content:space-between;width:100%;border:0;border-top:1px solid #ffffff30;background:none;color:var(--sky-muted);padding:10px 0 0;margin-top:15px;font-size:9px;text-align:left}.sky-text-link span{font-size:14px}.sky-text-link:hover,.sky-widget-title button:hover{color:var(--sky-ink)}
 .sky-file-line{display:flex;align-items:center;width:100%;gap:9px;border:0;background:none;text-align:left;color:var(--sky-ink);padding:5px 0 8px;font-size:10px}.sky-file-mark{width:27px;height:32px;border-radius:5px;background:#ffffff2b;border:1px solid #ffffff47;display:grid;place-items:center;font-family:monospace;font-size:9px;flex-shrink:0}.sky-file-arrow{margin-left:auto;font-size:11px;opacity:.6}.sky-memory-widget{position:relative;overflow:hidden}.sky-memory-widget p{font-family:Georgia,'Times New Roman',serif;font-size:18px;line-height:1.35;letter-spacing:-.25px;color:var(--sky-ink);padding:6px 0 4px}.sky-memory-symbol{position:absolute;right:16px;top:49px;font-size:53px;color:#ffffff66;transform:rotate(-10deg);pointer-events:none}.sky-memory-widget .sky-text-link{margin-top:14px}
 .sky-footer{display:flex;justify-content:space-between;align-items:center;gap:16px;padding:20px 6px 16px;color:var(--sky-ink);font-size:9px}.sky-footer>span{display:flex;gap:8px;align-items:center}.sky-footer>button{display:flex;gap:6px;align-items:center;border:0;background:none;color:var(--sky-ink);font-size:9px;padding:5px}.sky-footer svg{width:12px;height:12px}
@@ -393,6 +421,7 @@ body.sky-home-active:before,body.sky-home-active:after{display:none}
           <button class="sky-portal sky-glass" data-nav="files"><span class="sky-portal-art sky-folder-art"><svg viewBox="0 0 64 64"><path d="M9 19q0-4 4-4h13l6 7h19q4 0 4 4v24H9Z"/><path d="M8 29q0-3 3-3h44q3 0 2 4l-5 21H12Z"/></svg></span><span><strong>Archivos</strong><small>Un lugar para todo</small></span><span class="sky-portal-arrow">↗</span></button>
           <button class="sky-portal sky-glass" data-nav="knowledge"><span class="sky-portal-art sky-book-art"><svg viewBox="0 0 64 64"><path d="M10 15q13-3 22 5 9-8 22-5v33q-13-3-22 4-9-7-22-4Z"/><path d="M32 20v32M16 24q6-1 10 2M16 31q6-1 10 2M38 26q5-3 10-2M38 33q5-3 10-2"/></svg></span><span><strong>Conocimiento</strong><small>Ideas que se quedan</small></span><span class="sky-portal-arrow">↗</span></button>
           <button class="sky-portal sky-glass" data-nav="agents"><span class="sky-portal-art sky-orbit-art"><svg viewBox="0 0 64 64"><circle cx="32" cy="32" r="9"/><ellipse cx="32" cy="32" rx="26" ry="11" transform="rotate(-35 32 32)"/><circle cx="49" cy="19" r="4"/><circle cx="14" cy="44" r="3"/></svg></span><span><strong>Agentes</strong><small>Cada uno, su mundo</small></span><span class="sky-portal-arrow">↗</span></button>
+          <button class="sky-portal sky-glass" data-nav="finance"><span class="sky-portal-art sky-finance-art"><svg viewBox="0 0 64 64"><path d="M12 48V16M12 48h41"/><path d="m18 39 10-10 8 6 15-18"/><circle cx="18" cy="39" r="2.5"/><circle cx="28" cy="29" r="2.5"/><circle cx="36" cy="35" r="2.5"/><circle cx="51" cy="17" r="2.5"/></svg></span><span><strong>Finanzas</strong><small>Cartera y evolución</small></span><span class="sky-portal-arrow">↗</span></button>
           <button class="sky-portal sky-glass" data-nav="calendar"><span class="sky-portal-art sky-calendar-art"><svg viewBox="0 0 64 64"><rect x="12" y="14" width="40" height="39" rx="6"/><path d="M12 26h40M23 10v9M42 10v9"/><path d="m25 38 5 5 10-11"/></svg></span><span><strong>Tu día</strong><small>Una cosa cada vez</small></span><span class="sky-portal-arrow">↗</span></button>
         </nav>
         <div class="sky-widgets">
@@ -474,6 +503,46 @@ function promoteConversation(chat, target) {
   return result;
 }
 function escapeHtml(value) { return String(value ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch])); }
+
+const FINANCE_TYPES = ['Fondo','ETF','Acción','Renta fija','Efectivo','Cripto','Otro'];
+function financeFinite(value,label,{positive=false,nonNegative=false}={}) {
+  const n=Number(value);
+  if(!Number.isFinite(n) || (positive && n<=0) || (nonNegative && n<0)) throw new Error(`${label} inválido.`);
+  return n;
+}
+function normalizeFinancePosition(input,id=uid()) {
+  const type=String(input?.type||'Otro');
+  if(!FINANCE_TYPES.includes(type)) throw new Error('Tipo de activo desconocido.');
+  const currency=String(input?.currency||'EUR').trim().toUpperCase();
+  if(!/^[A-Z]{3}$/.test(currency)) throw new Error('Divisa inválida.');
+  return {
+    id,
+    name:text(input?.name,120),
+    symbol:String(input?.symbol||'').trim().toUpperCase().slice(0,24),
+    type,
+    account:String(input?.account||'Manual').trim().slice(0,80)||'Manual',
+    quantity:financeFinite(input?.quantity,'Cantidad',{positive:true}),
+    avgPrice:financeFinite(input?.avgPrice,'Precio medio',{nonNegative:true}),
+    currentPrice:financeFinite(input?.currentPrice,'Precio actual',{nonNegative:true}),
+    currency,
+    fxToEur:currency==='EUR'?1:financeFinite(input?.fxToEur,'Cambio a EUR',{positive:true}),
+    updatedAt:new Date().toISOString()
+  };
+}
+function financePositionMetrics(position) {
+  const fx=Number(position.fxToEur||1);
+  const invested=Number(position.quantity)*Number(position.avgPrice)*fx;
+  const value=Number(position.quantity)*Number(position.currentPrice)*fx;
+  const gain=value-invested;
+  return {invested,value,gain,gainPct:invested?gain/invested*100:0};
+}
+function financeTotals(positions=[]) {
+  return positions.reduce((total,position)=>{
+    const metrics=financePositionMetrics(position);
+    total.invested+=metrics.invested; total.value+=metrics.value; total.gain+=metrics.gain;
+    return total;
+  },{invested:0,value:0,gain:0,gainPct:0});
+}
 function makeFixtures() {
   return {
     projects: copy(PROJECTS),
@@ -552,6 +621,21 @@ Esta nota representa una propuesta todavía **no aprobada**.
 - Aprobar solo si merece formar parte de la memoria.
 `}
     ],
+    finance: {
+      positions: [
+        {id:'demo-position-1',name:'Fondo global de ejemplo',symbol:'GLOBAL-A',type:'Fondo',account:'Cuenta de ejemplo',quantity:72.5,avgPrice:101.40,currentPrice:107.20,currency:'EUR',fxToEur:1,updatedAt:'2026-09-25T10:00:00Z'},
+        {id:'demo-position-2',name:'ETF dividendos de ejemplo',symbol:'DIV-100',type:'ETF',account:'Cuenta de ejemplo',quantity:31,avgPrice:43.80,currentPrice:45.10,currency:'EUR',fxToEur:1,updatedAt:'2026-09-25T10:00:00Z'},
+        {id:'demo-position-3',name:'Monetario de ejemplo',symbol:'CASH-LIKE',type:'Renta fija',account:'Cuenta de ejemplo',quantity:58.2,avgPrice:100,currentPrice:101.05,currency:'EUR',fxToEur:1,updatedAt:'2026-09-25T10:00:00Z'}
+      ],
+      snapshots: [
+        {id:'demo-snapshot-1',date:'2026-04-01',value:14220,invested:14000},
+        {id:'demo-snapshot-2',date:'2026-05-01',value:14380,invested:14000},
+        {id:'demo-snapshot-3',date:'2026-06-01',value:14610,invested:14250},
+        {id:'demo-snapshot-4',date:'2026-07-01',value:14540,invested:14250},
+        {id:'demo-snapshot-5',date:'2026-08-01',value:14960,invested:14500},
+        {id:'demo-snapshot-6',date:'2026-09-01',value:15240,invested:14500}
+      ]
+    },
     audit: []
   };
 }
@@ -568,7 +652,7 @@ class DemoClient {
   async request(method, path, body = {}) {
     const [route, query = ''] = path.split('?');
     const q = new URLSearchParams(query);
-    if (method === 'GET' && route === '/bootstrap') return {mode:'demo', agents:copy(AREAS), projects:copy(this.data.projects), integrations:[], version:'0.4.0'};
+    if (method === 'GET' && route === '/bootstrap') return {mode:'demo', agents:copy(AREAS), projects:copy(this.data.projects), integrations:[], version:'0.6.0'};
     if (method === 'GET' && route === '/projects') return copy(this.data.projects);
     if (method === 'GET' && route === '/chats') return copy(this.chats.filter(c => {
       if (q.get('saved') === 'true' && !c.saved) return false;
@@ -631,6 +715,32 @@ class DemoClient {
     }
     if (method === 'GET' && route === '/files') return copy(this.data.files.filter(f => !q.get('category') || f.category === q.get('category')));
     if (method === 'GET' && route.startsWith('/files/')) { const f=this.data.files.find(f=>f.id === route.slice(7)); if (!f) throw new Error('Archivo no encontrado.'); return copy(f); }
+    if (method === 'GET' && route === '/finance/positions') return copy(this.data.finance.positions);
+    if (method === 'GET' && route === '/finance/snapshots') return copy(this.data.finance.snapshots).sort((a,b)=>a.date.localeCompare(b.date));
+    if (method === 'POST' && route === '/finance/positions') {
+      const position=normalizeFinancePosition(body); this.data.finance.positions.unshift(position); this.log('finance.position.create',position.id); return copy(position);
+    }
+    const financePosition=route.match(/^\/finance\/positions\/([^/]+)$/);
+    if(financePosition){
+      const index=this.data.finance.positions.findIndex(p=>p.id===financePosition[1]);
+      if(index<0) throw new Error('Posición no encontrada.');
+      if(method==='PATCH'){
+        const next=normalizeFinancePosition({...this.data.finance.positions[index],...body},this.data.finance.positions[index].id);
+        this.data.finance.positions[index]=next; this.log('finance.position.update',next.id); return copy(next);
+      }
+      if(method==='DELETE'){
+        const [removed]=this.data.finance.positions.splice(index,1); this.log('finance.position.delete',removed.id); return null;
+      }
+    }
+    if (method === 'POST' && route === '/finance/snapshots') {
+      const date=String(body.date||new Date().toISOString().slice(0,10));
+      if(!/^\d{4}-\d{2}-\d{2}$/.test(date)) throw new Error('Fecha de valoración inválida.');
+      const totals=financeTotals(this.data.finance.positions);
+      const item={id:uid(),date,value:Number(totals.value.toFixed(2)),invested:Number(totals.invested.toFixed(2))};
+      const previous=this.data.finance.snapshots.findIndex(s=>s.date===date);
+      if(previous>=0)this.data.finance.snapshots[previous]=item;else this.data.finance.snapshots.push(item);
+      this.log('finance.snapshot.save',item.id); return copy(item);
+    }
     for (const collection of ['tasks','events','knowledge','audit']) {
       if (method === 'GET' && route === `/${collection}`) return copy(this.data[collection]);
     }
@@ -840,8 +950,8 @@ function icon(name) { return `<svg viewBox="0 0 24 24" aria-hidden="true"><path 
 function btn(label, action, kind='', extra='') { return `<button class="btn ${kind}" data-action="${action}" ${extra}>${label}</button>`; }
 function area(id) { return AREAS.find(a=>a.id===id) || {id:'general',name:'General',icon:'spark',color:'purple'}; }
 function options(selected='general') { return [{id:'general',name:'General'},...AREAS].map(a=>`<option value="${a.id}" ${a.id===selected?'selected':''}>${e(a.name)}</option>`).join(''); }
-const state={view:'home', chatId:null, category:'', filter:'', menu:false, sidebarCollapsed:false, month:8, year:2026, computer:'idle', busy:false, chatDrafts:{}, chatSends:{}, knowledgeId:null, knowledgeQuery:'', knowledgeCategory:'', knowledgeMode:'read'};
-const titles={home:'Inicio',chat:'Conversación',history:'Conversaciones',files:'Archivos',calendar:'Calendario',tasks:'Tareas',knowledge:'Conocimiento',agents:'Agentes',accounts:'Cuentas e integraciones',computer:'Ordenadores',developer:'Developer',settings:'Ajustes',audit:'Registro de actividad'};
+const state={view:'home', chatId:null, category:'', filter:'', menu:false, sidebarCollapsed:false, month:8, year:2026, computer:'idle', busy:false, chatDrafts:{}, chatSends:{}, knowledgeId:null, knowledgeQuery:'', knowledgeCategory:'', knowledgeMode:'read', financeRange:'6m'};
+const titles={home:'Inicio',chat:'Conversación',history:'Conversaciones',files:'Archivos',calendar:'Calendario',tasks:'Tareas',knowledge:'Conocimiento',finance:'Finanzas',agents:'Agentes',accounts:'Cuentas e integraciones',computer:'Ordenadores',developer:'Developer',settings:'Ajustes',audit:'Registro de actividad'};
 const mount=document.querySelector('#app');
 const dialog=document.querySelector('#dialog');
 let toastTimer;
@@ -855,15 +965,46 @@ function sidebar() {return `<button class="menu-shade" data-action="menu" aria-l
 <button class="new-chat" data-new="sandbox">${icon('shield')}<span>Nuevo chat Sandbox</span>${icon('plus')}</button>
 <div class="nav-group">${navItem('home','Inicio','home')}${navItem('history','Conversaciones','chat')}</div>
 <div class="nav-group"><div class="nav-label">Tus agentes</div>${AREAS.map(a=>`<button class="nav-item" data-agent="${a.id}" title="${e(a.name)}">${icon(a.icon)}<span>${a.name}</span><i class="dot" aria-hidden="true"></i></button>`).join('')}</div>
-<div class="nav-group"><div class="nav-label">Tu espacio</div>${navItem('files','Archivos','folder')}${navItem('calendar','Calendario','calendar')}${navItem('tasks','Tareas','tasks')}${navItem('knowledge','Conocimiento','layers')}</div>
+<div class="nav-group"><div class="nav-label">Tu espacio</div>${navItem('files','Archivos','folder')}${navItem('calendar','Calendario','calendar')}${navItem('tasks','Tareas','tasks')}${navItem('knowledge','Conocimiento','layers')}${navItem('finance','Finanzas','chart')}</div>
 <div class="sidebar-bottom">${navItem('computer','Ordenadores','monitor')}${navItem('accounts','Cuentas','lock')}${navItem('developer','Developer','code')}${navItem('settings','Ajustes','settings')}<div class="profile"><span class="avatar">L</span><div><strong>Mi espacio</strong><small>Preview · datos ficticios</small></div></div></div></aside>`;}
-function topbar(){return `<header class="topbar"><button class="icon-btn mobile-menu" data-action="menu" aria-label="Abrir navegación" aria-expanded="${state.menu}">${icon('menu')}</button><div class="breadcrumb">Mi espacio ${icon('chevron')} <strong>${e(titles[state.view]||'Inicio')}</strong></div><div class="topbar-right"><span class="pill">${icon('spark')} Preview 0.4</span><button class="icon-btn" data-action="audit" aria-label="Ver registro de actividad">${icon('clock')}</button></div></header>`;}
+function topbar(){return `<header class="topbar"><button class="icon-btn mobile-menu" data-action="menu" aria-label="Abrir navegación" aria-expanded="${state.menu}">${icon('menu')}</button><div class="breadcrumb">Mi espacio ${icon('chevron')} <strong>${e(titles[state.view]||'Inicio')}</strong></div><div class="topbar-right"><span class="pill">${icon('spark')} Preview 0.6</span><button class="icon-btn" data-action="audit" aria-label="Ver registro de actividad">${icon('clock')}</button></div></header>`;}
 const banner=()=>`<div class="demo-note">${icon('info')}<span>Demostración interactiva. Solo datos ficticios; sin IA ni servicios conectados. Los cambios se pierden al recargar. No introduzcas información personal.</span></div>`;
 function heading(title,desc,action=''){return `<div class="view-heading"><div><h1>${e(title)}</h1><p>${e(desc)}</p></div>${action}</div>`;}
 function section(title,action=''){return `<div class="section-head"><h2>${title}</h2>${action}</div>`;}
 function empty(title,description,action=''){return `<div class="empty">${icon('layers')}<h3>${title}</h3><p>${description}</p>${action}</div>`;}
 function taskRow(t){return `<div class="list-row ${t.done?'done':''}"><button class="check ${t.done?'checked':''}" data-task="${e(t.id)}" data-done="${t.done}" aria-label="${t.done?'Marcar pendiente':'Completar'}: ${e(t.title)}">${t.done?icon('check'):''}</button><div><strong>${e(t.title)}</strong><small>${e(area(t.category).name)} · ejemplo</small></div></div>`;}
 function eventRow(v){return `<div class="list-row"><div class="mini-date">${e(v.time)}</div><div><strong>${e(v.title)}</strong><small>${e(v.date)} · ${e(area(v.category).name)}</small></div></div>`;}
+const eur=new Intl.NumberFormat('es-ES',{style:'currency',currency:'EUR',maximumFractionDigits:2});
+function financeMoney(value){return eur.format(Number(value||0));}
+function financePct(value){const n=Number(value||0);return `${n>0?'+':''}${n.toFixed(2)} %`;}
+function financeClass(value){return Number(value)>0?'positive':Number(value)<0?'negative':'neutral';}
+function financeHistoryForRange(rows,range){
+  const clean=[...rows].sort((a,b)=>String(a.date).localeCompare(String(b.date)));
+  if(range==='all'||clean.length<2)return clean;
+  const days={ '1m':31,'3m':93,'6m':186,'1y':366 }[range]||186;
+  const latest=new Date(clean.at(-1).date+'T12:00:00Z');
+  const cutoff=new Date(latest);cutoff.setUTCDate(cutoff.getUTCDate()-days);
+  const filtered=clean.filter(row=>new Date(row.date+'T12:00:00Z')>=cutoff);
+  return filtered.length>=2?filtered:clean.slice(-2);
+}
+function financeChart(rows){
+  if(!rows.length)return '<div class="finance-chart-empty">Guarda una valoración para empezar el histórico.</div>';
+  const values=rows.map(r=>Number(r.value));const min=Math.min(...values),max=Math.max(...values),span=Math.max(max-min,1);
+  const w=760,h=230,p=18;
+  const points=rows.map((row,index)=>{const x=p+(w-p*2)*(rows.length===1?.5:index/(rows.length-1));const y=h-p-(h-p*2)*(Number(row.value)-min)/span;return {x,y,row};});
+  const line=points.map(p=>`${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' ');
+  const area=`${p},${h-p} ${line} ${w-p},${h-p}`;
+  const first=rows[0],last=rows.at(-1),change=Number(last.value)-Number(first.value),changePct=Number(first.value)?change/Number(first.value)*100:0;
+  return `<div class="finance-chart-wrap">
+    <div class="finance-chart-head"><div><span>Periodo</span><strong>${financeMoney(first.value)} → ${financeMoney(last.value)}</strong></div><span class="finance-delta ${financeClass(change)}">${financeMoney(change)} · ${financePct(changePct)}</span></div>
+    <svg class="finance-chart" viewBox="0 0 ${w} ${h}" role="img" aria-label="Evolución del valor de la cartera">
+      <defs><linearGradient id="finance-area" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="currentColor" stop-opacity=".18"/><stop offset="1" stop-color="currentColor" stop-opacity=".015"/></linearGradient></defs>
+      <polygon points="${area}" fill="url(#finance-area)"></polygon><polyline points="${line}" fill="none" stroke="currentColor" stroke-width="3" vector-effect="non-scaling-stroke"></polyline>
+      ${points.map(p=>`<circle cx="${p.x}" cy="${p.y}" r="4"></circle>`).join('')}
+    </svg>
+    <div class="finance-axis"><span>${e(first.date)}</span><span>${e(last.date)}</span></div>
+  </div>`;
+}
 async function home(){return document.querySelector('#home-dashboard').innerHTML;}
 const MAX_CHAT_FILES=8;
 const MAX_CHAT_FILE_BYTES=25*1024*1024;
@@ -999,6 +1140,47 @@ async function historyView(){const chats=await api.request('GET','/chats?saved=t
 async function filesView(){const files=await api.request('GET',`/files${state.category?'?category='+state.category:''}`);const filtered=files.filter(f=>f.name.toLocaleLowerCase().includes(state.filter.toLocaleLowerCase()));return heading('Tus archivos','La interfaz de Lisa; en el futuro, Nextcloud por debajo.',btn(`${icon('cloud')} Integración Nextcloud`,'nextcloud'))+`<div class="chips"><button class="chip ${!state.category?'active':''}" data-category="">Todos</button>${AREAS.map(a=>`<button class="chip ${state.category===a.id?'active':''}" data-category="${a.id}">${a.name}</button>`).join('')}<form data-form="search" style="margin-left:auto"><label class="sr-only" for="file-search">Buscar archivos</label><input id="file-search" name="query" value="${e(state.filter)}" placeholder="Buscar archivo…" style="border:1px solid var(--line);border-radius:8px;padding:6px 10px;background:var(--panel);color:var(--ink);max-width:170px"></form></div><div class="file-grid">${filtered.map(f=>`<button class="file-card" data-file="${f.id}"><div class="file-cover">${icon('file')}</div><strong>${e(f.name)}</strong><small>${e(area(f.category).name)} · ${f.size} · v${f.version}</small><div class="resource-line">ID estable de ejemplo · ${f.id}</div></button>`).join('')}</div>${!filtered.length?empty('No hay coincidencias','Prueba otra categoría o búsqueda.'):''}`;}
 async function tasksView(){const list=await api.request('GET','/tasks');return heading('Una cosa cada vez','Organiza lo pendiente sin perder de vista el contexto.',btn(`${icon('plus')} Nueva tarea`,'new-task','primary'))+`<div class="chips"><span class="pill">${list.filter(t=>!t.done).length} pendientes</span><span class="pill neutral">${list.filter(t=>t.done).length} completadas</span><span class="pill neutral">Persistencia: solo esta demo</span></div><div class="panel">${list.map(taskRow).join('')}</div>`;}
 async function calendarView(){const events=await api.request('GET','/events');const first=new Date(state.year,state.month,1);const offset=(first.getDay()+6)%7;const total=new Date(state.year,state.month+1,0).getDate();const month=first.toLocaleDateString('es',{month:'long',year:'numeric'});let cells='';for(let i=0;i<offset;i++)cells+='<div class="day blank"></div>';for(let d=1;d<=total;d++){const date=`${state.year}-${String(state.month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;cells+=`<button class="day ${date==='2026-09-23'?'today':''}" data-date="${date}" aria-label="Crear evento el ${date}"><span class="day-number">${d}</span>${events.filter(v=>v.date===date).map(v=>`<span class="day-event ${area(v.category).color}">${e(v.time)} ${e(v.title)}</span>`).join('')}</button>`;}return heading('Tu tiempo, con perspectiva','Calendario de muestra. La sincronización CalDAV todavía no está conectada.',btn(`${icon('plus')} Nuevo evento`,'new-event','primary'))+`<div class="calendar-toolbar"><button class="icon-btn" data-month="-1" aria-label="Mes anterior">←</button><h2>${e(month)}</h2><button class="icon-btn" data-month="1" aria-label="Mes siguiente">→</button><span class="pill neutral">Fechas de ejemplo</span></div><div class="panel calendar-panel"><div class="calendar-grid">${['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'].map(d=>`<div class="day-name">${d}</div>`).join('')}${cells}</div></div>${section('Agenda de demostración')}<div class="panel">${events.sort((a,b)=>(a.date+a.time).localeCompare(b.date+b.time)).map(eventRow).join('')}</div>`;}
+
+function financePositionForm(position=null){
+  const p=position||{type:'Fondo',currency:'EUR',fxToEur:1,account:'Manual'};
+  return `<form data-form="finance-position">
+    <input type="hidden" name="id" value="${e(position?.id||'')}">
+    <div class="grid-2"><label class="field">Activo<input name="name" required maxlength="120" value="${e(p.name||'')}" placeholder="Nombre del fondo, ETF, acción…"></label><label class="field">Ticker / ISIN<input name="symbol" maxlength="24" value="${e(p.symbol||'')}" placeholder="Opcional"></label></div>
+    <div class="grid-2"><label class="field">Tipo<select name="type">${FINANCE_TYPES.map(type=>`<option ${type===p.type?'selected':''}>${e(type)}</option>`).join('')}</select></label><label class="field">Cuenta / origen<input name="account" maxlength="80" value="${e(p.account||'Manual')}" placeholder="Manual, bróker…"></label></div>
+    <div class="grid-2"><label class="field">Cantidad<input type="number" step="any" min="0.00000001" name="quantity" required value="${e(p.quantity??'')}"></label><label class="field">Precio medio<input type="number" step="any" min="0" name="avgPrice" required value="${e(p.avgPrice??'')}"></label></div>
+    <div class="grid-2"><label class="field">Precio actual<input type="number" step="any" min="0" name="currentPrice" required value="${e(p.currentPrice??'')}"></label><label class="field">Divisa<input name="currency" maxlength="3" pattern="[A-Za-z]{3}" required value="${e(p.currency||'EUR')}"></label></div>
+    <label class="field">Cambio de esa divisa a EUR<input type="number" step="any" min="0.00000001" name="fxToEur" required value="${e(p.fxToEur??1)}"><small>Para EUR usa 1. En esta demo no se consulta ningún cambio automáticamente.</small></label>
+    <div class="modal-footer"><button class="btn primary" type="submit">${position?'Guardar cambios':'Añadir posición'}</button></div>
+  </form>`;
+}
+async function financeView(){
+  const [positions,snapshots]=await Promise.all([api.request('GET','/finance/positions'),api.request('GET','/finance/snapshots')]);
+  const totals=financeTotals(positions);
+  const today=new Date().toISOString().slice(0,10);
+  const current={id:'current',date:today,value:Number(totals.value.toFixed(2)),invested:Number(totals.invested.toFixed(2))};
+  const history=[...snapshots.filter(s=>s.date!==today),current].sort((a,b)=>a.date.localeCompare(b.date));
+  const visible=financeHistoryForRange(history,state.financeRange);
+  const allocations=new Map();
+  positions.forEach(position=>{const value=financePositionMetrics(position).value;allocations.set(position.type,(allocations.get(position.type)||0)+value);});
+  const maxAllocation=Math.max(...allocations.values(),1);
+  return heading('Tus finanzas','Introduce tus posiciones y revisa su valor, rentabilidad y evolución. En esta entrega todo permanece solo durante la sesión.',btn(`${icon('plus')} Añadir posición`,'finance-add','primary'))+
+  `<div class="finance-status"><span class="pill warning">Manual · sin cotizaciones automáticas</span><span class="pill neutral">Renta 4 / otras fuentes: integración futura</span><button class="subtle-btn" data-action="finance-snapshot">${icon('save')} Guardar valoración de hoy</button></div>
+  <section class="finance-kpis">
+    <article class="finance-kpi"><span>Valor actual</span><strong>${financeMoney(totals.value)}</strong><small>${positions.length} posiciones</small></article>
+    <article class="finance-kpi"><span>Capital invertido</span><strong>${financeMoney(totals.invested)}</strong><small>Coste medio convertido a EUR</small></article>
+    <article class="finance-kpi ${financeClass(totals.gain)}"><span>Resultado</span><strong>${financeMoney(totals.gain)}</strong><small>${financePct(totals.invested?totals.gain/totals.invested*100:0)}</small></article>
+    <article class="finance-kpi"><span>Última valoración</span><strong>${e(history.at(-1)?.date||'—')}</strong><small>Histórico manual</small></article>
+  </section>
+  <div class="finance-grid">
+    <section class="finance-card finance-performance"><div class="finance-card-head"><div><span class="finance-kicker">Cartera</span><h2>Evolución</h2></div><div class="finance-range">${[['1m','1M'],['3m','3M'],['6m','6M'],['1y','1A'],['all','Todo']].map(([id,label])=>`<button data-finance-range="${id}" class="${state.financeRange===id?'active':''}">${label}</button>`).join('')}</div></div>${financeChart(visible)}</section>
+    <section class="finance-card"><div class="finance-card-head"><div><span class="finance-kicker">Distribución</span><h2>Por tipo de activo</h2></div></div><div class="finance-allocation">${[...allocations.entries()].sort((a,b)=>b[1]-a[1]).map(([type,value])=>`<div class="finance-allocation-row"><div><strong>${e(type)}</strong><span>${financeMoney(value)}</span></div><div class="finance-allocation-track"><i style="width:${Math.max(4,value/maxAllocation*100).toFixed(1)}%"></i></div><small>${totals.value?(value/totals.value*100).toFixed(1):'0.0'} %</small></div>`).join('')||'<div class="finance-chart-empty">Añade una posición para ver la distribución.</div>'}</div></section>
+  </div>
+  ${section('Posiciones',`<span class="pill neutral">${positions.length} activas</span>`)}
+  <div class="finance-table-wrap"><table class="finance-table"><thead><tr><th>Activo</th><th>Tipo / origen</th><th>Cantidad</th><th>Precio medio</th><th>Precio actual</th><th>Valor</th><th>Resultado</th><th></th></tr></thead><tbody>
+  ${positions.map(position=>{const m=financePositionMetrics(position);return `<tr><td><strong>${e(position.name)}</strong><small>${e(position.symbol||'Sin ticker')} · ${e(position.currency)}</small></td><td><strong>${e(position.type)}</strong><small>${e(position.account)}</small></td><td>${Number(position.quantity).toLocaleString('es-ES',{maximumFractionDigits:6})}</td><td>${Number(position.avgPrice).toLocaleString('es-ES',{maximumFractionDigits:4})} ${e(position.currency)}</td><td>${Number(position.currentPrice).toLocaleString('es-ES',{maximumFractionDigits:4})} ${e(position.currency)}</td><td><strong>${financeMoney(m.value)}</strong></td><td><strong class="${financeClass(m.gain)}">${financeMoney(m.gain)}</strong><small class="${financeClass(m.gainPct)}">${financePct(m.gainPct)}</small></td><td><div class="finance-row-actions"><button data-action="finance-edit" data-id="${e(position.id)}" aria-label="Editar ${e(position.name)}">Editar</button><button data-action="finance-delete" data-id="${e(position.id)}" aria-label="Eliminar ${e(position.name)}">Eliminar</button></div></td></tr>`;}).join('')}
+  </tbody></table>${positions.length?'':empty('Todavía no hay posiciones','Añade tu primera posición para empezar a construir la cartera.',btn('Añadir posición','finance-add','primary'))}</div>
+  <p class="finance-footnote">La gráfica combina valoraciones guardadas con el valor actual calculado a partir de tus precios manuales. No representa datos de mercado en tiempo real.</p>`;
+}
 function knowledgeSlug(value){
   return String(value||'seccion').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'').slice(0,80)||'seccion';
 }
@@ -1102,10 +1284,16 @@ function computerView(){const label={idle:'Sin sesión activa',waiting:'Esperand
 function developerView(){return heading('Lisa, a tu manera','Diseña cambios sin tocar tus datos ni la versión estable.',btn(`${icon('plus')} Proponer un cambio`,'dev-proposal','primary'))+`<div class="split"><div class="panel"><div class="eyebrow">Entorno de desarrollo</div><h2>Código separado de tu vida personal.</h2><p style="font-size:12px;margin-top:13px;line-height:1.9">Este panel será el punto de entrada para un agente programador, un editor y una terminal aislada. En esta versión solo puedes revisar el flujo propuesto.</p><pre class="code">$ git switch -c propuesta/cambio-ui\n$ ejecutar pruebas\n$ abrir preview\n\n# Vista ilustrativa. No se ejecutan comandos.\n# Sin acceso a documentos, secretos o producción.</pre>${btn('Terminal pendiente del backend','none','','disabled')}</div><div class="panel"><h2>Del cambio a la versión estable</h2>${[{title:'Propuesta',desc:'Describe el resultado deseado.'},{title:'Rama y preview',desc:'El agente trabaja sobre código y fixtures, no sobre datos privados.'},{title:'Pruebas y revisión',desc:'Ver diff, pruebas y permisos afectados.'},{title:'Aplicar o descartar',desc:'Publicar exige autorización. Conservar versión anterior para rollback.'}].map((s,i)=>`<div class="step"><b>${i+1}</b><div><strong>${s.title}</strong><p>${s.desc}</p></div></div>`).join('')}</div></div>`;}
 async function auditView(){const rows=await api.request('GET','/audit');return heading('Actividad visible','Registro de interacciones simuladas. No es una auditoría de producción.')+(rows.length?`<div class="panel">${rows.map(r=>`<div class="timeline">${icon('check')}<div><strong style="font-size:12px">${e(r.action)}</strong><p>${e(r.resource)}</p></div><span class="pill neutral" style="margin-left:auto">${new Date(r.at).toLocaleTimeString('es')}</span></div>`).join('')}</div>`:empty('Todavía no hay actividad','Guarda un chat, crea una tarea o promueve una conversación para revisar el flujo.'));}
 function settingsView(){return heading('Un sistema que puedas cambiar','Configuración y estado real de esta entrega.')+`<div class="grid-2"><div class="panel"><h2>Modo de demostración</h2><p style="font-size:12px;margin:15px 0;line-height:1.8">Los datos viven en memoria del navegador. No usamos almacenamiento local para mensajes ni enviamos tus textos a un servidor. Recargar elimina también las conversaciones marcadas como guardadas en la demo.</p><div class="btn-row">${btn('Reiniciar la demo','reset','danger')}${btn('Cambiar tema','theme')}</div></div><div class="panel"><h2>API preparada, backend pendiente</h2><p style="font-size:12px;margin:15px 0;line-height:1.8">Las vistas consumen un adaptador común. La base futura es <code>/api/v1</code>. Los endpoints privados no se abren sin autenticación: actualmente rechazan acciones con un error explícito de no implementado.</p>${btn('Comprobar endpoint','check-api')}</div><div class="panel"><h2>Revisar este diseño</h2><p style="font-size:12px;margin:15px 0;line-height:1.8">Prueba ambos chats, guarda uno, clasifícalo y continúa en otro agente. Revisa también los tamaños de móvil y el modo oscuro.</p>${btn(`${icon('download')} Descargar checklist`,'download-checklist')}</div><div class="panel"><h2>Sin conexiones ocultas</h2><p style="font-size:12px;margin:15px 0;line-height:1.8">Nextcloud, 1Password, OpenClaw, modelos, escritorio y terminal están pendientes. No se ha desplegado el servidor personal ni se han migrado archivos.</p>${btn('Ver integraciones','accounts')}</div></div>`;}
-const views={home,chat:chatView,history:historyView,files:filesView,tasks:tasksView,calendar:calendarView,knowledge:knowledgeView,agents:agentsView,accounts:accountsView,computer:computerView,developer:developerView,audit:auditView,settings:settingsView};
+const views={home,chat:chatView,history:historyView,files:filesView,tasks:tasksView,calendar:calendarView,knowledge:knowledgeView,finance:financeView,agents:agentsView,accounts:accountsView,computer:computerView,developer:developerView,audit:auditView,settings:settingsView};
 async function render(){const body=await (views[state.view]||home)();mount.innerHTML=`<div class="shell ${state.menu?'menu-open':''} ${state.sidebarCollapsed?'collapsed':''}">${sidebar()}<div class="main-wrap">${topbar()}<main class="content" id="main" tabindex="-1">${banner()}${body}</main></div></div>`;document.title=`${titles[state.view]||'Inicio'} · Lisa`;if(state.view==='chat'){const box=document.querySelector('#messages');if(box)box.scrollTop=box.scrollHeight;}}
 async function newChat(mode,agentId,projectId=null){const c=await api.request('POST','/chats',{mode,agentId,projectId});state.chatId=c.id;nav('chat');}
 function eventModal(date='2026-09-23'){modal('Nuevo evento de ejemplo',`<form data-form="event"><label class="field">Título<input name="title" required maxlength="160" placeholder="¿Qué quieres organizar?"></label><div class="grid-2"><label class="field">Fecha<input type="date" name="date" value="${e(date)}" required></label><label class="field">Hora<input type="time" name="time" value="10:00" required></label></div><label class="field">Categoría<select name="category">${options()}</select></label><div class="modal-footer"><button class="btn primary" type="submit">Crear en la demo</button></div></form>`);}
+async function financeModal(id=null){
+  const positions=id?await api.request('GET','/finance/positions'):[];
+  const position=id?positions.find(p=>p.id===id):null;
+  if(id&&!position)throw new Error('Posición no encontrada.');
+  modal(position?'Editar posición':'Añadir posición',financePositionForm(position));
+}
 async function handleAction(action,target){
  if(action==='close'){dialog.close();return;}
  if(action==='theme'){toast('Esta propuesta visual está fijada en modo claro.');return;}
@@ -1133,6 +1321,11 @@ async function handleAction(action,target){
  if(action==='knowledge-cancel-edit'){state.knowledgeMode='read';await render();return;}
  if(action==='new-task'){modal('Nueva tarea',`<form data-form="task"><label class="field">Qué hay que hacer<input name="title" required maxlength="200" placeholder="Una tarea de ejemplo…"></label><label class="field">Categoría<select name="category">${options('personal')}</select></label><div class="modal-footer"><button class="btn primary" type="submit">Crear en la demo</button></div></form>`);return;}
  if(action==='new-event'){eventModal();return;}
+ if(action==='finance-add'){await financeModal();return;}
+ if(action==='finance-edit'){await financeModal(target.dataset.id);return;}
+ if(action==='finance-delete'){const positions=await api.request('GET','/finance/positions');const position=positions.find(p=>p.id===target.dataset.id);if(!position)throw new Error('Posición no encontrada.');modal('Eliminar posición',`<p class="modal-copy">Se eliminará <strong>${e(position.name)}</strong> de esta sesión de demostración.</p><div class="modal-footer">${btn('Cancelar','close')}${btn('Eliminar','finance-confirm-delete','danger',`data-id="${e(position.id)}"`)}</div>`);return;}
+ if(action==='finance-confirm-delete'){await api.request('DELETE',`/finance/positions/${target.dataset.id}`);dialog.close();await render();toast('Posición eliminada de la demo.');return;}
+ if(action==='finance-snapshot'){await api.request('POST','/finance/snapshots',{});await render();toast('Valoración de hoy guardada en la sesión.');return;}
  if(action==='integration'||action==='nextcloud'){const id=action==='nextcloud'?'nextcloud':target.dataset.id;modal(`Integración: ${id}`,`<p class="modal-copy">Estado: pendiente de implementación y pruebas con el servicio real.</p><pre class="code">UI → Lisa API → autorización → adaptador\n\n${e(id)}\n\nSin tokens ni credenciales en el frontend.\nLa conexión se configurará en el servidor.</pre><p class="modal-copy">Las capacidades se publicarán desde /api/v1/bootstrap. El contrato completo está en contracts/openapi.mjs y en la especificación del repositorio.</p>${btn('Conexión no disponible en demo','none','','disabled')}`);return;}
  if(action.startsWith('computer-')){const transitions={'computer-wait':'waiting','computer-take':'human','computer-release':'waiting','computer-stop':'paused'};state.computer=transitions[action];api.log('computer.simulation',state.computer);await render();toast('Transición visual simulada. No se ha controlado ningún ordenador.');return;}
  if(action==='dev-proposal'){modal('Proponer un cambio de interfaz',`<form data-form="developer"><label class="field">Describe el cambio<textarea name="content" maxlength="4000" required placeholder="Por ejemplo: añadir una vista de documentos pendientes…"></textarea></label><div class="note-box">Se mostrará una propuesta visual. No se ejecutarán comandos, cambios en Git ni despliegues.</div><div class="modal-footer"><button class="btn primary" type="submit">Revisar propuesta</button></div></form>`);return;}
@@ -1146,6 +1339,7 @@ document.addEventListener('click',async ev=>{const target=ev.target.closest('but
  if(target.dataset.new){await newChat(target.dataset.new);return;}
  if(target.dataset.agent){const projects=await api.request('GET','/projects');const project=projects.find(p=>p.agentId===target.dataset.agent);await newChat('agent',target.dataset.agent,project?.id||null);return;}
  if(target.dataset.chat){state.chatId=target.dataset.chat;nav('chat');return;}
+ if(target.dataset.financeRange){state.financeRange=target.dataset.financeRange;await render();return;}
  if(target.hasAttribute('data-category')){state.category=target.dataset.category;await render();return;}
  if(target.dataset.knowledge){state.knowledgeId=target.dataset.knowledge;state.knowledgeMode='read';await render();return;}
  if(target.hasAttribute('data-knowledge-category')){state.knowledgeCategory=target.dataset.knowledgeCategory;state.knowledgeId=null;state.knowledgeMode='read';await render();return;}
@@ -1164,6 +1358,7 @@ document.addEventListener('submit',async ev=>{const form=ev.target;if(!form.data
  if(kind==='knowledge-edit'){const updated=await api.request('PATCH',`/knowledge/${body.id}`,{title:body.title,content:body.content,expectedRevision:Number(body.expectedRevision)});state.knowledgeId=updated.id;state.knowledgeMode='read';await render();toast(`Memoria actualizada · revisión v${updated.revision}.`);return;}
  if(kind==='task'){await api.request('POST','/tasks',body);dialog.close();await render();toast('Tarea creada en la demo.');return;}
  if(kind==='event'){await api.request('POST','/events',body);dialog.close();await render();toast('Evento de ejemplo creado.');return;}
+ if(kind==='finance-position'){const id=String(body.id||'');delete body.id;if(id)await api.request('PATCH',`/finance/positions/${id}`,body);else await api.request('POST','/finance/positions',body);dialog.close();await render();toast(id?'Posición actualizada.':'Posición añadida a la demo.');return;}
  if(kind==='developer'){dialog.close();modal('Propuesta · sin ejecutar',`<p class="modal-copy">${e(body.content)}</p><pre class="code">Estado: propuesta de demostración\nDestino: nueva rama de código\nDatos: solo fixtures\nValidaciones: tests, diff, preview\nPublicación: aprobación humana</pre><div class="modal-footer">${btn('Cerrar','close')}${btn('Aplicar · backend pendiente','none','primary','disabled')}</div>`);return;}
  }catch(error){toast(error.message||'No se pudo completar la operación.');}});
 document.addEventListener('input',ev=>{if(ev.target?.id==='message')composerState().text=ev.target.value;if(ev.target?.id==='knowledge-search'){state.knowledgeQuery=ev.target.value;clearTimeout(globalThis.__knowledgeSearchTimer);globalThis.__knowledgeSearchTimer=setTimeout(()=>render().catch(error=>toast(error.message)),180);}if(ev.target?.id==='knowledge-markdown'){const preview=document.querySelector('#knowledge-live-preview');if(preview)preview.innerHTML=markdownReader(ev.target.value);}});
