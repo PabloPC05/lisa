@@ -2,7 +2,7 @@
 
 **Tu espacio personal de datos, conocimiento y agentes.** Lisa se diseña para vivir sobre tu propio servidor, con una interfaz reemplazable y sin entregar la propiedad de tus datos a un runtime de IA.
 
-**Estado a 23-09-2026: arquitectura integrada en `main` + UI interactiva v0.3 + contratos de API + prototipo Python anterior. No hay backend personal conectado ni datos reales migrados.**
+**Estado: arquitectura integrada en `main` + UI interactiva + contratos de API + plan de Lisa Memory Engine/segundo cerebro documentado + prototipo Python anterior. No hay backend personal conectado, Memory Engine operativo ni datos reales migrados.**
 
 ## Probar la interfaz
 
@@ -51,6 +51,21 @@ El diagrama es objetivo, no el despliegue actual. `apps/web` no contiene esa inf
 
 Nextcloud aporta APIs y sincronización; Lisa aporta su UI y contratos. PostgreSQL conserva metadatos y relaciones. Las credenciales pertenecen al broker, no a los modelos. Cambiar de UI o runtime no debe exigir migrar el corpus canónico.
 
+### Segundo cerebro y memoria futura
+
+Lisa tendrá una **memoria personal propia y compartida por todos los agentes**, desplegada en el futuro servidor privado. El diseño aprobado combina:
+
+- **Markdown portable** como conocimiento legible y editable;
+- **PostgreSQL** como estado estructurado de hechos, eventos, relaciones, revisiones y procedencia;
+- patrón **Current Truth + Timeline + Sources** para distinguir lo vigente del histórico;
+- **búsqueda híbrida** por texto, metadata y, tras evaluación, embeddings/pgvector;
+- un **Memory Ingestor** que proponga recuerdos desde fuentes autorizadas;
+- **Lisa Memory API + MCP interno** para que distintos runtimes consulten la misma memoria bajo ACL.
+
+PGLite queda como candidato local/de desarrollo. GBrain y OpenHuman son referencias de diseño; Mem0 y Graphiti no se adoptan como almacenes paralelos por defecto y solo se evaluarán si aportan una ventaja demostrable.
+
+La demo pública de Vercel no almacenará esta memoria. El detalle y las fases M01–M06 están en [17 · Memoria personal y segundo cerebro](docs/17-memoria-segundo-cerebro.md).
+
 ## API preparada, no abierta sin protección
 
 `DemoClient` y `HttpClient` comparten `request(method, path, body)`. Las vistas usan actualmente **solo DemoClient**. El contrato OpenAPI 3.1 define **28 operaciones** sobre chats, conocimiento, archivos, calendario, tareas, acciones, control de escritorio y cambios de código.
@@ -83,6 +98,7 @@ El repositorio incluye `vercel.json`: raíz del repo, `npm run build`, salida `d
 | [13 · Integraciones](docs/13-integraciones.md) | Adapters y pruebas pendientes |
 | [14 · UI / publicación](docs/14-ui-despliegue.md) | Implementación real, Vercel y auditoría |
 | [15 · Backend](docs/15-api-y-flujos.md) | Modelos, transacciones, estados y contrato |
+| [17 · Memoria](docs/17-memoria-segundo-cerebro.md) | Segundo cerebro, Current Truth/Timeline, búsqueda híbrida, PostgreSQL y MCP |
 
 ## Prototipo Python conservado
 
