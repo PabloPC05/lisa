@@ -52,9 +52,22 @@ Se conservan B00 (especificación/prototipo inicial) y B19 (sesiones locales SQL
 | L29 | P2 | L18 | OCR/audio y embeddings solo tras benchmark de calidad/coste y aislamiento |
 | L30 | P2 | L17 | Canales adicionales, app/PWA offline parcial, import/export y notificaciones privadas |
 
+## Track de memoria personal
+
+Diseño confirmado; no está implementado. Este track desarrolla [17 · Memoria personal y segundo cerebro](17-memoria-segundo-cerebro.md) sin introducir otro almacén de verdad paralelo.
+
+| ID | Prioridad | Depende | Entrega / criterio de cierre |
+|---|---|---|---|
+| M01 | P0 | L09,L10 | Modelo y contratos de memoria: MemoryFact/Event/Source/Relation, revisiones, labels, scopes y procedencia |
+| M02 | P1 | M01,L14 | Markdown + Current Truth/Timeline: consolidación reversible, conflicto de revisión y exportación legible |
+| M03 | P1 | M02,L11 | Memory Ingestor sobre fixtures: candidatos, contradicciones y fuentes; ninguna promoción silenciosa fuera de política |
+| M04 | P1 | M02,L18 | Hybrid Search: keyword + metadata; benchmark antes de activar embeddings/pgvector |
+| M05 | P1 | M04,L15 | Lisa Memory API + MCP interno: dos runtimes recuperan la misma verdad bajo ACL y auditoría |
+| M06 | P2 | M05 | Evaluar Graphiti/Mem0 u otra capa solo contra casos y métricas reales; no desplegar por defecto |
+
 ## Siguiente tarea de ingeniería
 
-L08 y L09: convertir el contrato en DTOs/validadores y añadir un backend de prueba con identidad y denegación por defecto. Mantener DemoClient utilizable para revisar diseño. No empezar conectando una bóveda o corpus real a endpoints sin autenticación.
+L08 y L09: convertir el contrato en DTOs/validadores y añadir un backend de prueba con identidad y denegación por defecto. Mantener DemoClient utilizable para revisar diseño. No empezar conectando una bóveda o corpus real a endpoints sin autenticación. Después de L09/L10 puede arrancar M01; el Memory Engine no debe adelantarse a identidad, ACL y persistencia básica.
 
 ## Puertas de aceptación
 
