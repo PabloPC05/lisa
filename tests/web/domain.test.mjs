@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
-import {createConversation,saveConversation,promoteConversation,escapeHtml,AREAS} from '../../apps/web/domain.mjs';
+import {createConversation,saveConversation,promoteConversation,escapeHtml,AREAS,normalizeFinancePosition,financePositionMetrics,financeTotals} from '../../apps/web/domain.mjs';
 import {DemoClient,HttpClient} from '../../apps/web/client.mjs';
 import handler from '../../api/v1/[...path].js';
 
@@ -24,6 +24,23 @@ test('stale save revision rejected',async()=>{const a=new DemoClient();const c=a
 test('knowledge requires save, then proposal, then approval',async()=>{const a=new DemoClient();const c=await a.request('POST','/chats',{mode:'general'});await assert.rejects(()=>a.request('POST',`/chats/${c.id}/knowledge-proposals`,{title:'a',content:'b'}));await a.request('POST',`/chats/${c.id}/save`,{expectedRevision:1,category:'general'});const n=await a.request('POST',`/chats/${c.id}/knowledge-proposals`,{title:'Idea',content:'Example'});assert.equal(n.status,'proposed');assert.equal((await a.request('POST',`/knowledge/${n.id}/approve`)).status,'approved');});
 test('knowledge markdown updates create revisions and reject stale writes',async()=>{const a=new DemoClient();const note=(await a.request('GET','/knowledge'))[0];const updated=await a.request('PATCH',`/knowledge/${note.id}`,{title:note.title,content:'# Nueva revisión\n\nTexto **Markdown**.',expectedRevision:note.revision});assert.equal(updated.revision,note.revision+1);assert.match(updated.content,/Markdown/);await assert.rejects(()=>a.request('PATCH',`/knowledge/${note.id}`,{title:note.title,content:'stale',expectedRevision:note.revision}),/revisión/);});
 test('task lifecycle and audit',async()=>{const a=new DemoClient();const t=await a.request('POST','/tasks',{title:'Example',category:'personal'});const updated=await a.request('PATCH',`/tasks/${t.id}`,{done:true});assert.equal(updated.done,true);assert.equal((await a.request('GET','/audit')).length,2);});
+
+test('finance metrics convert positions to EUR and calculate return',()=>{
+ const position=normalizeFinancePosition({name:'Example ETF',symbol:'EX',type:'ETF',account:'Manual',quantity:10,avgPrice:100,currentPrice:110,currency:'USD',fxToEur:.85},'p1');
+ const metrics=financePositionMetrics(position);
+ assert.equal(metrics.invested,850);assert.equal(metrics.value,935);assert.equal(metrics.gain,85);assert.equal(Number(metrics.gainPct.toFixed(2)),10);
+ const totals=financeTotals([position]);assert.equal(totals.value,935);assert.equal(totals.gain,85);
+});
+
+test('finance position lifecycle and snapshots stay inside demo memory',async()=>{
+ const a=new DemoClient();const before=(await a.request('GET','/finance/positions')).length;
+ const created=await a.request('POST','/finance/positions',{name:'Example Bond',symbol:'BND',type:'Renta fija',account:'Manual',quantity:'5',avgPrice:'99',currentPrice:'101',currency:'EUR',fxToEur:'1'});
+ assert.equal((await a.request('GET','/finance/positions')).length,before+1);
+ const updated=await a.request('PATCH',`/finance/positions/${created.id}`,{currentPrice:'102'});
+ assert.equal(updated.currentPrice,102);
+ const snapshot=await a.request('POST','/finance/snapshots',{date:'2026-09-25'});assert.equal(snapshot.date,'2026-09-25');assert.ok(snapshot.value>0);
+ await a.request('DELETE',`/finance/positions/${created.id}`);assert.equal((await a.request('GET','/finance/positions')).length,before);
+});
 test('demo reset destroys saved conversations',async()=>{const a=new DemoClient();const c=await a.request('POST','/chats',{mode:'sandbox'});await a.request('POST',`/chats/${c.id}/save`,{expectedRevision:1,category:'general'});a.reset();assert.deepEqual(await a.request('GET','/chats'),[]);});
 test('no synthetic secret endpoint',async()=>{await assert.rejects(()=>new DemoClient().request('GET','/credentials/reveal'));});
 test('HTTP base only allows same-origin API',()=>{assert.throws(()=>new HttpClient('https://example.org'));assert.throws(()=>new HttpClient('//example.org'));});
