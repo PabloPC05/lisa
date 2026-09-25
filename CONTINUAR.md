@@ -54,11 +54,11 @@ Guardar en esta demo NO sobrevive a una recarga. Los chats creados dentro de pro
 2. Diseñar el adapter de fuentes de cartera (manual primero; Renta 4 u otros proveedores después) sin acoplar la UI al proveedor.
 3. L07: revisión visual del Inicio Cielo con el propietario; detalles de implementación y fuentes en 16.
 4. Skin Windows 98 exclusiva para Archivos, conservando capacidades modernas y backend desacoplado. No está incluida en el código actual.
-3. L08/L09: DTOs/validadores e identidad/CSRF/permisos con denegación por defecto; quitar acoplamientos de vistas a DemoClient.
-4. L10–L14: PostgreSQL, persistencia/retención, promoción idempotente, Nextcloud de prueba y mapping UUID/ETag/restauración.
-5. **M01–M05** después de L09/L10: modelo de memoria, Markdown Current Truth/Timeline, ingestor, búsqueda híbrida y MCP interno; ver docs/17. No introducir Mem0/Graphiti por defecto.
-6. L15–L18: runtime privado y Sandbox separados, modelo limitado, recuperación autorizada y evaluada de conocimiento.
-7. Después: calendario/tareas, broker 1Password y acciones, worker gráfico/takeover y Developer aislado.
+5. L08/L09: DTOs/validadores e identidad/CSRF/permisos con denegación por defecto; quitar acoplamientos de vistas a DemoClient.
+6. L10–L14: PostgreSQL, persistencia/retención, promoción idempotente, Nextcloud de prueba y mapping UUID/ETag/restauración.
+7. **M01–M05** después de L09/L10: modelo de memoria, Markdown Current Truth/Timeline, ingestor, búsqueda híbrida y MCP interno; ver docs/17. No introducir Mem0/Graphiti por defecto.
+8. L15–L18: runtime privado y Sandbox separados, modelo limitado, recuperación autorizada y evaluada de conocimiento.
+9. Después: calendario/tareas, broker 1Password y acciones, worker gráfico/takeover y Developer aislado.
 
 ## Decisiones de seguridad y arquitectura
 
