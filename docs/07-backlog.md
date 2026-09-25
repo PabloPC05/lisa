@@ -16,12 +16,12 @@ Se conservan B00 (especificación/prototipo inicial) y B19 (sesiones locales SQL
 | L03 | Contrato inicial | OpenAPI 3.1, 28 operaciones; DTOs de salida a concretar |
 | L04 | Pruebas/build | 21 tests Node + build, CI exitoso; Python previo pasa 3.11/3.12 |
 | L05 | Bundle autocontenido revisable | preview/index.html y contrato generados por CI |
+| L06 | Publicación Vercel de revisión | Proyecto `lisa` conectado al repo y deployment READY verificado; sigue sin backend personal |
 
 ## Pendiente: revisión y primer backend
 
 | ID | Prioridad | Depende | Entrega / criterio de cierre |
 |---|---|---|---|
-| L06 | P0 | L05 | Vercel: proyecto conectado a este repo, URL real verificada y despliegue READY; conector actual no lo ha permitido |
 | L07 | P0 | L01 | Auditoría de UI del propietario: dos flujos, móvil/teclado, estados y cambios de diseño registrados |
 | L08 | P0 | L03 | Concretar DTOs y validadores: frontend y backend pasan mismos casos, errores versionados |
 | L09 | P0 | L08 | Identidad/sesión/CSRF/ACL: solicitudes directas y agente falso rechazados antes de leer datos |
@@ -77,4 +77,4 @@ L08 y L09: convertir el contrato en DTOs/validadores y añadir un backend de pru
 4. Recuperación: restablecer identidad, permisos y datos sin repetir efectos externos.
 5. Piloto: presupuesto/retención/aprobaciones decididos y muestra expresamente autorizada.
 
-L06 no está completado: el fallo del conector Vercel se registra en 14. El repo y el artefacto local sí están disponibles para no bloquear la revisión.
+L06 está completado en su alcance de publicación de revisión. Esto no implica backend personal, memoria ni integraciones de producción.
