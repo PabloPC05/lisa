@@ -18,6 +18,7 @@ Actualizado: 25-09-2026. Una instrucción posterior explícita del propietario p
 | Inicio Cielo | Paisaje/cielo inspirado en Zainab Kabira 2026, sincronizado con la hora y conservando transparencias | Sustituye el fondo rojo/blanco del Inicio v0.4; conserva accesos operativos, widgets ligeros y sidebar |
 | Finanzas v0.6 | Aplicación de cartera para introducir posiciones, calcular valor/P&L, ver distribución y seguir evolución mediante valoraciones | Añade control financiero sin conectar todavía cuentas reales; fuente manual primero y adaptadores de bróker después |
 | Publicación comprobada | UI Sky desplegada en el proyecto Vercel lisa y URL verificada | Supera bloqueo de intentos previos; sigue siendo demo sin datos personales |
+| Memoria / segundo cerebro | Lisa Memory Engine como núcleo futuro: Markdown + PostgreSQL, Current Truth + Timeline + Sources, búsqueda híbrida y MCP interno | Consolida la memoria en Lisa; Mem0/Graphiti quedan como opciones evaluables y GBrain/OpenHuman como referencias |
 
 ## Confirmado por el propietario
 
@@ -32,6 +33,7 @@ Actualizado: 25-09-2026. Una instrucción posterior explícita del propietario p
 - Estilos específicos por aplicación. Solo Archivos tendrá estética del Explorador de Windows 98.
 - Inicio basado en https://www.awwwards.com/sites/zainab-kabira-portfolio-2026 : cielo/paisaje, hora del momento, transparencias y sensación de nube. No volver a un gestor de ventanas.
 - Finanzas como aplicación propia: poder introducir posiciones y revisar su evolución. Mantener la capa de datos desacoplada para conectar después fuentes como Renta 4 u otros proveedores sin rehacer la interfaz.
+- El segundo cerebro será infraestructura central de Lisa: Markdown portable y editable, PostgreSQL para estado estructurado, Current Truth + Timeline + procedencia, búsqueda híbrida y acceso común a agentes mediante Lisa API/MCP interno. PGLite puede evaluarse en local; el servidor futuro mantiene PostgreSQL como objetivo.
 
 ## Implementación actual
 
@@ -50,7 +52,9 @@ Actualizado: 25-09-2026. Una instrucción posterior explícita del propietario p
 
 ## Arquitectura técnica preferida
 
-Nextcloud para archivos/sync y CalDAV; PostgreSQL para metadatos/identidad/conversaciones; OpenClaw candidato detrás de adapter; AuthorizationService externo al prompt; broker 1Password; UI/código separados de datos.
+Nextcloud para archivos/sync y CalDAV; PostgreSQL para metadatos/identidad/conversaciones **y memoria estructurada**; Markdown como representación portable del conocimiento; Lisa Memory Engine con Current Truth + Timeline + Sources; búsqueda híbrida texto/metadata y vectores solo tras evaluación; MCP/API internos para compartir memoria entre agentes; OpenClaw candidato detrás de adapter; AuthorizationService externo al prompt; broker 1Password; UI/código separados de datos.
+
+GBrain y OpenHuman se usan como referencias de diseño, no como autoridades externas. Mem0 no será el corazón de la primera versión y Graphiti se evaluará solo si un grafo temporal aporta valor demostrado. Detalle: [17 · Memoria personal y segundo cerebro](17-memoria-segundo-cerebro.md).
 
 Nextcloud Tasks/CalDAV es primera alternativa a probar para tareas. Vikunja queda como opción si ofrece mejora comprobada. OpenFGA es candidato, no requisito obligatorio: empezar con ACL simples bien probadas no viola la arquitectura.
 
@@ -58,7 +62,7 @@ Nextcloud Tasks/CalDAV es primera alternativa a probar para tareas. Vikunja qued
 
 Revisión visual del propietario; skin local Win98 para Archivos; mayor riqueza del paisaje solo tras esa revisión. Astronomía/estaciones/clima no implementados ni necesarios para esta primera entrega.
 
-Framework/backend final; autenticación; host/VM/red privada; versiones/digests; inyección de secretos; permisos por cuenta; modelo/presupuesto; retención/backups; límites de acciones autónomas; elección definitiva de tareas. La publicación de la UI en Vercel ya no es pendiente.
+Framework/backend final; autenticación; host/VM/red privada; versiones/digests; inyección de secretos; permisos por cuenta; modelo/presupuesto; retención/backups; límites de acciones autónomas; elección definitiva de tareas; implementación y evaluación real del Lisa Memory Engine. La publicación de la UI en Vercel ya no es pendiente.
 
 ## Salvaguardas
 
