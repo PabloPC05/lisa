@@ -2,7 +2,7 @@
 
 **Tu espacio personal de datos, conocimiento y agentes.** Lisa se diseña para vivir sobre tu propio servidor, con una interfaz reemplazable y sin entregar la propiedad de tus datos a un runtime de IA.
 
-**Estado: arquitectura integrada en `main` + UI interactiva + contratos de API + plan de Lisa Memory Engine/segundo cerebro documentado + prototipo Python anterior. No hay backend personal conectado, Memory Engine operativo ni datos reales migrados.**
+**Estado: arquitectura integrada en `main` + UI interactiva + contratos de API + plan de Lisa Memory Engine/segundo cerebro documentado + investigación de chat web multicuenta + prototipo Python anterior. No hay backend personal conectado, Memory Engine operativo, gateway multicuenta ni datos reales migrados.**
 
 ## Probar la interfaz
 
@@ -66,6 +66,14 @@ PGLite queda como candidato local/de desarrollo. GBrain y OpenHuman son referenc
 
 La demo pública de Vercel no almacenará esta memoria. El detalle y las fases M01–M06 están en [17 · Memoria personal y segundo cerebro](docs/17-memoria-segundo-cerebro.md).
 
+### Chat web y cuentas de modelos
+
+El chat de preguntas y conversación general será la **web propia de Lisa**, accesible desde ordenador e iPhone. No requiere Pi, terminal ni un runtime de programación. Lisa conserva contexto, permisos y política de guardado; un adapter independiente conecta con el modelo.
+
+Se ha investigado **CLIProxyAPI como gateway opcional** para varias cuentas personales de Claude, afinidad por conversación y cambio al agotarse una cuenta. Es una propuesta experimental, no una integración activa ni autorizada por este documento. No se conectaron cuentas ni se probó su cuota. La memoria debe seguir funcionando si el gateway se sustituye; no habrá fallback de pago silencioso.
+
+Fuentes, límites de streaming, retención, seguridad y pruebas C00–C06: [18 · Chat web, contexto propio y cuentas de modelos](docs/18-chat-web-multicuenta.md).
+
 ## API preparada, no abierta sin protección
 
 `DemoClient` y `HttpClient` comparten `request(method, path, body)`. Las vistas usan actualmente **solo DemoClient**. El contrato OpenAPI 3.1 define **31 operaciones** sobre chats, conocimiento, archivos, calendario, tareas, finanzas, acciones, control de escritorio y cambios de código.
@@ -99,6 +107,7 @@ El repositorio incluye `vercel.json`: raíz del repo, `npm run build`, salida `d
 | [14 · UI / publicación](docs/14-ui-despliegue.md) | Implementación real, Vercel y auditoría |
 | [15 · Backend](docs/15-api-y-flujos.md) | Modelos, transacciones, estados y contrato |
 | [17 · Memoria](docs/17-memoria-segundo-cerebro.md) | Segundo cerebro, Current Truth/Timeline, búsqueda híbrida, PostgreSQL y MCP |
+| [18 · Chat web y multicuenta](docs/18-chat-web-multicuenta.md) | Lisa sin Pi obligatorio, gateway opcional, continuidad, seguridad y pruebas pendientes |
 
 ## Prototipo Python conservado
 
