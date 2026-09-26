@@ -1,6 +1,6 @@
 # 17 · Memoria personal y segundo cerebro
 
-Actualizado: 25-09-2026. **Decisión de arquitectura futura; no está implementada en la demo actual.** Este documento define cómo debe convertirse el conocimiento de Lisa en una memoria personal compartida por sus agentes cuando exista el backend del servidor privado.
+Actualizado: 26-09-2026. **Decisión de arquitectura futura; no está implementada en la demo actual.** Este documento define cómo debe convertirse el conocimiento de Lisa en una memoria personal compartida por sus agentes cuando exista el backend del servidor privado.
 
 ## 1. Objetivo
 
@@ -195,3 +195,13 @@ La primera versión útil debe demostrar que:
 - No hacer de Mem0, Graphiti, GBrain u OpenHuman una autoridad paralela.
 - No permitir que el modelo decida permisos o borre procedencia.
 - No convertir la demo pública en almacén de memoria personal.
+
+## 10. Relación con el chat web y las cuentas de modelos
+
+El cliente de preguntas será la web de Lisa; Pi o un CLI no son requisitos. El Context Builder consultará esta memoria mediante servicios autorizados y enviará solo el contexto pertinente al adapter del modelo. Historial de chat, memoria durable, contexto activo y caché del proveedor se mantienen separados.
+
+La investigación de [18 · Chat web y multicuenta](18-chat-web-multicuenta.md) evalúa CLIProxyAPI como gateway opcional para cambiar de cuenta sin perder el hilo. **No convierte el gateway en almacén de memoria ni condiciona M01–M06 a que las suscripciones admitan esa ruta.**
+
+Cambiar exclusivamente la cuenta de inferencia no crea un nuevo hecho de memoria, no duplica fuentes y no cambia el conversation_id. Cambiar de agente o promover contenido mantiene el flujo previo de nueva conversación y permisos revisados. Los reintentos deben revalidar acceso si cambian permisos; Sandbox sigue sin recall personal.
+
+Se conserva la política de guardado explícito fuera de proyecto. La continuidad multicuenta no autoriza retener todos los chats o convertirlos automáticamente en Current Truth. El track C06 comprobará la conexión entre chat y Memory API; todavía no está implementado.
