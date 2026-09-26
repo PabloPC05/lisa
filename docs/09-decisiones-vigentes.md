@@ -1,6 +1,6 @@
 # 09 · Decisiones vigentes y evolución
 
-Actualizado: 25-09-2026. Una instrucción posterior explícita del propietario prevalece. Mantener separados requisito confirmado, opción técnica propuesta y funcionalidad implementada.
+Actualizado: 26-09-2026. Una instrucción posterior explícita del propietario prevalece. Mantener separados requisito confirmado, opción técnica propuesta y funcionalidad implementada.
 
 ## Registro de cambios
 
@@ -19,6 +19,7 @@ Actualizado: 25-09-2026. Una instrucción posterior explícita del propietario p
 | Finanzas v0.6 | Aplicación de cartera para introducir posiciones, calcular valor/P&L, ver distribución y seguir evolución mediante valoraciones | Añade control financiero sin conectar todavía cuentas reales; fuente manual primero y adaptadores de bróker después |
 | Publicación comprobada | UI Sky desplegada en el proyecto Vercel lisa y URL verificada | Supera bloqueo de intentos previos; sigue siendo demo sin datos personales |
 | Memoria / segundo cerebro | Lisa Memory Engine como núcleo futuro: Markdown + PostgreSQL, Current Truth + Timeline + Sources, búsqueda híbrida y MCP interno | Consolida la memoria en Lisa; Mem0/Graphiti quedan como opciones evaluables y GBrain/OpenHuman como referencias |
+| Chat web y cuentas | Preguntas desde la web propia de Lisa; investigar gateway CLIProxyAPI y cambio automático entre cuentas personales conservando contexto | Descarta Pi/CLI como requisito del chat; conserva memoria propia, guardado explícito y permisos. Gateway propuesto, no conectado ni autorizado por esta decisión |
 
 ## Confirmado por el propietario
 
@@ -34,6 +35,7 @@ Actualizado: 25-09-2026. Una instrucción posterior explícita del propietario p
 - Inicio basado en https://www.awwwards.com/sites/zainab-kabira-portfolio-2026 : cielo/paisaje, hora del momento, transparencias y sensación de nube. No volver a un gestor de ventanas.
 - Finanzas como aplicación propia: poder introducir posiciones y revisar su evolución. Mantener la capa de datos desacoplada para conectar después fuentes como Renta 4 u otros proveedores sin rehacer la interfaz.
 - El segundo cerebro será infraestructura central de Lisa: Markdown portable y editable, PostgreSQL para estado estructurado, Current Truth + Timeline + procedencia, búsqueda híbrida y acceso común a agentes mediante Lisa API/MCP interno. PGLite puede evaluarse en local; el servidor futuro mantiene PostgreSQL como objetivo.
+- El chat de Lisa debe servir para preguntas y conversación general desde navegador de ordenador/iPhone, sin Pi, terminal ni agente de programación obligatorios. Investigar y documentar el uso de varias suscripciones de Claude a través de un gateway, con cambio por agotamiento y continuidad del contexto; no implementarlo todavía.
 
 ## Implementación actual
 
@@ -48,6 +50,7 @@ Actualizado: 25-09-2026. Una instrucción posterior explícita del propietario p
 - Chats de proyecto guardados automáticamente dentro del proyecto; fuera, guardado explícito. `pinned` y `archived` son navegación, no controles de acceso ni memoria.
 - Guardar no equivale a memoria: propuestas separadas y revisión explícita. Categoría no equivale a confidencialidad: preservar labels de fuentes al mover/promover.
 - Solo datos ficticios. No cuentas, archivos personales, modelos, terminal o escritorio remoto operativos.
+- Investigación de chat web/multicuenta en docs/18 y track C00–C06: solo documentación; sin gateway, credenciales, inferencia ni pruebas reales de cuota.
 - Vercel publicado por integración Git: https://lisa-ten-gray.vercel.app . Verificación de deployment READY y build-info Sky en CONTINUAR y 16. No interpretar esto como despliegue seguro del backend.
 
 ## Arquitectura técnica preferida
@@ -56,16 +59,22 @@ Nextcloud para archivos/sync y CalDAV; PostgreSQL para metadatos/identidad/conve
 
 GBrain y OpenHuman se usan como referencias de diseño, no como autoridades externas. Mem0 no será el corazón de la primera versión y Graphiti se evaluará solo si un grafo temporal aporta valor demostrado. Detalle: [17 · Memoria personal y segundo cerebro](17-memoria-segundo-cerebro.md).
 
+Para preguntas: UI propia → backend autorizado → contexto de Lisa → adapter de modelos. **CLIProxyAPI es un gateway opcional y sustituible**, no el Memory Engine. La ruta de suscripciones queda experimental/desactivada hasta verificar admisibilidad, costes y seguridad. Ningún fallback de pago o cambio de modelo será silencioso. Diseño, fuentes versionadas y pruebas pendientes: [18 · Chat web y multicuenta](18-chat-web-multicuenta.md).
+
+Cambiar solo la cuenta de inferencia, sin alterar agente/modo/permisos, mantiene la conversación. Cambiar de agente o promover contenido conserva el flujo anterior de nueva sesión y original intacto. No confundir afinidad de credencial con autorización ni con memoria durable.
+
 Nextcloud Tasks/CalDAV es primera alternativa a probar para tareas. Vikunja queda como opción si ofrece mejora comprobada. OpenFGA es candidato, no requisito obligatorio: empezar con ACL simples bien probadas no viola la arquitectura.
 
 ## Pendientes deliberados
 
 Revisión visual del propietario; skin local Win98 para Archivos; mayor riqueza del paisaje solo tras esa revisión. Astronomía/estaciones/clima no implementados ni necesarios para esta primera entrega.
 
-Framework/backend final; autenticación; host/VM/red privada; versiones/digests; inyección de secretos; permisos por cuenta; modelo/presupuesto; retención/backups; límites de acciones autónomas; elección definitiva de tareas; implementación y evaluación real del Lisa Memory Engine. La publicación de la UI en Vercel ya no es pendiente.
+Framework/backend final; autenticación; host/VM/red privada; versiones/digests; inyección de secretos; permisos por cuenta; modelo/presupuesto; retención/backups; límites de acciones autónomas; elección definitiva de tareas; implementación y evaluación real del Lisa Memory Engine; viabilidad y pruebas del gateway multicuenta. La publicación de la UI en Vercel ya no es pendiente.
 
 ## Salvaguardas
 
 No dar permisos por guardar un chat. No confundir contenedores con aislamiento físico. No prometer ocultamiento infalible de contraseñas en un navegador controlado por agentes. Validar capacidades de OpenClaw en la versión/host elegidos. Decisiones originales generales concretadas en 01/02/03/11/15.
 
 La UI de Nextcloud puede seguir disponible: no eliminar ni modificar su core. OpenBot/OpenMausBot/AG-UI son opciones de adapters futuros, no dependencias añadidas.
+
+No considerar autorizada una integración de suscripción porque un proxy funcione o el cambio sea manual. No exponer OAuth ni Management API en la demo pública. Si se descarta el gateway, conservar chat/memoria y sustituir el adapter sin habilitar gastos automáticamente; ver las fuentes y puertas de aceptación de 18.
